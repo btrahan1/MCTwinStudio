@@ -39,9 +39,10 @@
             scene.clearColor = new BABYLON.Color4(0.53, 0.81, 0.92, 1);
             var env = scene.createDefaultEnvironment({ createSkybox: false, createGround: false });
             scene.environmentIntensity = 0.6;
-            scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
-            scene.fogDensity = 0.01;
-            scene.fogColor = new BABYLON.Color3(0.53, 0.81, 0.92);
+            // Fog Removed by User Request
+            // scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
+            // scene.fogDensity = 0.01;
+            // scene.fogColor = new BABYLON.Color3(0.53, 0.81, 0.92);
 
             // Camera (Follow)
             const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 3, 50, new BABYLON.Vector3(0, 0, 0), scene);
@@ -121,24 +122,21 @@
                     // default facing is North (+Z) or South (-Z)? 
                     // Let's assume Forward is +Z.
 
+                    // WoW-Style Controls
+                    // A/D = Rotate
+                    const turnSpeed = 3.0 * dt;
+                    if (input.a) playerRoot.rotation.y -= turnSpeed;
+                    if (input.d) playerRoot.rotation.y += turnSpeed;
+
+                    // W/S = Move Forward/Back
+                    const forward = new BABYLON.Vector3(Math.sin(playerRoot.rotation.y), 0, Math.cos(playerRoot.rotation.y));
+
                     if (input.w) {
-                        playerRoot.position.z += speed;
-                        playerRoot.rotation.y = Math.PI; // Face North
+                        playerRoot.position.addInPlace(forward.scale(speed));
                         isMoving = true;
                     }
                     if (input.s) {
-                        playerRoot.position.z -= speed;
-                        playerRoot.rotation.y = 0; // Face South
-                        isMoving = true;
-                    }
-                    if (input.a) {
-                        playerRoot.position.x -= speed;
-                        playerRoot.rotation.y = -Math.PI / 2; // Face West
-                        isMoving = true;
-                    }
-                    if (input.d) {
-                        playerRoot.position.x += speed;
-                        playerRoot.rotation.y = Math.PI / 2; // Face East
+                        playerRoot.position.subtractInPlace(forward.scale(speed * 0.6));
                         isMoving = true;
                     }
 
