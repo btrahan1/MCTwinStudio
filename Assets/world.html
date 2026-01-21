@@ -45,10 +45,10 @@
             // scene.fogColor = new BABYLON.Color3(0.53, 0.81, 0.92);
 
             // Camera (Follow)
-            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 3, 50, new BABYLON.Vector3(0, 0, 0), scene);
+            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.2, 100, new BABYLON.Vector3(0, 16, 0), scene);
             camera.attachControl(canvas, true);
-            camera.lowerRadiusLimit = 10;
-            camera.upperRadiusLimit = 100;
+            camera.lowerRadiusLimit = 5;
+            camera.upperRadiusLimit = 2000;
             camera.wheelPrecision = 20;
 
             // Lighting
@@ -144,6 +144,7 @@
 
                     // Cam Follow
                     camera.target.x = playerRoot.position.x;
+                    camera.target.y = playerRoot.position.y + 16;
                     camera.target.z = playerRoot.position.z;
 
                     // Animation
@@ -335,6 +336,7 @@
 
                     // INITIAL POSITION
                     playerRoot.position.y = 12; // Half height of legs/body roughly
+                    playerRoot.rotation.y = 0; // Face +Z (Towards Camera at Alpha PI/2)
 
                     const parts = data.Parts;
                     const skinBase64 = data.Skin;
