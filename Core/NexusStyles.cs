@@ -20,6 +20,7 @@ namespace MCTwinStudio.Core
         public static Color AccentCyan = Color.FromArgb(6, 182, 212);    // AI Engine
         public static Color AccentGold = Color.FromArgb(245, 158, 11);    // System / Lights
         public static Color AccentAmber = Color.FromArgb(245, 158, 11);   // Source Code
+        public static Color AccentPink = Color.FromArgb(236, 72, 153);    // Creativity / World
 
         // Typography
         public static Font HeaderFont = new Font("Segoe UI Semibold", 10f);

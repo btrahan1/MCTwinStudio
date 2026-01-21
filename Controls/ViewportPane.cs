@@ -54,5 +54,13 @@ namespace MCTwinStudio.Controls
         {
              if (_webView?.CoreWebView2 != null) await _webView.ExecuteScriptAsync("window.MCTwin.clear();");
         }
+
+        public async void PlayAnimation(string name)
+        {
+            if (_webView?.CoreWebView2 != null) 
+            {
+                await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.setAnimation) window.MCTwin.setAnimation('{name}');");
+            }
+        }
     }
 }

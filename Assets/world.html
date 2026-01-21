@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>MCTwin // World Explorer</title>
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #87CEEB;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+</head>
+
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+        let shadowGenerator;
+        let playerRoot = null;
+
+        const createScene = function () {
+            const scene = new BABYLON.Scene(engine);
+
+            // Sky
+            scene.clearColor = new BABYLON.Color4(0.53, 0.81, 0.92, 1);
+            var env = scene.createDefaultEnvironment({ createSkybox: false, createGround: false });
+            scene.environmentIntensity = 0.6;
+            scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
+            scene.fogDensity = 0.01;
+            scene.fogColor = new BABYLON.Color3(0.53, 0.81, 0.92);
+
+            // Camera (Follow)
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 3, 50, new BABYLON.Vector3(0, 0, 0), scene);
+            camera.attachControl(canvas, true);
+            camera.lowerRadiusLimit = 10;
+            camera.upperRadiusLimit = 100;
+            camera.wheelPrecision = 20;
+
+            // Lighting
+            const sun = new BABYLON.DirectionalLight("sun", new BABYLON.Vector3(-1, -2, -1), scene);
+            sun.position = new BABYLON.Vector3(50, 100, 50);
+            sun.intensity = 1.0;
+
+            const hemi = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
+            hemi.intensity = 0.6;
+
+            shadowGenerator = new BABYLON.ShadowGenerator(2048, sun);
+            shadowGenerator.useBlurExponentialShadowMap = true;
+
+            // Ground
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 500, height: 500 }, scene);
+            const groundMat = new BABYLON.StandardMaterial("gMat", scene);
+            groundMat.diffuseColor = new BABYLON.Color3(0.3, 0.5, 0.2);
+            groundMat.specularColor = new BABYLON.Color3(0, 0, 0);
+
+            // Checkerboard
+            const chk = new BABYLON.Texture("https://assets.babylonjs.com/textures/checkerboard_base.png", scene);
+            chk.uScale = 50;
+            chk.vScale = 50;
+            groundMat.diffuseTexture = chk;
+
+            ground.material = groundMat;
+            ground.receiveShadows = true;
+
+            const meshMap = new Map();
+
+            // INPUT
+            const input = { w: false, s: false, a: false, d: false };
+            window.addEventListener("keydown", (e) => {
+                switch (e.key.toLowerCase()) {
+                    case "w": input.w = true; break;
+                    case "s": input.s = true; break;
+                    case "a": input.a = true; break;
+                    case "d": input.d = true; break;
+                }
+            });
+            window.addEventListener("keyup", (e) => {
+                switch (e.key.toLowerCase()) {
+                    case "w": input.w = false; break;
+                    case "s": input.s = false; break;
+                    case "a": input.a = false; break;
+                    case "d": input.d = false; break;
+                }
+            });
+
+            // ANIMATION & MOVEMENT
+            let animTime = 0;
+            let isMoving = false;
+
+            scene.registerBeforeRender(function () {
+                const dt = engine.getDeltaTime() / 1000.0;
+                animTime += dt;
+
+                if (playerRoot) {
+                    const speed = 20 * dt;
+                    isMoving = false;
+
+                    // Rotation
+                    // A/D rotate the body?
+                    // Let's do "Tank Controls" for simplicity, or "Camera Relative"
+                    // Tank Controls: A/D Rotate, W/S Move
+                    // But Camera is ArcRotate...
+                    // Let's just do World Space movement for now:
+                    // W = -Z (North), S = +Z (South), A = -X (West), D = +X (East)
+
+                    // Actually, let's just do simple Tank Controls relative to character facing.
+                    // default facing is North (+Z) or South (-Z)? 
+                    // Let's assume Forward is +Z.
+
+                    if (input.w) {
+                        playerRoot.position.z += speed;
+                        playerRoot.rotation.y = Math.PI; // Face North
+                        isMoving = true;
+                    }
+                    if (input.s) {
+                        playerRoot.position.z -= speed;
+                        playerRoot.rotation.y = 0; // Face South
+                        isMoving = true;
+                    }
+                    if (input.a) {
+                        playerRoot.position.x -= speed;
+                        playerRoot.rotation.y = -Math.PI / 2; // Face West
+                        isMoving = true;
+                    }
+                    if (input.d) {
+                        playerRoot.position.x += speed;
+                        playerRoot.rotation.y = Math.PI / 2; // Face East
+                        isMoving = true;
+                    }
+
+                    // Diagonals override rotation, but position works
+
+                    // Cam Follow
+                    camera.target.x = playerRoot.position.x;
+                    camera.target.z = playerRoot.position.z;
+
+                    // Animation
+                    const legR = meshMap.get("RightLeg");
+                    const legL = meshMap.get("LeftLeg");
+                    const armR = meshMap.get("RightArm");
+                    const armL = meshMap.get("LeftArm");
+
+                    if (isMoving) {
+                        const wSpeed = 10;
+                        const phase = Math.sin(animTime * wSpeed);
+                        if (legR) legR.rotation.x = phase * 0.8;
+                        if (legL) legL.rotation.x = -phase * 0.8;
+                        if (armR) armR.rotation.x = -phase * 0.8;
+                        if (armL) armL.rotation.x = phase * 0.8;
+                    } else {
+                        // Idle
+                        [legR, legL, armR, armL].forEach(m => { if (m) m.rotation.x = 0; });
+                        if (armR) armR.rotation.z = 0.05 + Math.sin(animTime) * 0.05;
+                        if (armL) armL.rotation.z = -0.05 - Math.sin(animTime) * 0.05;
+                    }
+                }
+            });
+
+
+            window.MCTwin = {
+                clear: function () {
+                    if (playerRoot) { playerRoot.dispose(); playerRoot = null; }
+                    meshMap.clear();
+                },
+
+                renderModel: function (data) {
+                    this.clear();
+                    if (!data || !data.Parts) return;
+
+                    playerRoot = new BABYLON.TransformNode("root", scene);
+
+                    // INITIAL POSITION
+                    playerRoot.position.y = 12; // Half height of legs/body roughly
+
+                    const parts = data.Parts;
+                    const skinBase64 = data.Skin;
+
+                    let mat = null;
+                    if (skinBase64) {
+                        const tex = new BABYLON.Texture(skinBase64, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+                        tex.hasAlpha = true;
+                        mat = new BABYLON.StandardMaterial("skinMat", scene);
+                        mat.diffuseTexture = tex;
+                        mat.specularColor = new BABYLON.Color3(0, 0, 0);
+                        mat.backFaceCulling = true;
+                        mat.useAlphaFromDiffuseTexture = true;
+                    }
+
+                    parts.forEach(p => {
+                        // ... UV Logic (Same as viewer.html) ...
+                        const w = p.Dimensions[0];
+                        const h = p.Dimensions[1];
+                        const d = p.Dimensions[2];
+                        const tw = (p.TextureDimensions && p.TextureDimensions[0]) ? p.TextureDimensions[0] : w;
+                        const th = (p.TextureDimensions && p.TextureDimensions[1]) ? p.TextureDimensions[1] : h;
+                        const td = (p.TextureDimensions && p.TextureDimensions[2]) ? p.TextureDimensions[2] : d;
+                        const u0 = p.TextureOffset[0];
+                        const v0 = p.TextureOffset[1];
+                        const pixel = 1.0 / 64.0;
+                        const getUV = (xPixel, yPixel, wPixel, hPixel) => {
+                            const uMin = xPixel * pixel;
+                            const uMax = (xPixel + wPixel) * pixel;
+                            const vMax = 1.0 - (yPixel * pixel);
+                            const vMin = 1.0 - ((yPixel + hPixel) * pixel);
+                            return new BABYLON.Vector4(uMin, vMin, uMax, vMax);
+                        };
+                        const faceUV = [];
+                        faceUV[0] = getUV(u0 + td, v0 + td, tw, th);
+                        faceUV[1] = getUV(u0 + td + tw + td, v0 + td, tw, th);
+                        faceUV[2] = getUV(u0, v0 + td, td, th);
+                        faceUV[3] = getUV(u0 + td + tw, v0 + td, td, th);
+                        faceUV[4] = getUV(u0 + td, v0, tw, td);
+                        faceUV[5] = getUV(u0 + td + tw, v0, tw, td);
+
+                        const mesh = BABYLON.MeshBuilder.CreateBox(p.Name, {
+                            width: w, height: h, depth: d, faceUV: faceUV, wrap: true
+                        }, scene);
+
+                        // PARENT TO ROOT
+                        mesh.parent = playerRoot;
+
+                        // Local Position relative to Root
+                        // p.Offset is Global
+                        mesh.position.set(p.Offset[0], p.Offset[1], p.Offset[2]);
+                        // Note: -12 is hack strictly for "Standing on ground" if root is at 0?
+                        // Actually, let's keep root at 0,0,0 and just set mesh positions as given.
+                        // But if HumanoidModel offsets are like 0,24,0...
+
+                        // Let's reset root to 0,0,0
+                        // And adjust camera target
+
+                        if (p.Pivot && (p.Pivot[0] !== 0 || p.Pivot[1] !== 0 || p.Pivot[2] !== 0)) {
+                            // Pivot is Global in HumanoidModel?
+                            // Babylon setPivotPoint is Local.
+                            // This is tricky. Let's ignore complex pivot logic here for simplicity and rely on center.
+                            // Actually, arms rotate around shoulder.
+                            mesh.setPivotPoint(new BABYLON.Vector3(p.Pivot[0], p.Pivot[1], p.Pivot[2]));
+                            // Wait, p.Pivot in HumanoidModel was (0, 22, 0) global.
+                            // setPivotPoint expects Local relative to mesh center? Or Local Space?
+                            // "define the pivot point in the object local space".
+                            // If mesh is at (0, 24, 0), pivot at (0,22,0) implies local y = -2.
+                            // We need to calculate Local Pivot.
+
+                            const localP = new BABYLON.Vector3(
+                                p.Pivot[0] - p.Offset[0],
+                                p.Pivot[1] - p.Offset[1],
+                                p.Pivot[2] - p.Offset[2]
+                            );
+                            mesh.setPivotPoint(localP);
+                        }
+
+                        if (p.Rotation) {
+                            mesh.rotation.x = BABYLON.Tools.ToRadians(p.Rotation[0]);
+                            mesh.rotation.y = BABYLON.Tools.ToRadians(p.Rotation[1]);
+                            mesh.rotation.z = BABYLON.Tools.ToRadians(p.Rotation[2]);
+                        }
+
+                        if (mat) mesh.material = mat;
+                        else {
+                            const dumbMat = new BABYLON.StandardMaterial("dumb", scene);
+                            dumbMat.diffuseColor = p.HexColor ? BABYLON.Color3.FromHexString(p.HexColor) : new BABYLON.Color3(1, 1, 1);
+                            mesh.material = dumbMat;
+                        }
+
+                        shadowGenerator.addShadowCaster(mesh);
+                        meshMap.set(p.Name, mesh);
+                    });
+
+                    // Reset Root Position after building children
+                    playerRoot.position.y = 0;
+                }
+            };
+
+            var pipeline = new BABYLON.DefaultRenderingPipeline("pp", true, scene, [camera]);
+            pipeline.fxaaEnabled = true;
+
+            engine.runRenderLoop(() => scene.render());
+            return scene;
+        };
+        const scene = createScene();
+        window.addEventListener("resize", () => engine.resize());
+    </script>
+</body>
+
+</html>

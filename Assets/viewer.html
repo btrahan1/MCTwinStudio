@@ -190,6 +190,88 @@
             pipeline.samples = 1;
             pipeline.fxaaEnabled = false;
 
+            // ANIMATION SYSTEM
+            let animTime = 0;
+            let animState = "idle"; // idle, walk, run, wave
+
+            window.MCTwin.setAnimation = function (name) {
+                animState = name.toLowerCase();
+                animTime = 0; // Reset phase
+            };
+
+            scene.registerBeforeRender(function () {
+                animTime += engine.getDeltaTime() / 1000.0;
+
+                const head = meshMap.get("Head");
+                const hat = meshMap.get("Hat");
+                const body = meshMap.get("Body");
+                const rArm = meshMap.get("RightArm");
+                const lArm = meshMap.get("LeftArm");
+                const rLeg = meshMap.get("RightLeg");
+                const lLeg = meshMap.get("LeftLeg");
+                const rArmLayer = meshMap.get("RightArmLayer"); // If we add layers later
+                const lArmLayer = meshMap.get("LeftArmLayer");
+
+                if (animState === "idle") {
+                    // Breathing
+                    const breath = Math.sin(animTime * 2) * 0.05;
+                    if (rArm) rArm.rotation.z = breath + 0.1;
+                    if (lArm) lArm.rotation.z = -breath - 0.1;
+
+                    // Reset others
+                    if (rLeg) rLeg.rotation.x = 0;
+                    if (lLeg) lLeg.rotation.x = 0;
+                    if (head) head.rotation.y = Math.sin(animTime * 0.5) * 0.1;
+                    if (hat) hat.rotation.y = head ? head.rotation.y : 0;
+                }
+                else if (animState === "walk") {
+                    const speed = 5;
+                    const phase = Math.sin(animTime * speed);
+
+                    if (rLeg) rLeg.rotation.x = phase * 0.6;
+                    if (lLeg) lLeg.rotation.x = -phase * 0.6;
+
+                    if (rArm) { rArm.rotation.x = -phase * 0.6; rArm.rotation.z = 0.1; }
+                    if (lArm) { lArm.rotation.x = phase * 0.6; lArm.rotation.z = -0.1; }
+
+                    // Head bob
+                    /* if (head) head.position.y = phase * phase * 0.1 + (existing offset) */
+                }
+                else if (animState === "run") {
+                    const speed = 10;
+                    const phase = Math.sin(animTime * speed);
+
+                    if (rLeg) rLeg.rotation.x = phase * 0.8;
+                    if (lLeg) lLeg.rotation.x = -phase * 0.8;
+
+                    if (rArm) { rArm.rotation.x = -phase * 0.8; rArm.rotation.z = 0.2; }
+                    if (lArm) { lArm.rotation.x = phase * 0.8; lArm.rotation.z = -0.2; }
+
+                    if (body) body.rotation.x = 0.2; // Lean forward
+                }
+                else if (animState === "wave") {
+                    if (rArm) {
+                        rArm.rotation.x = Math.PI; // Up
+                        rArm.rotation.z = Math.PI - 0.5 + Math.sin(animTime * 10) * 0.5;
+                        rArm.rotation.y = 0;
+                    }
+                    if (lArm) { lArm.rotation.x = 0; lArm.rotation.z = -0.1; }
+                    if (rLeg) rLeg.rotation.x = 0;
+                    if (lLeg) lLeg.rotation.x = 0;
+                }
+                else {
+                    // Reset All
+                    [rArm, lArm, rLeg, lLeg, body, head].forEach(m => { if (m) { m.rotation.x = 0; m.rotation.y = 0; m.rotation.z = 0; } });
+                }
+
+                // Sync Hat to Head rotation if animating head
+                if (hat && head) {
+                    hat.rotation.x = head.rotation.x;
+                    hat.rotation.y = head.rotation.y;
+                    hat.rotation.z = head.rotation.z;
+                }
+            });
+
             engine.runRenderLoop(() => scene.render());
             return scene;
         };

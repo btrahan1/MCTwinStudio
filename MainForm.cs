@@ -43,6 +43,7 @@ namespace MCTwinStudio
 
         private SplitContainer _leftSplit = null!;
         private JsonPane _jsonViewer = null!;
+        private AnimationPane _animPane = null!;
         private Button _btnToggleJson = null!;
         private bool _isJsonExpanded = false;
 
@@ -65,8 +66,34 @@ namespace MCTwinStudio
             _leftSplit.Panel2.Controls.Add(_mainSplit);
             
             _options = new OptionsPane { Dock = DockStyle.Fill };
-            _sidebarSplit.Panel2.Controls.Add(_options);
-            _sidebarSplit.SplitterDistance = this.ClientSize.Width - 300; // slightly narrower sidebar
+            _animPane = new AnimationPane { Dock = DockStyle.Fill, Visible = false };
+            _animPane.AnimationRequested += (s, anim) => _viewport.PlayAnimation(anim);
+
+            // Custom Tab System for Sidebar
+            var tabContainer = new Panel { Dock = DockStyle.Top, Height = 40, BackColor = NexusStyles.BorderColor };
+            var contentContainer = new Panel { Dock = DockStyle.Fill };
+            
+            _sidebarSplit.Panel2.Controls.Add(contentContainer);
+            _sidebarSplit.Panel2.Controls.Add(tabContainer);
+            
+            contentContainer.Controls.Add(_options);
+            contentContainer.Controls.Add(_animPane);
+
+            var btnGen = CreateTabBtn("FORGE", tabContainer, true);
+            var btnAnim = CreateTabBtn("ACT", tabContainer, false);
+            
+            btnGen.Click += (s, e) => { 
+                _options.Visible = true; _animPane.Visible = false; 
+                HighlightTab(btnGen, true); HighlightTab(btnAnim, false); 
+            };
+            btnAnim.Click += (s, e) => { 
+                _options.Visible = false; _animPane.Visible = true; 
+                HighlightTab(btnGen, false); HighlightTab(btnAnim, true); 
+            };
+
+            _sidebarSplit.SplitterDistance = this.ClientSize.Width - 320; 
+
+            // Toggle Buttons Area
 
             // Toggle Buttons Area
             int btnY = 5;
@@ -108,7 +135,7 @@ namespace MCTwinStudio
             this.Controls.Add(_btnToggleJson);
             _btnToggleJson.BringToFront();
 
-            var pnlControl = new Panel { Height = 120, Dock = DockStyle.Bottom, BackColor = Color.FromArgb(30, 30, 35), Padding = new Padding(10) };
+            var pnlControl = new Panel { Height = 180, Dock = DockStyle.Bottom, BackColor = Color.FromArgb(30, 30, 35), Padding = new Padding(10) };
             _mainSplit.Panel1.Controls.Add(pnlControl);
             _txtPrompt = new TextBox { Dock = DockStyle.Fill, Multiline = true, BackColor = NexusStyles.CardColor, ForeColor = NexusStyles.AccentAmber, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Consolas", 12) };
             pnlControl.Controls.Add(_txtPrompt);
@@ -122,6 +149,16 @@ namespace MCTwinStudio
             var btnQuick = new Button { Text = "QUICK STEVE", Dock = DockStyle.Top, Height = 30, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.CardColor, ForeColor = NexusStyles.AccentCyan, Font = new Font("Segoe UI", 8, FontStyle.Bold) };
             btnQuick.Click += (s, e) => QuickSteve();
             pnlButtons.Controls.Add(btnQuick);
+
+            var btnExplore = new Button { Text = "EXPLORE", Dock = DockStyle.Top, Height = 40, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.CardColor, ForeColor = NexusStyles.AccentPink, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            btnExplore.Click += (s, e) => {
+                if (_currentModel is HumanoidModel h) {
+                    new WorldForm(h, _sharedEnv).Show();
+                } else {
+                    MessageBox.Show("Please Forge or Load a Humanoid model first.");
+                }
+            };
+            pnlButtons.Controls.Add(btnExplore);
 
             _btnSave = new Button { Text = "SAVE REFINED", Dock = DockStyle.Bottom, Height = 40, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.CardColor, ForeColor = NexusStyles.AccentEmerald, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
             _btnSave.Click += (s, e) => SaveAsset();
@@ -315,6 +352,36 @@ namespace MCTwinStudio
             _leftSplit.Panel1Collapsed = !_isJsonExpanded;
             _leftSplit.SplitterDistance = 400; // Default width
             _btnToggleJson.Text = _isJsonExpanded ? "HIDE JSON" : "SHOW JSON";
+        }
+
+        private Button CreateTabBtn(string text, Panel parent, bool active)
+        {
+            var btn = new Button {
+                Text = text,
+                Dock = DockStyle.Left,
+                Width = parent.Width / 2, // Approximate
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand,
+                Font = NexusStyles.HeaderFont,
+                Margin = Padding.Empty
+            };
+            btn.FlatAppearance.BorderSize = 0;
+            HighlightTab(btn, active);
+            parent.Controls.Add(btn);
+            // Fix width resize
+            parent.SizeChanged += (s,e) => btn.Width = parent.Width / 2;
+            return btn;
+        }
+
+        private void HighlightTab(Button btn, bool active)
+        {
+            if (active) {
+                btn.BackColor = NexusStyles.CardColor;
+                btn.ForeColor = NexusStyles.AccentCyan;
+            } else {
+                btn.BackColor = Color.FromArgb(40, 40, 45); // Darker
+                btn.ForeColor = Color.Gray;
+            }
         }
     }
 }
