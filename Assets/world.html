@@ -31,6 +31,7 @@
         const engine = new BABYLON.Engine(canvas, true);
         let shadowGenerator;
         let playerRoot = null;
+        let sun, hemi, ground, groundMat; // Exposed for updates
 
         const createScene = function () {
             const scene = new BABYLON.Scene(engine);
@@ -52,19 +53,19 @@
             camera.wheelPrecision = 20;
 
             // Lighting
-            const sun = new BABYLON.DirectionalLight("sun", new BABYLON.Vector3(-1, -2, -1), scene);
+            sun = new BABYLON.DirectionalLight("sun", new BABYLON.Vector3(-1, -2, -1), scene);
             sun.position = new BABYLON.Vector3(50, 100, 50);
             sun.intensity = 1.0;
 
-            const hemi = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
+            hemi = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
             hemi.intensity = 0.6;
 
             shadowGenerator = new BABYLON.ShadowGenerator(2048, sun);
             shadowGenerator.useBlurExponentialShadowMap = true;
 
             // Ground
-            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 500, height: 500 }, scene);
-            const groundMat = new BABYLON.StandardMaterial("gMat", scene);
+            ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 500, height: 500 }, scene);
+            groundMat = new BABYLON.StandardMaterial("gMat", scene);
             groundMat.diffuseColor = new BABYLON.Color3(0.3, 0.5, 0.2);
             groundMat.specularColor = new BABYLON.Color3(0, 0, 0);
 
@@ -307,6 +308,45 @@
                         }
                     } else {
                         this.spawnProp(data, container);
+                    }
+                },
+
+                updateWorld: function (config) {
+                    if (config.skyColor) {
+                        const c = BABYLON.Color3.FromHexString(config.skyColor);
+                        scene.clearColor = new BABYLON.Color4(c.r, c.g, c.b, 1.0);
+                    }
+                    if (config.groundColor) {
+                        groundMat.diffuseColor = BABYLON.Color3.FromHexString(config.groundColor);
+                    }
+                    if (config.lightIntensity !== undefined) {
+                        sun.intensity = config.lightIntensity;
+                        hemi.intensity = config.lightIntensity * 0.6;
+                    }
+                    if (config.groundVisible !== undefined) {
+                        ground.setEnabled(config.groundVisible);
+                    }
+                    if (config.groundSize !== undefined) {
+                        const s = config.groundSize / 500.0;
+                        ground.scaling = new BABYLON.Vector3(s, 1, s);
+                    }
+                    if (config.floorTheme) {
+                        const themes = {
+                            'Checker': { url: "https://assets.babylonjs.com/textures/checkerboard_base.png", scale: 50 },
+                            'Concrete': { url: "https://assets.babylonjs.com/textures/concrete.jpg", scale: 20 },
+                            'Wood': { url: "https://assets.babylonjs.com/textures/wood.jpg", scale: 10 },
+                            'Desert': { url: "https://assets.babylonjs.com/textures/sand.jpg", scale: 20 },
+                            'Grass': { url: "https://assets.babylonjs.com/textures/grass.png", scale: 50 },
+                            'Space': { url: "https://assets.babylonjs.com/textures/reflectivity.png", scale: 10 }
+                        };
+                        const theme = themes[config.floorTheme];
+                        if (theme) {
+                            const tex = new BABYLON.Texture(theme.url, scene);
+                            tex.uScale = theme.scale;
+                            tex.vScale = theme.scale;
+                            groundMat.diffuseTexture = tex;
+                            if (config.floorTheme === 'Space') groundMat.diffuseColor = new BABYLON.Color3(0.1, 0.1, 0.2);
+                        }
                     }
                 },
 
