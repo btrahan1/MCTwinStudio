@@ -57,5 +57,13 @@ namespace MCTwinStudio
             string script = $"window.MCTwin.renderModel({json});";
             await _webView.ExecuteScriptAsync(script);
         }
+
+        public async void ImportProp(string json)
+        {
+             if (_webView?.CoreWebView2 != null)
+             {
+                 await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.spawnRecipe) window.MCTwin.spawnRecipe({json});");
+             }
+        }
     }
 }

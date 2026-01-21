@@ -169,10 +169,162 @@
             });
 
 
+
+
+            // --- NEXUS BRIDGE INTEGRATION ---
+            const parseVec3 = (data, defaultVal = { x: 0, y: 0, z: 0 }) => {
+                if (!data) return new BABYLON.Vector3(defaultVal.x, defaultVal.y, defaultVal.z);
+                if (Array.isArray(data)) return new BABYLON.Vector3(data[0] ?? defaultVal.x, data[1] ?? defaultVal.y, data[2] ?? defaultVal.z);
+                if (typeof data === 'object') return new BABYLON.Vector3(data.x ?? defaultVal.x, data.y ?? defaultVal.y, data.z ?? defaultVal.z);
+                return new BABYLON.Vector3(defaultVal.x, defaultVal.y, defaultVal.z);
+            };
+
+            const createMaterial = (id, config) => {
+                const mat = new BABYLON.PBRMaterial("mat_" + id, scene);
+                let color = new BABYLON.Color3(0.5, 0.5, 0.5);
+                if (config.ColorHex) color = BABYLON.Color3.FromHexString(config.ColorHex);
+
+                mat.albedoColor = color;
+                mat.reflectivityColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+
+                const type = (config.Material || "Plastic").toLowerCase();
+
+                if (type.includes("metal") || type.includes("chrome")) {
+                    mat.metallic = 1.0; mat.roughness = 0.2;
+                } else if (type.includes("glass")) {
+                    mat.metallic = 0.1; mat.roughness = 0.1; mat.alpha = 0.3;
+                    mat.transparencyMode = BABYLON.PBRMaterial.PBRMATERIAL_ALPHABLEND;
+                } else if (type.includes("glow")) {
+                    mat.emissiveColor = color; mat.disableLighting = true;
+                } else {
+                    mat.metallic = 0.0; mat.roughness = 0.6;
+                }
+                return mat;
+            };
+
             window.MCTwin = {
                 clear: function () {
                     if (playerRoot) { playerRoot.dispose(); playerRoot = null; }
                     meshMap.clear();
+                    // Clear Props too? Maybe keep them? 
+                    // Let's keep props if we just reload skin.
+                },
+
+                propRegistry: {},
+                spawnProp: function (config, parentNode = null) {
+                    const id = config.Id || "prop_" + Date.now();
+
+                    let mesh;
+                    const shape = (config.Shape || "Box").toLowerCase();
+                    const scale = parseVec3(config.Scale, { x: 1, y: 1, z: 1 });
+
+                    try {
+                        switch (shape) {
+                            case "sphere": mesh = BABYLON.MeshBuilder.CreateSphere("prop_" + id, { diameter: 1, segments: 16 }, scene); break;
+                            case "cylinder": mesh = BABYLON.MeshBuilder.CreateCylinder("prop_" + id, { diameter: 1, height: 1, tessellation: 32 }, scene); break;
+                            case "plane": mesh = BABYLON.MeshBuilder.CreatePlane("prop_" + id, { size: 1 }, scene); mesh.rotation.x = Math.PI / 2; break;
+                            case "torus": mesh = BABYLON.MeshBuilder.CreateTorus("prop_" + id, { diameter: 1, thickness: 0.2, tessellation: 32 }, scene); break;
+                            case "capsule": mesh = BABYLON.MeshBuilder.CreateCapsule("prop_" + id, { radius: 0.5, height: 2, tessellation: 32 }, scene); break;
+                            default: mesh = BABYLON.MeshBuilder.CreateBox("prop_" + id, { size: 1 }, scene);
+                        }
+                    } catch (e) { mesh = BABYLON.MeshBuilder.CreateBox("prop_" + id, { size: 1 }, scene); }
+
+                    mesh.scaling = scale;
+                    this.propRegistry[id] = mesh;
+
+                    if (config.ParentId && this.propRegistry[config.ParentId]) {
+                        mesh.parent = this.propRegistry[config.ParentId];
+                    } else if (parentNode) {
+                        mesh.parent = parentNode;
+                    }
+
+                    // Raw Nexus Units (Meters)
+                    mesh.position = parseVec3(config.Position);
+
+                    const rot = parseVec3(config.Rotation);
+                    mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(rot.x), BABYLON.Tools.ToRadians(rot.y), BABYLON.Tools.ToRadians(rot.z));
+
+                    mesh.material = createMaterial(id, config);
+                    shadowGenerator.addShadowCaster(mesh);
+                    mesh.receiveShadows = true;
+
+                    return id;
+                },
+
+                spawnRecipe: function (json) {
+                    let data = json;
+                    if (typeof json === 'string') { try { data = JSON.parse(json); } catch (e) { console.error(e); return; } }
+
+                    const recipeId = data.Id || "recipe_" + Date.now();
+                    const container = new BABYLON.TransformNode(recipeId, scene);
+
+                    // Minecraft scaling: 16 units = 1 block.
+                    // Nexus 1.0 scale usually means 1 meter. 
+                    // Let's use 4.0 multiplier to make a human-sized suit look correct.
+                    const globalScaleMultiplier = 4.0;
+                    container.scaling = new BABYLON.Vector3(globalScaleMultiplier, globalScaleMultiplier, globalScaleMultiplier);
+
+                    if (playerRoot) {
+                        const forward = new BABYLON.Vector3(Math.sin(playerRoot.rotation.y), 0, Math.cos(playerRoot.rotation.y));
+                        const spawnPos = playerRoot.position.add(forward.scale(globalScaleMultiplier * 4));
+                        spawnPos.y = 0;
+                        container.position = spawnPos;
+                    }
+
+                    if (data.Parts && Array.isArray(data.Parts)) {
+                        console.log("Spawning Recipe: " + data.Name);
+
+                        // 1. Spawn All under container
+                        data.Parts.forEach(p => {
+                            this.spawnProp(p, container);
+                        });
+
+                        // 2. Re-Parent within recipe
+                        data.Parts.forEach(p => {
+                            if (p.ParentId && this.propRegistry[p.ParentId] && this.propRegistry[p.Id]) {
+                                this.propRegistry[p.Id].parent = this.propRegistry[p.ParentId];
+                            }
+                        });
+
+                        // 3. Auto-Grounding: Find the lowest point and lift the container
+                        let minY = Infinity;
+                        data.Parts.forEach(p => {
+                            const pos = parseVec3(p.Position);
+                            const scale = parseVec3(p.Scale, { x: 1, y: 1, z: 1 });
+                            // Approximate bottom (assuming center-origin primitives)
+                            // Most primitives (Box, Sphere, Cylinder) are 1.0 unit tall at scale 1.0
+                            let bottom = pos.y - (0.5 * scale.y);
+                            // Capsule is special (height: 2)
+                            if ((p.Shape || "").toLowerCase() === "capsule") bottom = pos.y - (1.0 * scale.y);
+
+                            if (bottom < minY) minY = bottom;
+                        });
+
+                        if (minY !== Infinity && minY < 0) {
+                            // Shift container up by -minY scaled
+                            container.position.y += Math.abs(minY) * globalScaleMultiplier;
+                        }
+                    } else {
+                        this.spawnProp(data, container);
+                    }
+                },
+
+                runTimeline: function (timeline) {
+                    timeline.forEach(event => {
+                        const target = this.propRegistry[event.TargetId];
+                        if (!target) return;
+                        const frameRate = 30;
+                        const duration = (event.Duration || 1) * frameRate;
+                        if (event.Action === "Move") {
+                            // Value is likely in Nexus Units (1m), but our world is 16x.
+                            const endPos = parseVec3(event.Value).scale(16);
+                            BABYLON.Animation.CreateAndStartAnimation("anim_mv_" + event.TargetId, target, "position", frameRate, duration, target.position, endPos, 0);
+                        } else if (event.Action === "Color" && target.material) {
+                            const endCol = parseVec3(event.Value); // [r,g,b] 0-1 range
+                            BABYLON.Animation.CreateAndStartAnimation("anim_col_" + event.TargetId, target.material, "albedoColor", frameRate, duration, target.material.albedoColor, new BABYLON.Color3(endCol.x, endCol.y, endCol.z), 0);
+                            if (target.material.emissiveColor) BABYLON.Animation.CreateAndStartAnimation("anim_emi_" + event.TargetId, target.material, "emissiveColor", frameRate, duration, target.material.emissiveColor, new BABYLON.Color3(endCol.x, endCol.y, endCol.z), 0);
+                        }
+                    });
                 },
 
                 renderModel: function (data) {

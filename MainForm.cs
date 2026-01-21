@@ -25,6 +25,7 @@ namespace MCTwinStudio
         private Button _btnSave = null!;
         private Button _btnToggleBrain = null!;
         private bool _isBrainExpanded = false;
+        private WorldForm? _activeWorld = null;
 
         private BaseModel? _currentModel = null;
         private string _currentDescription = "";
@@ -153,12 +154,32 @@ namespace MCTwinStudio
             var btnExplore = new Button { Text = "EXPLORE", Dock = DockStyle.Top, Height = 40, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.CardColor, ForeColor = NexusStyles.AccentPink, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
             btnExplore.Click += (s, e) => {
                 if (_currentModel is HumanoidModel h) {
-                    new WorldForm(h, _sharedEnv).Show();
+                    if (_activeWorld == null || _activeWorld.IsDisposed) {
+                        _activeWorld = new WorldForm(h, _sharedEnv);
+                        _activeWorld.Show();
+                    } else {
+                        _activeWorld.BringToFront();
+                    }
                 } else {
                     MessageBox.Show("Please Forge or Load a Humanoid model first.");
                 }
             };
             pnlButtons.Controls.Add(btnExplore);
+
+            var btnImport = new Button { Text = "IMPORT PROP", Dock = DockStyle.Top, Height = 40, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.CardColor, ForeColor = NexusStyles.AccentGold, Font = new Font("Segoe UI", 8, FontStyle.Bold) };
+            btnImport.Click += (s, e) => {
+                if (_activeWorld == null || _activeWorld.IsDisposed) { MessageBox.Show("Please open World Explorer first."); return; }
+                
+                using (var ofd = new OpenFileDialog { Filter = "JSON Files|*.json|All Files|*.*", Title = "Import Prop from Nexus" }) {
+                     if (ofd.ShowDialog() == DialogResult.OK) {
+                         try {
+                             string json = System.IO.File.ReadAllText(ofd.FileName);
+                             _activeWorld.ImportProp(json);
+                         } catch (Exception ex) { MessageBox.Show("Error loading prop: " + ex.Message); }
+                     }
+                }
+            };
+            pnlButtons.Controls.Add(btnImport);
 
             _btnSave = new Button { Text = "SAVE REFINED", Dock = DockStyle.Bottom, Height = 40, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.CardColor, ForeColor = NexusStyles.AccentEmerald, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
             _btnSave.Click += (s, e) => SaveAsset();
