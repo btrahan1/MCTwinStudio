@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCTwin // Capsule Edition</title>>
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1c;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+</head>
+
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+        let shadowGenerator;
+
+        const createScene = function () {
+            const scene = new BABYLON.Scene(engine);
+
+            // 1. BEAUTIFUL LIGHTING (The "Wow" Factor)
+            var env = scene.createDefaultEnvironment({
+                createSkybox: false,
+                createGround: false,
+                environmentTexture: "https://assets.babylonjs.com/environments/environmentSpecular.env"
+            });
+            scene.environmentTexture = env.environmentTexture;
+            scene.environmentIntensity = 1.2; // Boost reflections
+
+            // Camera
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 10, new BABYLON.Vector3(0, 1, 0), scene);
+            camera.attachControl(canvas, true);
+            camera.wheelPrecision = 50;
+
+            // Visuals - Restoring the Sandy Desert Atmosphere
+            scene.clearColor = new BABYLON.Color4(0.8, 0.5, 0.2, 1);
+            scene.fogMode = BABYLON.Scene.FOGMODE_EXP2;
+            scene.fogDensity = 0.015;
+            scene.fogColor = new BABYLON.Color3(0.8, 0.5, 0.2);
+
+            // Fill Light (Bouncing sand-colored light up from below)
+            const hemi = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
+            hemi.intensity = 0.7;
+            hemi.groundColor = new BABYLON.Color3(0.5, 0.3, 0.1); // Sand bounce
+
+            const sun = new BABYLON.DirectionalLight("sun", new BABYLON.Vector3(-1, -2, -1), scene);
+            sun.position = new BABYLON.Vector3(20, 40, 20);
+            sun.intensity = 1.8; // Boost main light
+
+            // A softer light from the front-left to illuminate the face/chest
+            const fillLight = new BABYLON.DirectionalLight("fill", new BABYLON.Vector3(1, -0.5, 1), scene);
+            fillLight.intensity = 0.6;
+            fillLight.specular = new BABYLON.Color3(0, 0, 0); // Don't create shiny spots, just light up the darks
+
+            shadowGenerator = new BABYLON.ShadowGenerator(2048, sun);
+            shadowGenerator.useBlurExponentialShadowMap = true;
+
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 500, height: 500 }, scene);
+            const groundMat = new BABYLON.PBRMaterial("gMat", scene);
+            groundMat.albedoColor = new BABYLON.Color3(0.8, 0.5, 0.2); // Sandy Sand
+            groundMat.roughness = 0.8;
+            groundMat.metallic = 0.0;
+            ground.material = groundMat;
+            ground.receiveShadows = true;
+
+            const meshMap = new Map();
+
+            // 2. THE SIMPLIFIED BUILDER
+            window.MCTwin = {
+                clear: function () {
+                    meshMap.forEach(m => m.dispose());
+                    meshMap.clear();
+                },
+                spawn: function (p) {
+                    if (!p) return;
+                    const name = p.Id || ("mesh_" + Math.random());
+                    const shape = (p.Shape || "Box").toLowerCase();
+                    let mesh;
+
+                    try {
+                        // SCALING LOGIC:
+                        // AI sometimes sends Scale: [x,y,z], sometimes Radius/Height.
+                        // We prioritize Radius/Height for Capsules/Cylinders/Spheres.
+
+                        const sX = p.Scale ? (Array.isArray(p.Scale) ? p.Scale[0] : p.Scale) : 1;
+                        const sY = p.Scale ? (Array.isArray(p.Scale) ? p.Scale[1] : p.Scale) : 1;
+                        const sZ = p.Scale ? (Array.isArray(p.Scale) ? p.Scale[2] : p.Scale) : 1;
+
+                        const radius = p.Radius || (sX / 2);
+                        const height = p.Height || sY;
+
+                        if (shape === "box") {
+                            mesh = BABYLON.MeshBuilder.CreateBox(name, { width: sX, height: sY, depth: sZ }, scene);
+                        }
+                        else if (shape === "sphere") {
+                            mesh = BABYLON.MeshBuilder.CreateSphere(name, { diameter: radius * 2 }, scene);
+                        }
+                        else if (shape === "cylinder") {
+                            mesh = BABYLON.MeshBuilder.CreateCylinder(name, { diameter: radius * 2, height: height }, scene);
+                        }
+                        else if (shape === "cone") {
+                            mesh = BABYLON.MeshBuilder.CreateCylinder(name, { diameterTop: 0, diameterBottom: radius * 2, height: height }, scene);
+                        }
+                        else if (shape === "capsule") {
+                            // CAPSULE: The Key to Organics
+                            mesh = BABYLON.MeshBuilder.CreateCapsule(name, {
+                                radius: radius,
+                                height: height,
+                                tessellation: 16,
+                                capSubdivisions: 6
+                            }, scene);
+                        }
+                        else {
+                            // Fallback
+                            mesh = BABYLON.MeshBuilder.CreateBox(name, { size: 1 }, scene);
+                        }
+
+                        // Position
+                        if (p.Position) mesh.position.set(p.Position[0], p.Position[1], p.Position[2]);
+
+                        // Rotation
+                        if (p.Rotation) {
+                            mesh.rotation.x = BABYLON.Tools.ToRadians(p.Rotation[0]);
+                            mesh.rotation.y = BABYLON.Tools.ToRadians(p.Rotation[1]);
+                            mesh.rotation.z = BABYLON.Tools.ToRadians(p.Rotation[2]);
+                        }
+
+                        // Material
+                        const mat = new BABYLON.PBRMaterial(name + "_mat", scene);
+                        if (p.ColorHex) mat.albedoColor = BABYLON.Color3.FromHexString(p.ColorHex);
+
+                        const matType = (p.Material || "Plastic").toLowerCase();
+                        if (matType === "metal") { mat.metallic = 1.0; mat.roughness = 0.3; }
+                        else if (matType === "gold") { mat.metallic = 1.0; mat.roughness = 0.2; mat.albedoColor = new BABYLON.Color3(1, 0.8, 0.2); }
+                        else if (matType === "stone") { mat.metallic = 0.0; mat.roughness = 0.9; }
+                        else if (matType === "glow") { mat.emissiveColor = mat.albedoColor; mat.disableLighting = true; }
+                        else { mat.metallic = 0.0; mat.roughness = 0.5; } // Plastic
+
+                        mesh.material = mat;
+                        mesh.receiveShadows = true;
+                        shadowGenerator.addShadowCaster(mesh);
+
+                        // Parenting
+                        if (p.ParentId && meshMap.has(p.ParentId)) {
+                            mesh.parent = meshMap.get(p.ParentId);
+                        }
+
+                        // Cartoon Outline (Makes it look like art)
+                        mesh.enableEdgesRendering();
+                        mesh.edgesWidth = 2.0;
+                        mesh.edgesColor = new BABYLON.Color4(0, 0, 0, 0.5);
+
+                        meshMap.set(name, mesh);
+
+                    } catch (e) { console.error("Error spawning " + name, e); }
+                }
+            };
+
+            // Post-Process
+            var pipeline = new BABYLON.DefaultRenderingPipeline("pp", true, scene, [camera]);
+            pipeline.bloomEnabled = true;
+            pipeline.bloomThreshold = 0.7;
+            pipeline.bloomWeight = 0.5;
+            pipeline.samples = 4; // Anti-aliasing
+
+            return scene;
+        };
+
+        const scene = createScene();
+        engine.runRenderLoop(() => scene.render());
+        window.addEventListener("resize", () => engine.resize());
+    </script>
+</body>
+
+</html>
