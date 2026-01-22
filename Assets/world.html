@@ -53,14 +53,13 @@
             // scene.fogDensity = 0.01;
             // scene.fogColor = new BABYLON.Color3(0.53, 0.81, 0.92);
 
-            // Camera (Follow) - Set to -Math.PI/2 to look from the FRONT (Negative Z)
-            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.2, 100, new BABYLON.Vector3(0, 16, 0), scene);
+            // Camera (Follow)
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.2, 8, new BABYLON.Vector3(0, 1, 0), scene);
             camera.attachControl(canvas, true);
-            camera.lowerRadiusLimit = 5;
-            camera.upperRadiusLimit = 2000;
-            camera.wheelPrecision = 6.0; // Responsive zoom
-            camera.panningSensibility = 100; // Lower is faster/more responsive
-            camera.panningMouseButton = 2;    // Explicitly set Right-Click (2)
+            camera.lowerRadiusLimit = 2;
+            camera.upperRadiusLimit = 200;
+            camera.wheelPrecision = 20;
+            camera.panningSensibility = 1000; camera.panningMouseButton = 2;    // Explicitly set Right-Click (2)
 
             // Lighting
             sun = new BABYLON.DirectionalLight("sun", new BABYLON.Vector3(-1, -2, -1), scene);
@@ -113,7 +112,7 @@
 
             window.addEventListener("keydown", (e) => {
                 if (e.key.toLowerCase() === "f" && playerRoot) {
-                    camera.setTarget(new BABYLON.Vector3(playerRoot.position.x, playerRoot.position.y + 16, playerRoot.position.z));
+                    camera.setTarget(new BABYLON.Vector3(playerRoot.position.x, playerRoot.position.y + 1, playerRoot.position.z));
                 }
             });
 
@@ -167,7 +166,7 @@
                 animTime += dt;
 
                 if (playerRoot) {
-                    const speed = 20 * dt;
+                    const speed = 2.5 * dt;
                     isMoving = false;
 
                     // Rotation
@@ -204,7 +203,7 @@
 
                     // Cam Follow
                     if (isMoving) {
-                        const desiredTarget = new BABYLON.Vector3(playerRoot.position.x, playerRoot.position.y + 16, playerRoot.position.z);
+                        const desiredTarget = new BABYLON.Vector3(playerRoot.position.x, playerRoot.position.y + 1, playerRoot.position.z);
                         camera.target = BABYLON.Vector3.Lerp(camera.target, desiredTarget, 0.1);
                     }
 
@@ -351,7 +350,7 @@
                     // Minecraft scaling: 16 units = 1 block.
                     // Nexus 1.0 scale usually means 1 meter. 
                     // Let's use 4.0 multiplier to make a human-sized suit look correct.
-                    const globalScaleMultiplier = 4.0;
+                    const globalScaleMultiplier = 1.0;
                     container.scaling = new BABYLON.Vector3(globalScaleMultiplier, globalScaleMultiplier, globalScaleMultiplier);
 
                     if (playerRoot) {
@@ -445,8 +444,7 @@
                         const frameRate = 30;
                         const duration = (event.Duration || 1) * frameRate;
                         if (event.Action === "Move") {
-                            // Value is likely in Nexus Units (1m), but our world is 16x.
-                            const endPos = parseVec3(event.Value).scale(16);
+                            const endPos = parseVec3(event.Value);
                             BABYLON.Animation.CreateAndStartAnimation("anim_mv_" + event.TargetId, target, "position", frameRate, duration, target.position, endPos, 0);
                         } else if (event.Action === "Color" && target.material) {
                             const endCol = parseVec3(event.Value); // [r,g,b] 0-1 range
@@ -507,15 +505,14 @@
                         faceUV[5] = getUV(u0 + td + tw, v0, tw, td);
 
                         const mesh = BABYLON.MeshBuilder.CreateBox(p.Name, {
-                            width: w, height: h, depth: d, faceUV: faceUV, wrap: true
+                            width: w / 16, height: h / 16, depth: d / 16, faceUV: faceUV, wrap: true
                         }, scene);
 
                         // PARENT TO ROOT
                         mesh.parent = playerRoot;
 
                         // Local Position relative to Root
-                        // p.Offset is Global
-                        mesh.position.set(p.Offset[0], p.Offset[1], p.Offset[2]);
+                        mesh.position.set(p.Offset[0] / 16, p.Offset[1] / 16, p.Offset[2] / 16);
                         // Note: -12 is hack strictly for "Standing on ground" if root is at 0?
                         // Actually, let's keep root at 0,0,0 and just set mesh positions as given.
                         // But if HumanoidModel offsets are like 0,24,0...

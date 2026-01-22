@@ -13,6 +13,7 @@ namespace MCTwinStudio.Controls
     {
         private WebView2 _webView = null!;
         public event EventHandler<string>? MeshSelected;
+        public event EventHandler<string>? LogReceived;
 
         public ViewportPane(CoreWebView2Environment env)
         {
@@ -30,6 +31,7 @@ namespace MCTwinStudio.Controls
             _webView.CoreWebView2.WebMessageReceived += (s, e) => {
                 string msg = e.TryGetWebMessageAsString();
                 if (msg.StartsWith("SELECT:")) MeshSelected?.Invoke(this, msg.Replace("SELECT:", ""));
+                if (msg.StartsWith("LOG:")) LogReceived?.Invoke(this, msg.Replace("LOG:", ""));
             };
             
             string htmlPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "viewer.html");
@@ -48,7 +50,17 @@ namespace MCTwinStudio.Controls
         }
 
         // Legacy support if needed, or remove
-        public async void ExecuteCommand(string json) { }
+        public async void RenderRecipe(string json)
+        {
+            if (_webView?.CoreWebView2 == null) return;
+            string script = $"window.MCTwin.renderRecipe({json});";
+            await _webView.ExecuteScriptAsync(script);
+        }
+
+        public async void ExecuteCommand(string json) 
+        {
+             RenderRecipe(json);
+        }
 
         public async void ClearScene()
         {

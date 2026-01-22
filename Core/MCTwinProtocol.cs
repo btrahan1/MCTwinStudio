@@ -4,7 +4,7 @@ namespace MCTwinStudio.Core
 {
     public static class MCTwinProtocol
     {
-        public const string SystemPrimer = @"
+        public const string VoxelPrimer = @"
 ## MCTWIN PROTOCOL: MINECRAFT ASSET ARCHITECT
 You are an expert Minecraft Modeler and Skinner.
 Your goal is to generate a JSON definition for a valid Minecraft Humanoid.
@@ -17,7 +17,7 @@ Your goal is to generate a JSON definition for a valid Minecraft Humanoid.
 ### SCHEMA:
 {
   ""Name"": ""EntityName"",
-  ""Type"": ""Humanoid"",
+  ""Type"": ""Voxel"",
   ""ProceduralColors"": {
     ""Skin"": ""#hex"",
     ""Shirt"": ""#hex"",
@@ -40,5 +40,28 @@ Your goal is to generate a JSON definition for a valid Minecraft Humanoid.
 - **Legs**: 48 Hex codes (4x12) for the LEG FRONT pattern (Symmetrical).
 - Use ""#TRANSPARENT"" for transparency if needed.
 ";
+
+        public const string ProceduralPrimer = @"
+## 3D ASSEMBLY SPECIFICATION (HI-FIDELITY)
+You are the LEAD DIRECTOR. Respond ONLY with JSON.
+### SCHEMA: Model Recipe
+{ ""Name"": ""ModelName"", ""Type"": ""Procedural"", ""Parts"": [ { ""Id"": ""uid"", ""ParentId"": ""optional"", ""Shape"": ""Box|Sphere|Cylinder|Cone|Capsule|Torus"", ""Position"": [x,y,z], ""Rotation"": [p,y,r], ""Scale"": [x,y,z], ""ColorHex"": ""#hex"", ""Material"": ""Plastic|Metal|Glass|Leather|Rubber|Glow"", ""Operation"": ""Union|Subtract"" } ],
+  ""Timeline"": [ { ""Time"": 0.0, ""Action"": ""Move|Rotate|Scale|Color"", ""TargetId"": ""uid"", ""Value"": [x,y,z], ""Duration"": 1.0 } ] }
+
+### COORDINATES SYSTEM (RIGHT-HANDED):
+1. Y is UP. Positive Y goes towards the sky.
+2. Z+ is FORWARD (Towards the Viewer). Z- is Depth (Away from Viewer).
+3. X+ is LEFT. X- is Right.
+4. Rotation [p,y,r] is DEGREES: Pitch (X), Yaw (Y), Roll (Z). Order: Y-X-Z.
+5. Scale is [x,y,z]. Primitives are normalized to 1-unit cubes/bounding boxes. 'Capsule' and 'Cylinder' are Y-UP by default.
+";
+
+        public static string GetPrimer(string artType)
+        {
+            return artType switch {
+                "Procedural" => ProceduralPrimer,
+                _ => VoxelPrimer
+            };
+        }
     }
 }

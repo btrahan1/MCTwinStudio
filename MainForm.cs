@@ -26,6 +26,12 @@ namespace MCTwinStudio
         private Button _btnToggleBrain = null!;
         private bool _isBrainExpanded = false;
         private WorldForm? _activeWorld = null;
+        private ListBox _lstConsole = null!;
+        private Button _btnToggleConsole = null!;
+        private bool _isConsoleExpanded = false;
+        private RadioButton _rbVoxel = null!;
+        private RadioButton _rbProcedural = null!;
+        private RadioButton _rbSculpted = null!;
 
         private BaseModel? _currentModel = null;
         private string _currentDescription = "";
@@ -136,10 +142,43 @@ namespace MCTwinStudio
             this.Controls.Add(_btnToggleJson);
             _btnToggleJson.BringToFront();
 
-            var pnlControl = new Panel { Height = 180, Dock = DockStyle.Bottom, BackColor = Color.FromArgb(30, 30, 35), Padding = new Padding(10) };
+            _btnToggleConsole = new Button
+            {
+                Text = "STUDIO CONSOLE",
+                Size = new Size(btnW, btnH),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = NexusStyles.CardColor,
+                ForeColor = Color.Lime,
+                Font = NexusStyles.HeaderFont,
+                Cursor = Cursors.Hand
+            };
+            _btnToggleConsole.Location = new Point(_btnToggleJson.Left - btnW - 10, btnY);
+            _btnToggleConsole.Click += (s, e) => ToggleConsole();
+            this.Controls.Add(_btnToggleConsole);
+            _btnToggleConsole.BringToFront();
+
+            var pnlControl = new Panel { Height = 220, Dock = DockStyle.Bottom, BackColor = Color.FromArgb(30, 30, 35), Padding = new Padding(10) };
             _mainSplit.Panel1.Controls.Add(pnlControl);
+
+            // Studio Console (Hidden by default)
+            _lstConsole = new ListBox { Dock = DockStyle.Fill, BackColor = Color.Black, ForeColor = Color.Lime, Font = new Font("Consolas", 9), BorderStyle = BorderStyle.None, Visible = false };
+            _mainSplit.Panel1.Controls.Add(_lstConsole);
+            _lstConsole.BringToFront();
+
+            // Art Type Selection
+            var pnlArtType = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 40, BackColor = Color.FromArgb(40, 40, 45), FlowDirection = FlowDirection.LeftToRight, Padding = new Padding(10, 5, 0, 0) };
+            pnlControl.Controls.Add(pnlArtType);
+
+            _rbVoxel = new RadioButton { Text = "VOXEL", Checked = true, ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 100 };
+            _rbProcedural = new RadioButton { Text = "PROCEDURAL", ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 120 };
+            _rbSculpted = new RadioButton { Text = "SCULPTED (.GLB)", ForeColor = Color.Gray, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 150, Enabled = false };
+            
+            pnlArtType.Controls.AddRange(new Control[] { _rbVoxel, _rbProcedural, _rbSculpted });
+
             _txtPrompt = new TextBox { Dock = DockStyle.Fill, Multiline = true, BackColor = NexusStyles.CardColor, ForeColor = NexusStyles.AccentAmber, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Consolas", 12) };
             pnlControl.Controls.Add(_txtPrompt);
+            _txtPrompt.BringToFront(); // Ensure it sits below the FlowPanel if Docking gets weird
 
             var pnlButtons = new Panel { Dock = DockStyle.Right, Width = 130, Padding = new Padding(5, 0, 0, 0) };
             pnlControl.Controls.Add(pnlButtons);
@@ -192,6 +231,7 @@ namespace MCTwinStudio
                 var args = "--disable-background-timer-throttling --disable-renderer-backgrounding --disable-features=CalculateNativeWinOcclusion"; 
                 _sharedEnv = await CoreWebView2Environment.CreateAsync(null, null, new CoreWebView2EnvironmentOptions(additionalBrowserArguments: args));
                 _viewport = new ViewportPane(_sharedEnv) { Dock = DockStyle.Fill };
+                _viewport.LogReceived += (s, msg) => AddLog(msg);
                 _mainSplit.Panel1.Controls.Add(_viewport);
                 _brain = new BrainPane(_sharedEnv) { Dock = DockStyle.Fill };
                 _brain.JsonResponseReceived += OnJsonResponseReceived;
@@ -205,21 +245,26 @@ namespace MCTwinStudio
             string userPrompt = _txtPrompt.Text.Trim();
             if (string.IsNullOrEmpty(userPrompt)) return;
             
-            // Build Region Instructions
-            var regions = new List<string>();
-            if (_options.GenerateFace) regions.Add("Face");
-            if (_options.GenerateChest) regions.Add("Chest");
-            if (_options.GenerateArms) regions.Add("Arms");
-            if (_options.GenerateLegs) regions.Add("Legs");
+            string artType = _rbProcedural.Checked ? "Procedural" : "Voxel";
+            string primer = MCTwinProtocol.GetPrimer(artType);
             
-            string instructions = "";
-            if (regions.Count > 0) {
-                instructions = $"\n\n[MANDATORY GENERATION RULES]\nGenerate pixel textures ONLY for these keys: {string.Join(", ", regions)}.\nOmit keys for unlisted regions.";
-            } else {
-                instructions = "\n\n[MANDATORY GENERATION RULES]\nDo NOT generate any pixel textures (Face, Chest, Arms, Legs). Only provide procedural hex colors.";
+            string fullPrompt = primer;
+            
+            if (artType == "Voxel") {
+                var regions = new List<string>();
+                if (_options.GenerateFace) regions.Add("Face");
+                if (_options.GenerateChest) regions.Add("Chest");
+                if (_options.GenerateArms) regions.Add("Arms");
+                if (_options.GenerateLegs) regions.Add("Legs");
+                
+                if (regions.Count > 0) {
+                    fullPrompt += $"\n\n[MANDATORY GENERATION RULES]\nGenerate pixel textures ONLY for these keys: {string.Join(", ", regions)}.\nOmit keys for unlisted regions.";
+                } else {
+                    fullPrompt += "\n\n[MANDATORY GENERATION RULES]\nDo NOT generate any pixel textures (Face, Chest, Arms, Legs). Only provide procedural hex colors.";
+                }
             }
-
-            string fullPrompt = MCTwinProtocol.SystemPrimer + instructions + "\n\n### USER REQUEST:\n" + userPrompt;
+            
+            fullPrompt += "\n\n### USER REQUEST:\n" + userPrompt;
             _brain.SendPrompt(fullPrompt);
             _btnForge.Enabled = false;
             _btnForge.Text = "WAITING...";
@@ -257,12 +302,20 @@ namespace MCTwinStudio
                 var root = doc.RootElement;
                 
                 // 1. Detect Type
-                string type = root.TryGetProperty("Type", out var tProp) ? tProp.GetString() ?? "Humanoid" : "Humanoid";
+                string type = root.TryGetProperty("Type", out var tProp) ? tProp.GetString() ?? "Voxel" : "Voxel";
 
-                // 2. Instantiate Model
-                _currentModel = type switch {
-                    _ => new HumanoidModel() // Default to Humanoid
-                };
+                if (type == "Procedural")
+                {
+                    var proc = new ProceduralModel { RawRecipeJson = json };
+                    proc.Name = root.TryGetProperty("Name", out var pn) ? pn.GetString() ?? "Prop" : "Prop";
+                    _currentModel = proc;
+                    _currentDescription = root.TryGetProperty("Description", out var pd) ? pd.GetString() ?? "" : "";
+                    _viewport.RenderRecipe(json);
+                    return;
+                }
+
+                // 2. Instantiate Model (Legacy Voxel Flow)
+                _currentModel = new HumanoidModel();
 
                 _currentModel.Name = root.TryGetProperty("Name", out var n) ? n.GetString() ?? "Entity" : "Entity";
                 _currentDescription = root.TryGetProperty("Description", out var d) ? d.GetString() ?? "" : "";
@@ -313,6 +366,7 @@ namespace MCTwinStudio
                 }
 
                 // 5. Render
+                if (_currentModel is HumanoidModel humanModel) humanModel.GenerateSkin();
                 _viewport.RenderModel(_currentModel);
 
             } catch (Exception ex) {
@@ -329,27 +383,42 @@ namespace MCTwinStudio
             if (_currentModel == null) return;
             
             var options = new JsonSerializerOptions { WriteIndented = true };
-            // Reconstruct JSON to match Protocol
-            var data = new {
-                Name = _currentModel.Name,
-                Type = _currentModel.ModelType,
-                Description = _currentDescription,
-                ProceduralColors = (_currentModel is HumanoidModel h) ? new {
-                    Skin = h.SkinToneHex,
-                    Shirt = h.ShirtHex,
-                    Pants = h.PantsHex,
-                    Eyes = h.EyeHex
-                } : null,
-                Textures = (_currentModel is HumanoidModel ht) ? new {
-                    Face = ht.FacePixels,
-                    Hat = ht.HatPixels,
-                    Chest = ht.ChestPixels,
-                    Arms = ht.ArmPixels,
-                    Legs = ht.LegPixels
-                } : null
-            };
+            string json;
 
-            string json = JsonSerializer.Serialize(data, options);
+            if (_currentModel is ProceduralModel p)
+            {
+                json = p.RawRecipeJson;
+                // If RawRecipeJson is empty for some reason, we fallback to a minimal save, 
+                // but it should be populated in ApplyJsonToState.
+                if (string.IsNullOrEmpty(json)) {
+                     var data = new { Name = p.Name, Type = "Procedural", Description = _currentDescription, Parts = new List<object>() };
+                     json = JsonSerializer.Serialize(data, options);
+                }
+            }
+            else
+            {
+                // Reconstruct JSON to match Protocol (Voxel)
+                var data = new {
+                    Name = _currentModel.Name,
+                    Type = _currentModel.ModelType,
+                    Description = _currentDescription,
+                    ProceduralColors = (_currentModel is HumanoidModel h) ? new {
+                        Skin = h.SkinToneHex,
+                        Shirt = h.ShirtHex,
+                        Pants = h.PantsHex,
+                        Eyes = h.EyeHex
+                    } : null,
+                    Textures = (_currentModel is HumanoidModel ht) ? new {
+                        Face = ht.FacePixels,
+                        Hat = ht.HatPixels,
+                        Chest = ht.ChestPixels,
+                        Arms = ht.ArmPixels,
+                        Legs = ht.LegPixels
+                    } : null
+                };
+                json = JsonSerializer.Serialize(data, options);
+            }
+
             _assetService.SaveAsset(_currentModel.Name, json);
         }
         private void LoadAsset() { string json = _assetService.LoadAsset(); if (!string.IsNullOrEmpty(json)) ApplyJsonToState(json); }
@@ -369,6 +438,22 @@ namespace MCTwinStudio
             _leftSplit.Panel1Collapsed = !_isJsonExpanded;
             _leftSplit.SplitterDistance = 400; // Default width
             _btnToggleJson.Text = _isJsonExpanded ? "HIDE JSON" : "SHOW JSON";
+        }
+
+        private void ToggleConsole()
+        {
+            _isConsoleExpanded = !_isConsoleExpanded;
+            _lstConsole.Visible = _isConsoleExpanded;
+            if (_isConsoleExpanded) _lstConsole.BringToFront();
+            else _txtPrompt.BringToFront();
+            _btnToggleConsole.Text = _isConsoleExpanded ? "CLOSE CONSOLE" : "STUDIO CONSOLE";
+        }
+
+        private void AddLog(string msg)
+        {
+            if (this.InvokeRequired) { this.Invoke(new Action(() => AddLog(msg))); return; }
+            _lstConsole.Items.Add($"[{DateTime.Now:HH:mm:ss}] {msg}");
+            _lstConsole.SelectedIndex = _lstConsole.Items.Count - 1;
         }
 
         private Button CreateTabBtn(string text, Panel parent, bool active)
