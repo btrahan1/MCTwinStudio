@@ -153,15 +153,11 @@ namespace MCTwinStudio
 
             var btnExplore = new Button { Text = "EXPLORE", Dock = DockStyle.Top, Height = 40, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.CardColor, ForeColor = NexusStyles.AccentPink, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
             btnExplore.Click += (s, e) => {
-                if (_currentModel is HumanoidModel h) {
-                    if (_activeWorld == null || _activeWorld.IsDisposed) {
-                        _activeWorld = new WorldForm(h, _sharedEnv);
-                        _activeWorld.Show();
-                    } else {
-                        _activeWorld.BringToFront();
-                    }
+                if (_activeWorld == null || _activeWorld.IsDisposed) {
+                    _activeWorld = new WorldForm(_currentModel as HumanoidModel, _sharedEnv);
+                    _activeWorld.Show();
                 } else {
-                    MessageBox.Show("Please Forge or Load a Humanoid model first.");
+                    _activeWorld.BringToFront();
                 }
             };
             pnlButtons.Controls.Add(btnExplore);

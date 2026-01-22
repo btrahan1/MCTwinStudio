@@ -99,6 +99,42 @@
                 }
             });
 
+            // GIZMOS (Manipulation)
+            const gizmoManager = new BABYLON.GizmoManager(scene);
+            gizmoManager.positionGizmoEnabled = true;
+            gizmoManager.usePointerToAttachGizmos = false; // Custom logic
+
+            // Fix for camera fight
+            gizmoManager.onAttachedToMeshObservable.add((mesh) => {
+                if (mesh) camera.detachControl(canvas);
+                else camera.attachControl(canvas, true);
+            });
+
+            scene.onPointerDown = (evt, pickInfo) => {
+                if (pickInfo.hit && pickInfo.pickedMesh && pickInfo.pickedMesh !== ground) {
+                    let target = pickInfo.pickedMesh;
+                    // Find the recipe root if it exists
+                    let p = target.parent;
+                    while (p && p !== playerRoot && p.id && p.id.indexOf("recipe_") === -1) {
+                        p = p.parent;
+                    }
+                    if (p && p.id && p.id.indexOf("recipe_") !== -1) target = p;
+
+                    gizmoManager.attachToNode(target);
+                } else {
+                    if (!evt.shiftKey) gizmoManager.attachToNode(null);
+                }
+            };
+
+            // Global access for UI
+            window.MCTwinGizmos = {
+                setMode: (m) => {
+                    gizmoManager.positionGizmoEnabled = (m === 'move');
+                    gizmoManager.rotationGizmoEnabled = (m === 'rotate');
+                    gizmoManager.scaleGizmoEnabled = (m === 'scale');
+                }
+            };
+
             // ANIMATION & MOVEMENT
             let animTime = 0;
             let isMoving = false;

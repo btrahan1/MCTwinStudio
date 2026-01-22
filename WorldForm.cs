@@ -18,9 +18,19 @@ namespace MCTwinStudio
         public WorldForm(HumanoidModel model, CoreWebView2Environment env)
         {
             _model = model;
+            if (_model == null) {
+                _model = new HumanoidModel {
+                    SkinToneHex = "#C68E6F", // Tan
+                    ShirtHex = "#0099AA",    // Cyan
+                    PantsHex = "#333399",    // Indigo
+                    EyeHex = "#FFFFFF",
+                    Name = "Quick Steve"
+                };
+                _model.GenerateSkin();
+            }
             _env = env;
 
-            this.Text = $"World Explorer - {model.Name}";
+            this.Text = $"World Explorer - {_model.Name}";
             this.Size = new Size(1280, 720);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = NexusStyles.BackColor;
@@ -65,6 +75,14 @@ namespace MCTwinStudio
                 using (var cd = new ColorDialog()) { if (cd.ShowDialog() == DialogResult.OK) UpdateWorld("skyColor", $"#{cd.Color.R:X2}{cd.Color.G:X2}{cd.Color.B:X2}"); }
             });
 
+            AddSetting(pnlSettings, "IMPORT PROP", (s, e) => {
+                using (var ofd = new OpenFileDialog { Filter = "JSON Files|*.json" }) {
+                    if (ofd.ShowDialog() == DialogResult.OK) {
+                        try { ImportProp(File.ReadAllText(ofd.FileName)); } catch { }
+                    }
+                }
+            });
+
             AddLabel(pnlSettings, "Floor Theme");
             var cmbTheme = new ComboBox { 
                 Dock = DockStyle.Top, 
@@ -82,6 +100,14 @@ namespace MCTwinStudio
             AddSetting(pnlSettings, "Floor Color", (s, e) => {
                 using (var cd = new ColorDialog()) { if (cd.ShowDialog() == DialogResult.OK) UpdateWorld("groundColor", $"#{cd.Color.R:X2}{cd.Color.G:X2}{cd.Color.B:X2}"); }
             });
+
+            AddLabel(pnlSettings, "Manipulation");
+            var pnlGizmo = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 45 };
+            AddGizmoBtn(pnlGizmo, "MOVE", "move");
+            AddGizmoBtn(pnlGizmo, "ROT", "rotate");
+            AddGizmoBtn(pnlGizmo, "SIZE", "scale");
+            AddGizmoBtn(pnlGizmo, "OFF", "none");
+            pnlSettings.Controls.Add(pnlGizmo);
 
             var chkGround = new CheckBox { Text = "Show Floor", Dock = DockStyle.Top, Height = 30, ForeColor = Color.White, Checked = true };
             chkGround.CheckedChanged += (s, e) => UpdateWorld("groundVisible", chkGround.Checked ? "true" : "false");
@@ -119,6 +145,24 @@ namespace MCTwinStudio
         private void AddLabel(Panel p, string text)
         {
             p.Controls.Add(new Label { Text = text, Dock = DockStyle.Top, Height = 25, ForeColor = Color.LightGray, TextAlign = ContentAlignment.BottomLeft });
+        }
+
+        private void AddGizmoBtn(FlowLayoutPanel p, string text, string mode)
+        {
+            var btn = new Button { 
+                Text = text, 
+                Width = 50, 
+                Height = 35, 
+                FlatStyle = FlatStyle.Flat, 
+                BackColor = Color.FromArgb(60, 60, 60), 
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 7, FontStyle.Bold)
+            };
+            btn.Click += async (s, e) => {
+                if (_webView?.CoreWebView2 != null)
+                    await _webView.ExecuteScriptAsync($"window.MCTwinGizmos.setMode('{mode}');");
+            };
+            p.Controls.Add(btn);
         }
 
         private async void UpdateWorld(string property, string value)
