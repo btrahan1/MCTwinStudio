@@ -39,13 +39,8 @@
             var env = scene.createDefaultEnvironment({ createSkybox: false, createGround: false, environmentTexture: "https://assets.babylonjs.com/environments/environmentSpecular.env" });
             scene.environmentIntensity = 0.4;
 
-            // Camera: Alpha -Math.PI/2 faces the BACK by default in Babylon? 
-            // Let's try diff angle. Front is +Z usually?
-            // If model looks at +Z, camera at +Z looking back is Alpha = ?
-            // Let's set Alpha to -Math.PI/2 (Current) -> User said he had to turn him around.
-            // If he was looking at back, let's rotate 180.
-            // Alpha = Math.PI / 2.
-            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 3, 50, new BABYLON.Vector3(0, 16, 0), scene);
+            // Camera (Frontal View) - Set to -Math.PI/2 to look from the FRONT (Negative Z)
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 3, 50, new BABYLON.Vector3(0, 16, 0), scene);
             camera.attachControl(canvas, true);
             camera.wheelPrecision = 10;
 

@@ -53,8 +53,8 @@
             // scene.fogDensity = 0.01;
             // scene.fogColor = new BABYLON.Color3(0.53, 0.81, 0.92);
 
-            // Camera (Follow)
-            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.2, 100, new BABYLON.Vector3(0, 16, 0), scene);
+            // Camera (Follow) - Set to -Math.PI/2 to look from the FRONT (Negative Z)
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.2, 100, new BABYLON.Vector3(0, 16, 0), scene);
             camera.attachControl(canvas, true);
             camera.lowerRadiusLimit = 5;
             camera.upperRadiusLimit = 2000;
@@ -315,18 +315,18 @@
                         mesh.parent = parentNode;
                     }
 
-                    // LUMINA ENGINE: Inverse-Scale Compensation
-                    // This prevents children from being "squashed" by parent non-uniform scaling.
                     const rawPos = parseVec3(config.Position);
                     const rawScale = scale;
+                    mesh.intendedScale = rawScale;
 
-                    if (mesh.parent && mesh.parent.scaling) {
-                        const ps = mesh.parent.scaling;
-                        // Compensate Scale
+                    if (config.ParentId && this.propRegistry[config.ParentId]) {
+                        const parentProp = this.propRegistry[config.ParentId];
+                        const ps = parentProp.intendedScale || new BABYLON.Vector3(1, 1, 1);
+                        // Compensate for immediate parent's non-uniform scaling
                         mesh.scaling = new BABYLON.Vector3(rawScale.x / ps.x, rawScale.y / ps.y, rawScale.z / ps.z);
-                        // Compensate Position (so offset is in absolute world units)
                         mesh.position = new BABYLON.Vector3(rawPos.x / ps.x, rawPos.y / ps.y, rawPos.z / ps.z);
                     } else {
+                        // Root part of the recipe or unparented prop
                         mesh.scaling = rawScale;
                         mesh.position = rawPos;
                     }
