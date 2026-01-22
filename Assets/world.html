@@ -28,6 +28,7 @@
     <canvas id="renderCanvas"></canvas>
     <script>
         const canvas = document.getElementById("renderCanvas");
+        canvas.oncontextmenu = (e) => e.preventDefault();
         const engine = new BABYLON.Engine(canvas, true);
         let shadowGenerator;
         let playerRoot = null;
@@ -38,8 +39,15 @@
 
             // Sky
             scene.clearColor = new BABYLON.Color4(0.53, 0.81, 0.92, 1);
-            var env = scene.createDefaultEnvironment({ createSkybox: false, createGround: false });
-            scene.environmentIntensity = 0.6;
+            scene.ambientColor = new BABYLON.Color3(0.2, 0.2, 0.3);
+
+            var env = scene.createDefaultEnvironment({
+                createSkybox: false,
+                createGround: false,
+                setupImageProcessing: true,
+                environmentTexture: "https://assets.babylonjs.com/environments/studio.env"
+            });
+            scene.environmentIntensity = 0.8;
             // Fog Removed by User Request
             // scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
             // scene.fogDensity = 0.01;
@@ -50,7 +58,9 @@
             camera.attachControl(canvas, true);
             camera.lowerRadiusLimit = 5;
             camera.upperRadiusLimit = 2000;
-            camera.wheelPrecision = 20;
+            camera.wheelPrecision = 6.0; // Responsive zoom
+            camera.panningSensibility = 100; // Lower is faster/more responsive
+            camera.panningMouseButton = 2;    // Explicitly set Right-Click (2)
 
             // Lighting
             sun = new BABYLON.DirectionalLight("sun", new BABYLON.Vector3(-1, -2, -1), scene);
@@ -62,6 +72,8 @@
 
             shadowGenerator = new BABYLON.ShadowGenerator(2048, sun);
             shadowGenerator.useBlurExponentialShadowMap = true;
+            shadowGenerator.blurKernel = 32;
+            shadowGenerator.setDarkness(0.4);
 
             // Ground
             ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 500, height: 500 }, scene);
@@ -99,32 +111,43 @@
                 }
             });
 
+            window.addEventListener("keydown", (e) => {
+                if (e.key.toLowerCase() === "f" && playerRoot) {
+                    camera.setTarget(new BABYLON.Vector3(playerRoot.position.x, playerRoot.position.y + 16, playerRoot.position.z));
+                }
+            });
+
             // GIZMOS (Manipulation)
             const gizmoManager = new BABYLON.GizmoManager(scene);
             gizmoManager.positionGizmoEnabled = true;
             gizmoManager.usePointerToAttachGizmos = false; // Custom logic
 
-            // Fix for camera fight
+            // Fix for camera fight (Removed detachment to allow panning while selected)
             gizmoManager.onAttachedToMeshObservable.add((mesh) => {
-                if (mesh) camera.detachControl(canvas);
-                else camera.attachControl(canvas, true);
+                // If we detach camera, we can't pan. 
+                // Babylon Gizmos handle interaction well enough without detachment.
             });
 
-            scene.onPointerDown = (evt, pickInfo) => {
-                if (pickInfo.hit && pickInfo.pickedMesh && pickInfo.pickedMesh !== ground) {
-                    let target = pickInfo.pickedMesh;
-                    // Find the recipe root if it exists
-                    let p = target.parent;
-                    while (p && p !== playerRoot && p.id && p.id.indexOf("recipe_") === -1) {
-                        p = p.parent;
-                    }
-                    if (p && p.id && p.id.indexOf("recipe_") !== -1) target = p;
+            scene.onPointerObservable.add((pointerInfo) => {
+                const evt = pointerInfo.event;
+                if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+                    if (evt.button !== 0) return; // ONLY Left Click for selection
 
-                    gizmoManager.attachToNode(target);
-                } else {
-                    if (!evt.shiftKey) gizmoManager.attachToNode(null);
+                    const pickInfo = pointerInfo.pickInfo;
+                    if (pickInfo.hit && pickInfo.pickedMesh && pickInfo.pickedMesh !== ground) {
+                        let target = pickInfo.pickedMesh;
+                        let p = target.parent;
+                        while (p && p !== playerRoot && p.id && p.id.indexOf("recipe_") === -1) {
+                            p = p.parent;
+                        }
+                        if (p && p.id && p.id.indexOf("recipe_") !== -1) target = p;
+
+                        gizmoManager.attachToNode(target);
+                    } else {
+                        if (!evt.shiftKey) gizmoManager.attachToNode(null);
+                    }
                 }
-            };
+            });
 
             // Global access for UI
             window.MCTwinGizmos = {
@@ -180,9 +203,10 @@
                     // Diagonals override rotation, but position works
 
                     // Cam Follow
-                    camera.target.x = playerRoot.position.x;
-                    camera.target.y = playerRoot.position.y + 16;
-                    camera.target.z = playerRoot.position.z;
+                    if (isMoving) {
+                        const desiredTarget = new BABYLON.Vector3(playerRoot.position.x, playerRoot.position.y + 16, playerRoot.position.z);
+                        camera.target = BABYLON.Vector3.Lerp(camera.target, desiredTarget, 0.1);
+                    }
 
                     // Animation
                     const legR = meshMap.get("RightLeg");
@@ -224,19 +248,34 @@
 
                 mat.albedoColor = color;
                 mat.reflectivityColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+                mat.microSurface = 0.9; // Smooth by default
 
                 const type = (config.Material || "Plastic").toLowerCase();
 
                 if (type.includes("metal") || type.includes("chrome")) {
-                    mat.metallic = 1.0; mat.roughness = 0.2;
-                } else if (type.includes("glass")) {
-                    mat.metallic = 0.1; mat.roughness = 0.1; mat.alpha = 0.3;
+                    mat.metallic = 1.0;
+                    mat.roughness = 0.1;
+                    mat.reflectivityColor = new BABYLON.Color3(0.9, 0.9, 0.9);
+                } else if (type.includes("glass") || type.includes("crystal")) {
+                    mat.metallic = 0.2;
+                    mat.roughness = 0.05;
+                    mat.alpha = 0.4;
                     mat.transparencyMode = BABYLON.PBRMaterial.PBRMATERIAL_ALPHABLEND;
-                } else if (type.includes("glow")) {
-                    mat.emissiveColor = color; mat.disableLighting = true;
+                    // Fresnel-like effect
+                    mat.indexOfRefraction = 1.5;
+                    mat.directIntensity = 1.2;
+                } else if (type.includes("glow") || type.includes("neon")) {
+                    mat.emissiveColor = color;
+                    mat.emissiveIntensity = 2.0;
+                    mat.disableLighting = false; // Allow it to catch shadows/specular
                 } else {
-                    mat.metallic = 0.0; mat.roughness = 0.6;
+                    mat.metallic = 0.0;
+                    mat.roughness = 0.5;
                 }
+
+                // Use environment reflections if available
+                mat.reflectionTexture = scene.environmentTexture;
+
                 return mat;
             };
 
@@ -276,8 +315,21 @@
                         mesh.parent = parentNode;
                     }
 
-                    // Raw Nexus Units (Meters)
-                    mesh.position = parseVec3(config.Position);
+                    // LUMINA ENGINE: Inverse-Scale Compensation
+                    // This prevents children from being "squashed" by parent non-uniform scaling.
+                    const rawPos = parseVec3(config.Position);
+                    const rawScale = scale;
+
+                    if (mesh.parent && mesh.parent.scaling) {
+                        const ps = mesh.parent.scaling;
+                        // Compensate Scale
+                        mesh.scaling = new BABYLON.Vector3(rawScale.x / ps.x, rawScale.y / ps.y, rawScale.z / ps.z);
+                        // Compensate Position (so offset is in absolute world units)
+                        mesh.position = new BABYLON.Vector3(rawPos.x / ps.x, rawPos.y / ps.y, rawPos.z / ps.z);
+                    } else {
+                        mesh.scaling = rawScale;
+                        mesh.position = rawPos;
+                    }
 
                     const rot = parseVec3(config.Rotation);
                     mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(rot.x), BABYLON.Tools.ToRadians(rot.y), BABYLON.Tools.ToRadians(rot.z));
@@ -515,6 +567,11 @@
 
             var pipeline = new BABYLON.DefaultRenderingPipeline("pp", true, scene, [camera]);
             pipeline.fxaaEnabled = true;
+            pipeline.bloomEnabled = true;
+            pipeline.bloomThreshold = 0.6;
+            pipeline.bloomWeight = 0.4;
+            pipeline.bloomKernel = 64;
+            pipeline.bloomScale = 0.5;
 
             engine.runRenderLoop(() => scene.render());
             return scene;
