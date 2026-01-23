@@ -19,5 +19,7 @@ namespace MCTwinStudio.Core.Models
             // Procedural models don't use the Voxel Part system
             return new List<ModelPart>();
         }
+
+        public override string ExportJson() => RawRecipeJson;
     }
 }

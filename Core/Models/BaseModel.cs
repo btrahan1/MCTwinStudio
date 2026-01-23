@@ -20,6 +20,7 @@ namespace MCTwinStudio.Core.Models
         public string? SkinBase64 { get; set; } 
 
         public abstract List<ModelPart> GetParts();
+        public abstract string ExportJson();
     }
 
     public class ModelPart

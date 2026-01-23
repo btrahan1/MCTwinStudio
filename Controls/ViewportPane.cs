@@ -12,6 +12,7 @@ namespace MCTwinStudio.Controls
     public class ViewportPane : UserControl
     {
         private WebView2 _webView = null!;
+        public SceneController Controller { get; private set; } = null!;
         public event EventHandler<string>? MeshSelected;
         public event EventHandler<string>? LogReceived;
 
@@ -28,6 +29,8 @@ namespace MCTwinStudio.Controls
             this.Controls.Add(_webView);
 
             await _webView.EnsureCoreWebView2Async(env);
+            Controller = new SceneController(_webView);
+
             _webView.CoreWebView2.WebMessageReceived += (s, e) => {
                 string msg = e.TryGetWebMessageAsString();
                 if (msg.StartsWith("SELECT:")) MeshSelected?.Invoke(this, msg.Replace("SELECT:", ""));
@@ -38,41 +41,9 @@ namespace MCTwinStudio.Controls
             if (File.Exists(htmlPath)) _webView.CoreWebView2.Navigate($"file:///{htmlPath.Replace('\\', '/')}");
         }
 
-        public async void RenderModel(BaseModel model)
-        {
-            if (_webView?.CoreWebView2 == null) return;
-            var parts = model.GetParts();
-            // Send { Parts, Skin }
-            var payload = new { Parts = parts, Skin = model.SkinBase64 };
-            var json = System.Text.Json.JsonSerializer.Serialize(payload);
-            string script = $"window.MCTwin.renderModel({json});";
-            await _webView.ExecuteScriptAsync(script);
-        }
-
-        // Legacy support if needed, or remove
-        public async void RenderRecipe(string json)
-        {
-            if (_webView?.CoreWebView2 == null) return;
-            string script = $"window.MCTwin.renderRecipe({json});";
-            await _webView.ExecuteScriptAsync(script);
-        }
-
-        public async void ExecuteCommand(string json) 
-        {
-             RenderRecipe(json);
-        }
-
-        public async void ClearScene()
-        {
-             if (_webView?.CoreWebView2 != null) await _webView.ExecuteScriptAsync("window.MCTwin.clear();");
-        }
-
-        public async void PlayAnimation(string name)
-        {
-            if (_webView?.CoreWebView2 != null) 
-            {
-                await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.setAnimation) window.MCTwin.setAnimation('{name}');");
-            }
-        }
+        public async void RenderModel(BaseModel model) => await Controller.RenderModel(model);
+        public async void RenderRecipe(string json) => await Controller.SpawnRecipe(json, "Preview");
+        public async void ClearScene() => await Controller.ClearAll();
+        public async void PlayAnimation(string name) => await Controller.PlayAnimation(name);
     }
 }

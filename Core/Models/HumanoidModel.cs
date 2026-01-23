@@ -79,7 +79,7 @@ namespace MCTwinStudio.Core.Models
                 HexColor = ShirtHex
             });
 
-            // 3. RIGHT LEFT (Region: 0,16)
+            // 3. RIGHT LEG (Region: 0,16)
             parts.Add(new ModelPart {
                 Name = "RightLeg",
                 Dimensions = new[] { 4, 12, 4 },
@@ -116,6 +116,28 @@ namespace MCTwinStudio.Core.Models
             });
 
             return parts;
+        }
+
+        public override string ExportJson()
+        {
+            var payload = new {
+                Name = this.Name,
+                Type = "Voxel",
+                ProceduralColors = new {
+                    Skin = SkinToneHex,
+                    Shirt = ShirtHex,
+                    Pants = PantsHex,
+                    Eyes = EyeHex
+                },
+                Textures = new {
+                    Face = FacePixels,
+                    Hat = HatPixels,
+                    Chest = ChestPixels,
+                    Arms = ArmPixels,
+                    Legs = LegPixels
+                }
+            };
+            return System.Text.Json.JsonSerializer.Serialize(payload, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
         }
     }
 }

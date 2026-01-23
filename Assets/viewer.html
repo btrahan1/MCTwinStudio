@@ -114,13 +114,16 @@
                 },
 
                 renderModel: function (data) {
+                    this.clear();
+                    this.spawnVoxel(data);
+                },
+
+                spawnVoxel: function (data, name = "Voxel") {
                     try {
-                        log("Viewer: renderModel called");
-                        this.clear();
+                        log("Viewer: spawnVoxel called");
                         const parts = getVal(data, "Parts");
                         const skin = getVal(data, "Skin");
                         if (!parts) { log("Viewer: No parts found in data"); return; }
-                        log("Viewer: Rendering " + parts.length + " parts");
 
                         let skinMat = null;
                         if (skin) {
@@ -179,9 +182,7 @@
                             shadowGenerator.addShadowCaster(mesh);
                             meshMap.set(getVal(p, "Name"), mesh);
                         });
-                    } catch (e) {
-                        log("RENDER_ERROR: " + e.message);
-                    }
+                    } catch (e) { log("RENDER_ERROR: " + e.message); }
                 },
 
                 spawnProp: function (config, parentNode = null) {
@@ -221,7 +222,7 @@
                     mesh.receiveShadows = true;
                 },
 
-                renderRecipe: function (json) {
+                spawnRecipe: function (json, name = "Prop", isSelectable = true, transform = null) {
                     this.clear();
                     let data = (typeof json === 'string') ? JSON.parse(json) : json;
                     const container = new BABYLON.TransformNode("recipe_" + (getVal(data, "Name") || Date.now()), scene);

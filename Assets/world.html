@@ -420,7 +420,7 @@
                     return id;
                 },
 
-                spawnRecipe: function (json, recipeName = "Unknown", transform = null) {
+                spawnRecipe: function (json, recipeName = "Unknown", isSelectable = false, transform = null) {
                     try {
                         let data = json;
                         if (typeof json === 'string') { try { data = JSON.parse(json); } catch (e) { log("ERR: JSON Parse failed: " + e.message); return; } }
@@ -459,18 +459,20 @@
                                 }
                             });
 
-                            // 3. Auto-Grounding
-                            let minY = Infinity;
-                            data.Parts.forEach(p => {
-                                const pos = parseVec3(p.Position);
-                                const scale = parseVec3(p.Scale, { x: 1, y: 1, z: 1 });
-                                let bottom = pos.y - (0.5 * scale.y);
-                                if ((p.Shape || "").toLowerCase() === "capsule") bottom = pos.y - (1.0 * scale.y);
-                                if (bottom < minY) minY = bottom;
-                            });
+                            // 3. Auto-Grounding (ONLY for new spawns without manual positioning)
+                            if (!transform) {
+                                let minY = Infinity;
+                                data.Parts.forEach(p => {
+                                    const pos = parseVec3(p.Position);
+                                    const scale = parseVec3(p.Scale, { x: 1, y: 1, z: 1 });
+                                    let bottom = pos.y - (0.5 * scale.y);
+                                    if ((p.Shape || "").toLowerCase() === "capsule") bottom = pos.y - (1.0 * scale.y);
+                                    if (bottom < minY) minY = bottom;
+                                });
 
-                            if (minY !== Infinity && minY < 0) {
-                                container.position.y += Math.abs(minY) * globalScaleMultiplier;
+                                if (minY !== Infinity && minY < 0) {
+                                    container.position.y += Math.abs(minY) * globalScaleMultiplier;
+                                }
                             }
 
                             // Setup for interaction/drag
