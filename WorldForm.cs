@@ -17,7 +17,7 @@ namespace MCTwinStudio
         private Services.AssetService _assetService;
         private Services.SceneService _sceneService;
         private ListBox _lstPalette;
-        private Button _btnMove, _btnRot, _btnSize, _btnDrag, _btnNone;
+        private Button _btnMove, _btnRot, _btnSize, _btnDrag, _btnNone, _btnPullAI;
 
         public WorldForm(HumanoidModel model, CoreWebView2Environment env, Services.AssetService assetService)
         {
@@ -197,6 +197,36 @@ namespace MCTwinStudio
             };
             pnlSettings.Controls.Add(_lstPalette);
             RefreshPalette();
+
+            AddLabel(pnlSettings, "AI ARCHITECT");
+            _btnPullAI = new Button { 
+                Text = "PULL AI DESIGN", 
+                Dock = DockStyle.Top, 
+                Height = 45, 
+                FlatStyle = FlatStyle.Flat, 
+                BackColor = Color.FromArgb(0, 80, 150), 
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+            };
+            _btnPullAI.Click += async (s, e) => {
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes", "ai_delivery.scene.json");
+                if (File.Exists(path)) {
+                    try {
+                        string json = File.ReadAllText(path);
+                        var sceneData = System.Text.Json.JsonSerializer.Deserialize<Core.Models.SceneModel>(json);
+                        if (sceneData != null && _webView?.CoreWebView2 != null) {
+                            await _webView.ExecuteScriptAsync("window.MCTwin.clearAll();");
+                            foreach (var item in sceneData.Items) {
+                                string recipe = _assetService.GetBestMatch(item.RecipeName);
+                                if (!string.IsNullOrEmpty(recipe)) ImportProp(recipe, item.RecipeName, item);
+                            }
+                        }
+                    } catch (Exception ex) { MessageBox.Show("Error pulling AI design: " + ex.Message); }
+                } else {
+                    MessageBox.Show("No active AI Scene found. Ask the AI to build a scene first!", "AI Architect", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            };
+            pnlSettings.Controls.Add(_btnPullAI);
 
             var lblTitle = new Label { 
                 Text = "WORLD SETTINGS", 

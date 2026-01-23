@@ -20,6 +20,7 @@ namespace MCTwinStudio
         private OptionsPane _options = null!;
         private CoreWebView2Environment _sharedEnv = null!;
         private AssetService _assetService = null!;
+        private SceneService _sceneService = null!;
         private TextBox _txtPrompt = null!;
         private Button _btnForge = null!;
         private Button _btnSave = null!;
@@ -31,6 +32,7 @@ namespace MCTwinStudio
         private bool _isConsoleExpanded = false;
         private RadioButton _rbVoxel = null!;
         private RadioButton _rbProcedural = null!;
+        private RadioButton _rbScene = null!;
         private RadioButton _rbSculpted = null!;
 
         private BaseModel? _currentModel = null;
@@ -44,6 +46,7 @@ namespace MCTwinStudio
             this.ForeColor = NexusStyles.WhiteText;
             this.StartPosition = FormStartPosition.CenterScreen;
             _assetService = new AssetService();
+            _sceneService = new SceneService();
             InitializeLayout();
             InitializeWebViews();
         }
@@ -170,11 +173,20 @@ namespace MCTwinStudio
             var pnlArtType = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 40, BackColor = Color.FromArgb(40, 40, 45), FlowDirection = FlowDirection.LeftToRight, Padding = new Padding(10, 5, 0, 0) };
             pnlControl.Controls.Add(pnlArtType);
 
-            _rbVoxel = new RadioButton { Text = "VOXEL", Checked = true, ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 100 };
-            _rbProcedural = new RadioButton { Text = "PROCEDURAL", ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 120 };
-            _rbSculpted = new RadioButton { Text = "SCULPTED (.GLB)", ForeColor = Color.Gray, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 150, Enabled = false };
+            _rbVoxel = new RadioButton { Text = "NPC", Checked = true, ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 70 };
+            _rbProcedural = new RadioButton { Text = "PROP", ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 80 };
+            _rbScene = new RadioButton { Text = "SCENE", ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 80 };
+
+            void UpdateAIModeFile() {
+                string m = _rbVoxel.Checked ? "Voxel" : (_rbProcedural.Checked ? "Procedural" : "Scene");
+                try { System.IO.File.WriteAllText(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ai_mode.txt"), m); } catch {}
+            }
+            _rbVoxel.CheckedChanged += (s, e) => { if (_rbVoxel.Checked) UpdateAIModeFile(); };
+            _rbProcedural.CheckedChanged += (s, e) => { if (_rbProcedural.Checked) UpdateAIModeFile(); };
+            _rbScene.CheckedChanged += (s, e) => { if (_rbScene.Checked) UpdateAIModeFile(); };
+            UpdateAIModeFile();
             
-            pnlArtType.Controls.AddRange(new Control[] { _rbVoxel, _rbProcedural, _rbSculpted });
+            pnlArtType.Controls.AddRange(new Control[] { _rbVoxel, _rbProcedural, _rbScene });
 
             _txtPrompt = new TextBox { Dock = DockStyle.Fill, Multiline = true, BackColor = NexusStyles.CardColor, ForeColor = NexusStyles.AccentAmber, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Consolas", 12) };
             pnlControl.Controls.Add(_txtPrompt);
@@ -245,7 +257,7 @@ namespace MCTwinStudio
             string userPrompt = _txtPrompt.Text.Trim();
             if (string.IsNullOrEmpty(userPrompt)) return;
             
-            string artType = _rbProcedural.Checked ? "Procedural" : "Voxel";
+            string artType = _rbVoxel.Checked ? "Voxel" : (_rbProcedural.Checked ? "Procedural" : "Scene");
             string primer = MCTwinProtocol.GetPrimer(artType);
             
             string fullPrompt = primer;
@@ -262,6 +274,11 @@ namespace MCTwinStudio
                 } else {
                     fullPrompt += "\n\n[MANDATORY GENERATION RULES]\nDo NOT generate any pixel textures (Face, Chest, Arms, Legs). Only provide procedural hex colors.";
                 }
+            }
+            
+            if (artType == "Scene") {
+                var recipes = _assetService.ListAvailableRecipes();
+                fullPrompt += "\n\n[AVAILABLE ASSETS]\nYou MUST use these RecipeNames in your Scene Items:\n" + string.Join(", ", recipes);
             }
             
             fullPrompt += "\n\n### USER REQUEST:\n" + userPrompt;
@@ -303,6 +320,14 @@ namespace MCTwinStudio
                 
                 // 1. Detect Type
                 string type = root.TryGetProperty("Type", out var tProp) ? tProp.GetString() ?? "Voxel" : "Voxel";
+
+                if (type == "Scene")
+                {
+                    // Automate the delivery of the scene
+                    _sceneService.SaveScene("ai_delivery", json);
+                    AddLog("AI Scene Delivery Saved to ai_delivery.scene.json");
+                    return;
+                }
 
                 if (type == "Procedural")
                 {

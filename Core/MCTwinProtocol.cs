@@ -56,10 +56,40 @@ You are the LEAD DIRECTOR. Respond ONLY with JSON.
 5. Scale is [x,y,z]. Primitives are normalized to 1-unit cubes/bounding boxes. 'Capsule' and 'Cylinder' are Y-UP by default.
 ";
 
+        public const string ScenePrimer = @"
+## MCTWIN PROTOCOL: SCENE ARCHITECT
+You are the DIRECTOR. Your goal is to arrange multiple assets into a cohesive 3D scene.
+Respond ONLY with JSON.
+
+### RULES:
+1. **RecipeName**: Use known names of assets (e.g., 'WarehouseCrate', 'IndustrialForklift', 'Shadow_Informant').
+2. **ArtType**: Must be either 'Voxel' (for Humanoids) or 'Procedural' (for Props).
+3. **Coordinates**: 
+   - Y=0 is ground level. 
+   - 1 unit is approximately 1 block wide.
+4. **Layout**: Ensure items are logically placed (e.g., crates stacked or in rows, workers standing near equipment).
+
+### SCHEMA:
+{
+  ""Name"": ""SceneName"",
+  ""Type"": ""Scene"",
+  ""Items"": [
+    {
+      ""RecipeName"": ""AssetName"",
+      ""ArtType"": ""Voxel|Procedural"",
+      ""Position"": [x, y, z],
+      ""Rotation"": [x, y, z],
+      ""Scale"": [1, 1, 1]
+    }
+  ]
+}
+";
+
         public static string GetPrimer(string artType)
         {
             return artType switch {
                 "Procedural" => ProceduralPrimer,
+                "Scene" => ScenePrimer,
                 _ => VoxelPrimer
             };
         }
