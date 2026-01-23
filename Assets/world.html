@@ -179,14 +179,17 @@
                     if (pickInfo.hit && pickInfo.pickedMesh && pickInfo.pickedMesh !== ground && pickInfo.pickedMesh !== gridMesh) {
                         let target = pickInfo.pickedMesh;
                         let p = target.parent;
-                        // Find the recipe root
-                        while (p && p.id && p.id.indexOf("recipe_") === -1) {
+                        while (p && p.id && !p.id.startsWith("recipe_") && p.id !== "root") {
                             p = p.parent;
                         }
-                        if (p && p.id && p.id.indexOf("recipe_") !== -1) target = p;
+                        if (p && (p.id.startsWith("recipe_") || p.id === "root")) target = p;
 
-                        if (gizmoManager.scaleGizmoEnabled || gizmoManager.rotationGizmoEnabled || gizmoManager.positionGizmoEnabled) {
+                        // Only attach gizmos if NOT in drag or none mode
+                        const currentMode = window.MCTwinGizmos.mode;
+                        if (currentMode === 'move' || currentMode === 'rotate' || currentMode === 'scale') {
                             gizmoManager.attachToNode(target);
+                        } else {
+                            gizmoManager.attachToNode(null);
                         }
                     } else {
                         if (!evt.shiftKey) gizmoManager.attachToNode(null);
@@ -196,46 +199,36 @@
 
             // Global access for UI
             window.MCTwinGizmos = {
-                activeDragBehavior: null,
-                setMode: (m) => {
+                mode: 'move',
+                setupDrag: function (node) {
+                    const meshes = node.getChildMeshes();
+                    meshes.forEach(m => {
+                        if (m.metadata && m.metadata.drag) m.removeBehavior(m.metadata.drag);
+
+                        const drag = new BABYLON.PointerDragBehavior({ dragPlaneNormal: new BABYLON.Vector3(0, 1, 0) });
+                        drag.moveAttached = false; // CRITICAL: Stop the child mesh from moving independently
+                        drag.useObjectOrientationForDragging = false;
+                        drag.onDragObservable.add((event) => {
+                            node.position.addInPlace(event.delta);
+                        });
+                        m.metadata = m.metadata || {};
+                        m.metadata.drag = drag;
+                        m.addBehavior(drag);
+                        drag.enabled = (this.mode === 'drag');
+                    });
+                },
+                setMode: function (m) {
+                    this.mode = m;
                     gizmoManager.positionGizmoEnabled = (m === 'move');
                     gizmoManager.rotationGizmoEnabled = (m === 'rotate');
                     gizmoManager.scaleGizmoEnabled = (m === 'scale');
+                    gizmoManager.attachToNode(null);
 
-                    // Clear drag behaviors if switching
-                    scene.meshes.forEach(m => {
-                        if (m.metadata && m.metadata.drag) {
-                            m.removeBehavior(m.metadata.drag);
-                            m.metadata.drag = null;
+                    scene.meshes.forEach(mesh => {
+                        if (mesh.metadata && mesh.metadata.drag) {
+                            mesh.metadata.drag.enabled = (m === 'drag');
                         }
                     });
-
-                    if (m === 'drag') {
-                        gizmoManager.attachToNode(null);
-                        // Add drag behavior to all recipe containers
-                        scene.transformNodes.forEach(node => {
-                            if (node.id && node.id.indexOf("recipe_") !== -1) {
-                                // Babylon drag behavior needs a mesh, so we find first child mesh
-                                const firstMesh = node.getChildMeshes()[0];
-                                if (firstMesh) {
-                                    const drag = new BABYLON.PointerDragBehavior({ dragPlaneNormal: new BABYLON.Vector3(0, 1, 0) });
-                                    drag.useObjectOrientationForDragging = false;
-                                    drag.onDragObservable.add((event) => {
-                                        node.position.addInPlace(event.delta);
-                                        // Snap to grid if visible (using 3.0 increments)
-                                        if (gridMesh && gridMesh.isEnabled()) {
-                                            node.position.x = Math.round(node.position.x / 3.0) * 3.0;
-                                            node.position.z = Math.round(node.position.z / 3.0) * 3.0;
-                                        }
-                                    });
-                                    // Store on node metadata
-                                    if (!node.metadata) node.metadata = {};
-                                    node.metadata.drag = drag;
-                                    firstMesh.addBehavior(drag);
-                                }
-                            }
-                        });
-                    }
                 }
             };
 
@@ -479,6 +472,9 @@
                             if (minY !== Infinity && minY < 0) {
                                 container.position.y += Math.abs(minY) * globalScaleMultiplier;
                             }
+
+                            // Setup for interaction/drag
+                            window.MCTwinGizmos.setupDrag(container);
                         }
                     } catch (e) { log("ERR: spawnRecipe failed: " + e.message); }
                 },
@@ -671,6 +667,9 @@
                             shadowGenerator.addShadowCaster(mesh);
                             if (isPlayer) meshMap.set(p.Name, mesh);
                         });
+
+                        // Setup for interaction/drag
+                        window.MCTwinGizmos.setupDrag(rootNode);
                     } catch (e) { log("ERR: spawnVoxel failed: " + e.message); }
                 }
             };

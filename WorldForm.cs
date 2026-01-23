@@ -17,6 +17,7 @@ namespace MCTwinStudio
         private Services.AssetService _assetService;
         private Services.SceneService _sceneService;
         private ListBox _lstPalette;
+        private Button _btnMove, _btnRot, _btnSize, _btnDrag, _btnNone;
 
         public WorldForm(HumanoidModel model, CoreWebView2Environment env, Services.AssetService assetService)
         {
@@ -88,11 +89,13 @@ namespace MCTwinStudio
 
             AddLabel(pnlSettings, "Manipulation");
             var pnlGizmo = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 130 }; // Height for 3 rows
-            AddGizmoBtn(pnlGizmo, "MOVE", "move");
-            AddGizmoBtn(pnlGizmo, "ROT", "rotate");
-            AddGizmoBtn(pnlGizmo, "SIZE", "scale");
-            AddGizmoBtn(pnlGizmo, "DRAG", "drag");
-            AddGizmoBtn(pnlGizmo, "OFF", "none");
+            _btnMove = AddGizmoBtn(pnlGizmo, "MOVE", "move");
+            _btnRot = AddGizmoBtn(pnlGizmo, "ROT", "rotate");
+            _btnSize = AddGizmoBtn(pnlGizmo, "SIZE", "scale");
+            _btnDrag = AddGizmoBtn(pnlGizmo, "DRAG", "drag");
+            _btnNone = AddGizmoBtn(pnlGizmo, "OFF", "none");
+            
+            UpdateGizmoButtonStates(_btnMove); // Set default highlight
             
             var btnGrid = new Button { Text = "GRID: OFF", Width = 105, Height = 35, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(60, 60, 60), ForeColor = Color.White };
             bool gridOn = false;
@@ -232,7 +235,16 @@ namespace MCTwinStudio
             p.Controls.Add(new Label { Text = text, Dock = DockStyle.Top, Height = 25, ForeColor = Color.LightGray, TextAlign = ContentAlignment.BottomLeft });
         }
 
-        private void AddGizmoBtn(FlowLayoutPanel p, string text, string mode)
+        private void UpdateGizmoButtonStates(Button activeBtn)
+        {
+            var btns = new[] { _btnMove, _btnRot, _btnSize, _btnDrag, _btnNone };
+            foreach (var btn in btns) {
+                if (btn == null) continue;
+                btn.BackColor = (btn == activeBtn) ? Color.FromArgb(30, 100, 30) : Color.FromArgb(60, 60, 60);
+            }
+        }
+
+        private Button AddGizmoBtn(FlowLayoutPanel p, string text, string mode)
         {
             var btn = new Button { 
                 Text = text, 
@@ -244,10 +256,13 @@ namespace MCTwinStudio
                 Font = new Font("Segoe UI", 7, FontStyle.Bold)
             };
             btn.Click += async (s, e) => {
-                if (_webView?.CoreWebView2 != null)
+                if (_webView?.CoreWebView2 != null) {
+                    UpdateGizmoButtonStates(btn);
                     await _webView.ExecuteScriptAsync($"window.MCTwinGizmos.setMode('{mode}');");
+                }
             };
             p.Controls.Add(btn);
+            return btn;
         }
 
         private async void UpdateWorld(string property, string value)
