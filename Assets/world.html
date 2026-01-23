@@ -20,19 +20,49 @@
             height: 100%;
             touch-action: none;
         }
+
+        #debugConsole {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            width: 300px;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #00FF00;
+            font-family: 'Consolas', monospace;
+            font-size: 10px;
+            overflow-y: auto;
+            padding: 5px;
+            pointer-events: none;
+            border: 1px solid #333;
+            z-index: 1000;
+            display: none;
+        }
     </style>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
 </head>
 
 <body>
     <canvas id="renderCanvas"></canvas>
+    <div id="debugConsole"></div>
     <script>
+        const debugConsole = document.getElementById("debugConsole");
+        function log(msg) {
+            const div = document.createElement("div");
+            div.innerText = "[" + new Date().toLocaleTimeString() + "] " + msg;
+            debugConsole.appendChild(div);
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+            console.log(msg);
+        }
+        window.onerror = (m, s, l) => log("ERR: " + m + " at " + s + ":" + l);
         const canvas = document.getElementById("renderCanvas");
         canvas.oncontextmenu = (e) => e.preventDefault();
         const engine = new BABYLON.Engine(canvas, true);
         let shadowGenerator;
         let playerRoot = null;
         let sun, hemi, ground, groundMat; // Exposed for updates
+        let gridMesh, gridMat; // New for alignment
 
         const createScene = function () {
             const scene = new BABYLON.Scene(engine);
@@ -77,17 +107,30 @@
             // Ground
             ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 500, height: 500 }, scene);
             groundMat = new BABYLON.StandardMaterial("gMat", scene);
-            groundMat.diffuseColor = new BABYLON.Color3(0.3, 0.5, 0.2);
+            groundMat.diffuseColor = new BABYLON.Color3(0.4, 0.25, 0.15); // Wood Brown
             groundMat.specularColor = new BABYLON.Color3(0, 0, 0);
 
-            // Checkerboard
-            const chk = new BABYLON.Texture("https://assets.babylonjs.com/textures/checkerboard_base.png", scene);
-            chk.uScale = 50;
-            chk.vScale = 50;
-            groundMat.diffuseTexture = chk;
+            // Wood Texture
+            const wood = new BABYLON.Texture("https://assets.babylonjs.com/textures/wood.jpg", scene);
+            wood.uScale = 10;
+            wood.vScale = 10;
+            groundMat.diffuseTexture = wood;
 
             ground.material = groundMat;
             ground.receiveShadows = true;
+
+            // Proper Alignment Grid (Procedural)
+            gridMesh = BABYLON.MeshBuilder.CreateGround("gridOverlay", { width: 500, height: 500 }, scene);
+            gridMesh.position.y = 0.01; // Slightly above ground
+            gridMat = new BABYLON.GridMaterial("gridMat", scene);
+            gridMat.gridRatio = 3.0; // 3 units = 1 big block (per user request)
+            gridMat.mainColor = new BABYLON.Color3(1, 1, 1);
+            gridMat.lineColor = new BABYLON.Color3(0.5, 0.5, 1.0);
+            gridMat.opacity = 0.5;
+            gridMat.backFaceCulling = false;
+
+            gridMesh.material = gridMat;
+            gridMesh.setEnabled(false); // Default OFF
 
             const meshMap = new Map();
 
@@ -133,15 +176,18 @@
                     if (evt.button !== 0) return; // ONLY Left Click for selection
 
                     const pickInfo = pointerInfo.pickInfo;
-                    if (pickInfo.hit && pickInfo.pickedMesh && pickInfo.pickedMesh !== ground) {
+                    if (pickInfo.hit && pickInfo.pickedMesh && pickInfo.pickedMesh !== ground && pickInfo.pickedMesh !== gridMesh) {
                         let target = pickInfo.pickedMesh;
                         let p = target.parent;
-                        while (p && p !== playerRoot && p.id && p.id.indexOf("recipe_") === -1) {
+                        // Find the recipe root
+                        while (p && p.id && p.id.indexOf("recipe_") === -1) {
                             p = p.parent;
                         }
                         if (p && p.id && p.id.indexOf("recipe_") !== -1) target = p;
 
-                        gizmoManager.attachToNode(target);
+                        if (gizmoManager.scaleGizmoEnabled || gizmoManager.rotationGizmoEnabled || gizmoManager.positionGizmoEnabled) {
+                            gizmoManager.attachToNode(target);
+                        }
                     } else {
                         if (!evt.shiftKey) gizmoManager.attachToNode(null);
                     }
@@ -150,10 +196,46 @@
 
             // Global access for UI
             window.MCTwinGizmos = {
+                activeDragBehavior: null,
                 setMode: (m) => {
                     gizmoManager.positionGizmoEnabled = (m === 'move');
                     gizmoManager.rotationGizmoEnabled = (m === 'rotate');
                     gizmoManager.scaleGizmoEnabled = (m === 'scale');
+
+                    // Clear drag behaviors if switching
+                    scene.meshes.forEach(m => {
+                        if (m.metadata && m.metadata.drag) {
+                            m.removeBehavior(m.metadata.drag);
+                            m.metadata.drag = null;
+                        }
+                    });
+
+                    if (m === 'drag') {
+                        gizmoManager.attachToNode(null);
+                        // Add drag behavior to all recipe containers
+                        scene.transformNodes.forEach(node => {
+                            if (node.id && node.id.indexOf("recipe_") !== -1) {
+                                // Babylon drag behavior needs a mesh, so we find first child mesh
+                                const firstMesh = node.getChildMeshes()[0];
+                                if (firstMesh) {
+                                    const drag = new BABYLON.PointerDragBehavior({ dragPlaneNormal: new BABYLON.Vector3(0, 1, 0) });
+                                    drag.useObjectOrientationForDragging = false;
+                                    drag.onDragObservable.add((event) => {
+                                        node.position.addInPlace(event.delta);
+                                        // Snap to grid if visible (using 3.0 increments)
+                                        if (gridMesh && gridMesh.isEnabled()) {
+                                            node.position.x = Math.round(node.position.x / 3.0) * 3.0;
+                                            node.position.z = Math.round(node.position.z / 3.0) * 3.0;
+                                        }
+                                    });
+                                    // Store on node metadata
+                                    if (!node.metadata) node.metadata = {};
+                                    node.metadata.drag = drag;
+                                    firstMesh.addBehavior(drag);
+                                }
+                            }
+                        });
+                    }
                 }
             };
 
@@ -230,8 +312,6 @@
             });
 
 
-
-
             // --- NEXUS BRIDGE INTEGRATION ---
             const parseVec3 = (data, defaultVal = { x: 0, y: 0, z: 0 }) => {
                 if (!data) return new BABYLON.Vector3(defaultVal.x, defaultVal.y, defaultVal.z);
@@ -280,10 +360,17 @@
 
             window.MCTwin = {
                 clear: function () {
+                    // Dispose only character if we want items to persist, 
+                    // BUT for Scene loading, we might want a full clear.
                     if (playerRoot) { playerRoot.dispose(); playerRoot = null; }
                     meshMap.clear();
-                    // Clear Props too? Maybe keep them? 
-                    // Let's keep props if we just reload skin.
+                },
+
+                clearAll: function () {
+                    this.clear();
+                    scene.transformNodes.slice().forEach(n => {
+                        if (n.id && n.id.indexOf("recipe_") !== -1) n.dispose();
+                    });
                 },
 
                 propRegistry: {},
@@ -340,62 +427,93 @@
                     return id;
                 },
 
-                spawnRecipe: function (json) {
-                    let data = json;
-                    if (typeof json === 'string') { try { data = JSON.parse(json); } catch (e) { console.error(e); return; } }
+                spawnRecipe: function (json, recipeName = "Unknown", transform = null) {
+                    try {
+                        let data = json;
+                        if (typeof json === 'string') { try { data = JSON.parse(json); } catch (e) { log("ERR: JSON Parse failed: " + e.message); return; } }
 
-                    const recipeId = data.Id || "recipe_" + Date.now();
-                    const container = new BABYLON.TransformNode(recipeId, scene);
+                        const recipeId = data.Id || "recipe_" + Date.now();
+                        const container = new BABYLON.TransformNode(recipeId, scene);
+                        container.metadata = { recipeName: recipeName };
 
-                    // Minecraft scaling: 16 units = 1 block.
-                    // Nexus 1.0 scale usually means 1 meter. 
-                    // Let's use 4.0 multiplier to make a human-sized suit look correct.
-                    const globalScaleMultiplier = 1.0;
-                    container.scaling = new BABYLON.Vector3(globalScaleMultiplier, globalScaleMultiplier, globalScaleMultiplier);
+                        // Minecraft scaling: 16 units = 1 block.
+                        const globalScaleMultiplier = 1.0;
+                        container.scaling = new BABYLON.Vector3(globalScaleMultiplier, globalScaleMultiplier, globalScaleMultiplier);
 
-                    if (playerRoot) {
-                        const forward = new BABYLON.Vector3(Math.sin(playerRoot.rotation.y), 0, Math.cos(playerRoot.rotation.y));
-                        const spawnPos = playerRoot.position.add(forward.scale(globalScaleMultiplier * 4));
-                        spawnPos.y = 0;
-                        container.position = spawnPos;
-                    }
-
-                    if (data.Parts && Array.isArray(data.Parts)) {
-                        console.log("Spawning Recipe: " + data.Name);
-
-                        // 1. Spawn All under container
-                        data.Parts.forEach(p => {
-                            this.spawnProp(p, container);
-                        });
-
-                        // 2. Re-Parent within recipe
-                        data.Parts.forEach(p => {
-                            if (p.ParentId && this.propRegistry[p.ParentId] && this.propRegistry[p.Id]) {
-                                this.propRegistry[p.Id].parent = this.propRegistry[p.ParentId];
-                            }
-                        });
-
-                        // 3. Auto-Grounding: Find the lowest point and lift the container
-                        let minY = Infinity;
-                        data.Parts.forEach(p => {
-                            const pos = parseVec3(p.Position);
-                            const scale = parseVec3(p.Scale, { x: 1, y: 1, z: 1 });
-                            // Approximate bottom (assuming center-origin primitives)
-                            // Most primitives (Box, Sphere, Cylinder) are 1.0 unit tall at scale 1.0
-                            let bottom = pos.y - (0.5 * scale.y);
-                            // Capsule is special (height: 2)
-                            if ((p.Shape || "").toLowerCase() === "capsule") bottom = pos.y - (1.0 * scale.y);
-
-                            if (bottom < minY) minY = bottom;
-                        });
-
-                        if (minY !== Infinity && minY < 0) {
-                            // Shift container up by -minY scaled
-                            container.position.y += Math.abs(minY) * globalScaleMultiplier;
+                        if (transform) {
+                            container.position = new BABYLON.Vector3(transform.Position[0], transform.Position[1], transform.Position[2]);
+                            container.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(transform.Rotation[0]), BABYLON.Tools.ToRadians(transform.Rotation[1]), BABYLON.Tools.ToRadians(transform.Rotation[2]));
+                            container.scaling = new BABYLON.Vector3(transform.Scale[0], transform.Scale[1], transform.Scale[2]);
+                        } else if (playerRoot) {
+                            const forward = new BABYLON.Vector3(Math.sin(playerRoot.rotation.y), 0, Math.cos(playerRoot.rotation.y));
+                            const spawnPos = playerRoot.position.add(forward.scale(globalScaleMultiplier * 4));
+                            spawnPos.y = 0;
+                            container.position = spawnPos;
                         }
-                    } else {
-                        this.spawnProp(data, container);
-                    }
+
+                        if (data.Parts && Array.isArray(data.Parts)) {
+                            log("Spawning Recipe: " + data.Name + " (ArtType: " + (transform ? transform.ArtType : "New") + ")");
+
+                            // 1. Spawn All under container
+                            data.Parts.forEach(p => {
+                                this.spawnProp(p, container);
+                            });
+
+                            // 2. Re-Parent within recipe
+                            data.Parts.forEach(p => {
+                                if (p.ParentId && this.propRegistry[p.ParentId] && this.propRegistry[p.Id]) {
+                                    this.propRegistry[p.Id].parent = this.propRegistry[p.ParentId];
+                                }
+                            });
+
+                            // 3. Auto-Grounding
+                            let minY = Infinity;
+                            data.Parts.forEach(p => {
+                                const pos = parseVec3(p.Position);
+                                const scale = parseVec3(p.Scale, { x: 1, y: 1, z: 1 });
+                                let bottom = pos.y - (0.5 * scale.y);
+                                if ((p.Shape || "").toLowerCase() === "capsule") bottom = pos.y - (1.0 * scale.y);
+                                if (bottom < minY) minY = bottom;
+                            });
+
+                            if (minY !== Infinity && minY < 0) {
+                                container.position.y += Math.abs(minY) * globalScaleMultiplier;
+                            }
+                        }
+                    } catch (e) { log("ERR: spawnRecipe failed: " + e.message); }
+                },
+
+                getSceneData: function () {
+                    const items = [];
+                    scene.transformNodes.forEach(n => {
+                        if (n.id && n.id.indexOf("recipe_") !== -1) {
+                            items.push({
+                                RecipeName: n.metadata ? n.metadata.recipeName : "Unknown",
+                                ArtType: n.metadata ? (n.metadata.artType || "Procedural") : "Procedural",
+                                Position: [n.position.x, n.position.y, n.position.z],
+                                Rotation: [BABYLON.Tools.ToDegrees(n.rotation.x), BABYLON.Tools.ToDegrees(n.rotation.y), BABYLON.Tools.ToDegrees(n.rotation.z)],
+                                Scale: [n.scaling.x, n.scaling.y, n.scaling.z]
+                            });
+                        }
+                    });
+                    return JSON.stringify({ Name: "Exported Scene", Items: items });
+                },
+
+                loadScene: function (data) {
+                    log("Loading Scene: " + (data ? data.Name : "null"));
+                    this.clearAll();
+                    if (!data || !data.Items) return;
+                    // We can't actually SPAWN them here because we need the Recipe JSON from C#.
+                    // So we'll have to rely on C# iterating the data and calling spawnRecipe for each.
+                    // THIS function will just be a placeholder or used if C# sends the whole object.
+                },
+
+                toggleGrid: function (enabled) {
+                    if (gridMesh) gridMesh.setEnabled(enabled);
+                },
+
+                toggleDebug: function (enabled) {
+                    debugConsole.style.display = enabled ? "block" : "none";
                 },
 
                 updateWorld: function (config) {
@@ -456,109 +574,104 @@
 
                 renderModel: function (data) {
                     this.clear();
-                    if (!data || !data.Parts) return;
+                    this.spawnVoxel(data, "Player", true);
+                },
 
-                    playerRoot = new BABYLON.TransformNode("root", scene);
+                spawnVoxel: function (data, recipeName = "VoxelNPC", isPlayer = false, transform = null) {
+                    try {
+                        log("Spawning Voxel: " + recipeName + (isPlayer ? " (Player)" : " (NPC)"));
+                        if (!data || !data.Parts) { log("ERR: No Voxel Parts data"); return; }
 
-                    // INITIAL POSITION
-                    playerRoot.position.y = 12; // Half height of legs/body roughly
-                    playerRoot.rotation.y = 0; // Face +Z (Towards Camera at Alpha PI/2)
+                        const id = isPlayer ? "root" : "recipe_" + Date.now();
+                        const rootNode = new BABYLON.TransformNode(id, scene);
+                        rootNode.metadata = { recipeName: recipeName, artType: "Voxel" };
 
-                    const parts = data.Parts;
-                    const skinBase64 = data.Skin;
-
-                    let mat = null;
-                    if (skinBase64) {
-                        const tex = new BABYLON.Texture(skinBase64, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
-                        tex.hasAlpha = true;
-                        mat = new BABYLON.StandardMaterial("skinMat", scene);
-                        mat.diffuseTexture = tex;
-                        mat.specularColor = new BABYLON.Color3(0, 0, 0);
-                        mat.backFaceCulling = true;
-                        mat.useAlphaFromDiffuseTexture = true;
-                    }
-
-                    parts.forEach(p => {
-                        // ... UV Logic (Same as viewer.html) ...
-                        const w = p.Dimensions[0];
-                        const h = p.Dimensions[1];
-                        const d = p.Dimensions[2];
-                        const tw = (p.TextureDimensions && p.TextureDimensions[0]) ? p.TextureDimensions[0] : w;
-                        const th = (p.TextureDimensions && p.TextureDimensions[1]) ? p.TextureDimensions[1] : h;
-                        const td = (p.TextureDimensions && p.TextureDimensions[2]) ? p.TextureDimensions[2] : d;
-                        const u0 = p.TextureOffset[0];
-                        const v0 = p.TextureOffset[1];
-                        const pixel = 1.0 / 64.0;
-                        const getUV = (xPixel, yPixel, wPixel, hPixel) => {
-                            const uMin = xPixel * pixel;
-                            const uMax = (xPixel + wPixel) * pixel;
-                            const vMax = 1.0 - (yPixel * pixel);
-                            const vMin = 1.0 - ((yPixel + hPixel) * pixel);
-                            return new BABYLON.Vector4(uMin, vMin, uMax, vMax);
-                        };
-                        const faceUV = [];
-                        faceUV[0] = getUV(u0 + td, v0 + td, tw, th);
-                        faceUV[1] = getUV(u0 + td + tw + td, v0 + td, tw, th);
-                        faceUV[2] = getUV(u0, v0 + td, td, th);
-                        faceUV[3] = getUV(u0 + td + tw, v0 + td, td, th);
-                        faceUV[4] = getUV(u0 + td, v0, tw, td);
-                        faceUV[5] = getUV(u0 + td + tw, v0, tw, td);
-
-                        const mesh = BABYLON.MeshBuilder.CreateBox(p.Name, {
-                            width: w / 16, height: h / 16, depth: d / 16, faceUV: faceUV, wrap: true
-                        }, scene);
-
-                        // PARENT TO ROOT
-                        mesh.parent = playerRoot;
-
-                        // Local Position relative to Root
-                        mesh.position.set(p.Offset[0] / 16, p.Offset[1] / 16, p.Offset[2] / 16);
-                        // Note: -12 is hack strictly for "Standing on ground" if root is at 0?
-                        // Actually, let's keep root at 0,0,0 and just set mesh positions as given.
-                        // But if HumanoidModel offsets are like 0,24,0...
-
-                        // Let's reset root to 0,0,0
-                        // And adjust camera target
-
-                        if (p.Pivot && (p.Pivot[0] !== 0 || p.Pivot[1] !== 0 || p.Pivot[2] !== 0)) {
-                            // Pivot is Global in HumanoidModel?
-                            // Babylon setPivotPoint is Local.
-                            // This is tricky. Let's ignore complex pivot logic here for simplicity and rely on center.
-                            // Actually, arms rotate around shoulder.
-                            mesh.setPivotPoint(new BABYLON.Vector3(p.Pivot[0], p.Pivot[1], p.Pivot[2]));
-                            // Wait, p.Pivot in HumanoidModel was (0, 22, 0) global.
-                            // setPivotPoint expects Local relative to mesh center? Or Local Space?
-                            // "define the pivot point in the object local space".
-                            // If mesh is at (0, 24, 0), pivot at (0,22,0) implies local y = -2.
-                            // We need to calculate Local Pivot.
-
-                            const localP = new BABYLON.Vector3(
-                                p.Pivot[0] - p.Offset[0],
-                                p.Pivot[1] - p.Offset[1],
-                                p.Pivot[2] - p.Offset[2]
-                            );
-                            mesh.setPivotPoint(localP);
+                        if (isPlayer) {
+                            playerRoot = rootNode;
+                        } else if (transform) {
+                            rootNode.position = new BABYLON.Vector3(transform.Position[0], transform.Position[1], transform.Position[2]);
+                            rootNode.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(transform.Rotation[0]), BABYLON.Tools.ToRadians(transform.Rotation[1]), BABYLON.Tools.ToRadians(transform.Rotation[2]));
+                            rootNode.scaling = new BABYLON.Vector3(transform.Scale[0], transform.Scale[1], transform.Scale[2]);
+                        } else {
+                            if (playerRoot) {
+                                const forward = new BABYLON.Vector3(Math.sin(playerRoot.rotation.y), 0, Math.cos(playerRoot.rotation.y));
+                                rootNode.position = playerRoot.position.add(forward.scale(2));
+                                rootNode.position.y = 0;
+                            }
                         }
 
-                        if (p.Rotation) {
-                            mesh.rotation.x = BABYLON.Tools.ToRadians(p.Rotation[0]);
-                            mesh.rotation.y = BABYLON.Tools.ToRadians(p.Rotation[1]);
-                            mesh.rotation.z = BABYLON.Tools.ToRadians(p.Rotation[2]);
+                        const parts = data.Parts;
+                        const skinBase64 = data.Skin;
+
+                        let mat = null;
+                        if (skinBase64) {
+                            const tex = new BABYLON.Texture(skinBase64, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+                            tex.hasAlpha = true;
+                            mat = new BABYLON.StandardMaterial("skinMat_" + id, scene);
+                            mat.diffuseTexture = tex;
+                            mat.specularColor = new BABYLON.Color3(0, 0, 0);
+                            mat.backFaceCulling = true;
+                            mat.useAlphaFromDiffuseTexture = true;
                         }
 
-                        if (mat) mesh.material = mat;
-                        else {
-                            const dumbMat = new BABYLON.StandardMaterial("dumb", scene);
-                            dumbMat.diffuseColor = p.HexColor ? BABYLON.Color3.FromHexString(p.HexColor) : new BABYLON.Color3(1, 1, 1);
-                            mesh.material = dumbMat;
-                        }
+                        parts.forEach(p => {
+                            const w = p.Dimensions[0];
+                            const h = p.Dimensions[1];
+                            const d = p.Dimensions[2];
+                            const tw = (p.TextureDimensions && p.TextureDimensions[0]) ? p.TextureDimensions[0] : w;
+                            const th = (p.TextureDimensions && p.TextureDimensions[1]) ? p.TextureDimensions[1] : h;
+                            const td = (p.TextureDimensions && p.TextureDimensions[2]) ? p.TextureDimensions[2] : d;
+                            const u0 = p.TextureOffset[0];
+                            const v0 = p.TextureOffset[1];
+                            const pixel = 1.0 / 64.0;
+                            const getUV = (xPixel, yPixel, wPixel, hPixel) => {
+                                const uMin = xPixel * pixel;
+                                const uMax = (xPixel + wPixel) * pixel;
+                                const vMax = 1.0 - (yPixel * pixel);
+                                const vMin = 1.0 - ((yPixel + hPixel) * pixel);
+                                return new BABYLON.Vector4(uMin, vMin, uMax, vMax);
+                            };
+                            const faceUV = [];
+                            faceUV[0] = getUV(u0 + td, v0 + td, tw, th);
+                            faceUV[1] = getUV(u0 + td + tw + td, v0 + td, tw, th);
+                            faceUV[2] = getUV(u0, v0 + td, td, th);
+                            faceUV[3] = getUV(u0 + td + tw, v0 + td, td, th);
+                            faceUV[4] = getUV(u0 + td, v0, tw, td);
+                            faceUV[5] = getUV(u0 + td + tw, v0, tw, td);
 
-                        shadowGenerator.addShadowCaster(mesh);
-                        meshMap.set(p.Name, mesh);
-                    });
+                            const mesh = BABYLON.MeshBuilder.CreateBox(p.Name + "_" + id, {
+                                width: w / 16, height: h / 16, depth: d / 16, faceUV: faceUV, wrap: true
+                            }, scene);
 
-                    // Reset Root Position after building children
-                    playerRoot.position.y = 0;
+                            mesh.parent = rootNode;
+                            mesh.position.set(p.Offset[0] / 16, p.Offset[1] / 16, p.Offset[2] / 16);
+
+                            if (p.Pivot && (p.Pivot[0] !== 0 || p.Pivot[1] !== 0 || p.Pivot[2] !== 0)) {
+                                const localP = new BABYLON.Vector3(
+                                    (p.Pivot[0] - p.Offset[0]) / 16,
+                                    (p.Pivot[1] - p.Offset[1]) / 16,
+                                    (p.Pivot[2] - p.Offset[2]) / 16
+                                );
+                                mesh.setPivotPoint(localP);
+                            }
+
+                            if (p.Rotation) {
+                                mesh.rotation.x = BABYLON.Tools.ToRadians(p.Rotation[0]);
+                                mesh.rotation.y = BABYLON.Tools.ToRadians(p.Rotation[1]);
+                                mesh.rotation.z = BABYLON.Tools.ToRadians(p.Rotation[2]);
+                            }
+
+                            if (mat) mesh.material = mat;
+                            else {
+                                const dumbMat = new BABYLON.StandardMaterial("dumb_" + id, scene);
+                                dumbMat.diffuseColor = p.HexColor ? BABYLON.Color3.FromHexString(p.HexColor) : new BABYLON.Color3(1, 1, 1);
+                                mesh.material = dumbMat;
+                            }
+
+                            shadowGenerator.addShadowCaster(mesh);
+                            if (isPlayer) meshMap.set(p.Name, mesh);
+                        });
+                    } catch (e) { log("ERR: spawnVoxel failed: " + e.message); }
                 }
             };
 
