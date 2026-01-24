@@ -1,12 +1,13 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MCTwinStudio.Services
 {
     public interface IAssetService
     {
-        void SaveAsset(string name, string json, AssetCategory category);
-        string LoadAsset(AssetCategory? category = null);
-        string GetBestMatch(string recipeName);
-        string[] ListAvailableRecipes(AssetCategory? category = null);
+        Task SaveAsset(string name, string json, AssetCategory category);
+        Task<string> LoadAsset(AssetCategory? category = null);
+        Task<string> GetBestMatch(string recipeName);
+        Task<string[]> ListAvailableRecipes(AssetCategory? category = null);
     }
 }

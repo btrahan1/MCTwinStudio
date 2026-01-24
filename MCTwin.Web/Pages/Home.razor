@@ -1,0 +1,79 @@
+﻿@page "/"
+@using MCTwin.Web.Components
+@using MCTwinStudio.Core.Interfaces
+@using MCTwinStudio.Services
+@using MCTwinStudio.Core.Models
+@using System.Text.Json
+@inject IMCTwinRenderer Renderer
+@inject IAssetService AssetService
+@inject HttpClient Http
+
+<PageTitle>MCTwin // Web Driver</PageTitle>
+
+<div class="main-layout" style="display: flex; flex-direction: column; height: 100vh; background: #1a1a1a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <!-- Header -->
+    <header style="height: 60px; background: #252526; display: flex; align-items: center; padding: 0 20px; border-bottom: 2px solid #3e3e42; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="width: 32px; height: 32px; background: #605db8; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold;">M</div>
+            <h1 style="margin: 0; font-size: 1.2rem; letter-spacing: 1px;">MCTWIN <span style="color: #605db8;">WEB DRIVER</span></h1>
+        </div>
+        <div style="font-size: 0.8rem; opacity: 0.6;">CARTRIDGE: <span style="color: #fff; opacity: 1;">THE OBSIDIAN VAULT</span></div>
+    </header>
+
+    <!-- Content -->
+    <main style="flex: 1; overflow: hidden; position: relative;">
+        <MCTwinRendererComponent OnReady="OnRendererReady" />
+        
+        @if (!_isReady)
+        {
+            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;">
+                <div class="loader" style="width: 40px; height: 40px; border: 3px solid #605db8; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <div style="margin-top: 20px; font-weight: bold; letter-spacing: 2px;">INITIALIZING ENGINE...</div>
+            </div>
+        }
+    </main>
+</div>
+
+<style>
+    @@keyframes spin { to { transform: rotate(360deg); } }
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+</style>
+
+@code {
+    private bool _isReady = false;
+
+    private async Task OnRendererReady()
+    {
+        _isReady = true;
+        
+        // 1. Give the JS environment a tiny beat to settle
+        await Task.Delay(200);
+
+        // 2. Clear scene
+        await Renderer.ClearAll();
+
+        // 3. Load the Demo Scene Manifest
+        try
+        {
+            string sceneJson = await Http.GetStringAsync("cartridges/demo/Scenes/main.scene.json");
+            var scene = JsonSerializer.Deserialize<SceneModel>(sceneJson);
+            
+            if (scene != null)
+            {
+                foreach (var item in scene.Items)
+                {
+                    // Fetch the recipe for this item
+                    string recipeJson = await AssetService.GetBestMatch(item.RecipeName);
+                    if (!string.IsNullOrEmpty(recipeJson))
+                    {
+                        await Renderer.SpawnRecipe(recipeJson, item.RecipeName, false, item);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Cartridge Error: {ex.Message}");
+        }
+    }
+}

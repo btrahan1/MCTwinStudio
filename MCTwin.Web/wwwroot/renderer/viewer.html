@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>MCTwin // Industrial Sleek 18.0</title>
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #87CEEB;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+    </style>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+</head>
+
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        const log = (msg) => {
+            console.log(msg);
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage("LOG:" + msg);
+            }
+        };
+
+        window.onerror = function (msg, url, line, col, error) {
+            log("JS_ERROR: " + msg + " at " + line + ":" + col);
+        };
+
+        const createScene = function () {
+            log("Viewer: Initializing Scene...");
+            const scene = new BABYLON.Scene(engine);
+            scene.clearColor = new BABYLON.Color4(0.53, 0.81, 0.92, 1);
+
+            // Camera
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 5, new BABYLON.Vector3(0, 1, 0), scene);
+            camera.attachControl(canvas, true);
+            camera.wheelPrecision = 20;
+            log("Viewer: Camera radius: " + camera.radius);
+
+            log("Viewer: Camera radius: " + camera.radius);
+
+            // Lighting
+            const sun = new BABYLON.DirectionalLight("sun", new BABYLON.Vector3(-1, -2, -1), scene);
+            sun.position = new BABYLON.Vector3(10, 20, 10);
+            sun.intensity = 1.0;
+            const hemi = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
+            hemi.intensity = 0.5;
+
+            const shadowGenerator = new BABYLON.ShadowGenerator(1024, sun);
+
+            // Ground
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 100, height: 100 }, scene);
+            const groundMat = new BABYLON.StandardMaterial("gMat", scene);
+            groundMat.diffuseColor = new BABYLON.Color3(0.3, 0.5, 0.2);
+            ground.material = groundMat;
+            ground.receiveShadows = true;
+
+            const meshMap = new Map();
+            const propRegistry = new Map();
+
+            // Property Helper (Case-Insensitive)
+            const getVal = (obj, prop) => {
+                if (!obj) return null;
+                if (obj[prop] !== undefined) return obj[prop];
+                const lower = prop.toLowerCase();
+                for (let k in obj) { if (k.toLowerCase() === lower) return obj[k]; }
+                return null;
+            };
+
+            const parseVec3 = (data, defaultVal = { x: 0, y: 0, z: 0 }) => {
+                if (!data) return new BABYLON.Vector3(defaultVal.x, defaultVal.y, defaultVal.z);
+                if (Array.isArray(data)) return new BABYLON.Vector3(data[0] ?? defaultVal.x, data[1] ?? defaultVal.y, data[2] ?? defaultVal.z);
+                return new BABYLON.Vector3(
+                    getVal(data, "x") ?? defaultVal.x,
+                    getVal(data, "y") ?? defaultVal.y,
+                    getVal(data, "z") ?? defaultVal.z
+                );
+            };
+
+            const createPBR = (id, config) => {
+                const mat = new BABYLON.PBRMaterial("pbr_" + id, scene);
+                const colHex = getVal(config, "ColorHex");
+                mat.albedoColor = colHex ? BABYLON.Color3.FromHexString(colHex) : new BABYLON.Color3(0.5, 0.5, 0.5);
+                mat.metallic = 0; mat.roughness = 0.5;
+                const matType = (getVal(config, "Material") || "Plastic").toLowerCase();
+                if (matType.includes("metal")) { mat.metallic = 1; mat.roughness = 0.1; }
+                else if (matType.includes("glass")) { mat.alpha = 0.4; mat.transparencyMode = 2; }
+                else if (matType.includes("glow")) { mat.emissiveColor = mat.albedoColor; mat.emissiveIntensity = 2; }
+                return mat;
+            };
+
+            window.MCTwin = {
+                clear: function () {
+                    meshMap.forEach(m => m.dispose()); meshMap.clear();
+                    propRegistry.forEach(m => m.dispose()); propRegistry.clear();
+                    if (scene.transformNodes) {
+                        scene.transformNodes.slice().forEach(n => { if (n.id && n.id.startsWith("recipe_")) n.dispose(); });
+                    }
+                },
+
+                renderModel: function (data) {
+                    this.clear();
+                    this.spawnVoxel(data);
+                },
+
+                spawnVoxel: function (data, name = "Voxel") {
+                    try {
+                        log("Viewer: spawnVoxel called");
+                        const parts = getVal(data, "Parts");
+                        const skin = getVal(data, "Skin");
+                        if (!parts) { log("Viewer: No parts found in data"); return; }
+
+                        let skinMat = null;
+                        if (skin) {
+                            const tex = new BABYLON.Texture(skin, scene, false, true, BABYLON.Texture.NEAREST_SAMPLINGMODE);
+                            tex.hasAlpha = true;
+                            skinMat = new BABYLON.StandardMaterial("skinMat", scene);
+                            skinMat.diffuseTexture = tex;
+                            skinMat.specularColor = new BABYLON.Color3(0, 0, 0);
+                            skinMat.useAlphaFromDiffuseTexture = true;
+                        }
+
+                        parts.forEach(p => {
+                            const dim = getVal(p, "Dimensions") || [8, 8, 8];
+                            const off = getVal(p, "Offset") || [0, 0, 0];
+                            const tOff = getVal(p, "TextureOffset") || [0, 0];
+                            const tDim = getVal(p, "TextureDimensions") || dim;
+
+                            const getUV = (ux, uy, uw, uh) => {
+                                const pxl = 1 / 64;
+                                return new BABYLON.Vector4(ux * pxl, 1 - ((uy + uh) * pxl), (ux + uw) * pxl, 1 - (uy * pxl));
+                            };
+
+                            const td = tDim[2], tw = tDim[0], th = tDim[1];
+                            const u = tOff[0], v = tOff[1];
+                            const faceUV = [
+                                getUV(u + td, v + td, tw, th),
+                                getUV(u + td + tw + td, v + td, tw, th),
+                                getUV(u, v + td, td, th),
+                                getUV(u + td + tw, v + td, td, th),
+                                getUV(u + td, v, tw, td),
+                                getUV(u + td + tw, v, tw, td)
+                            ];
+
+                            const mesh = BABYLON.MeshBuilder.CreateBox(getVal(p, "Name"), {
+                                width: dim[0] / 16, height: dim[1] / 16, depth: dim[2] / 16,
+                                faceUV: faceUV, wrap: true
+                            }, scene);
+                            mesh.position.set(off[0] / 16, off[1] / 16, off[2] / 16);
+
+                            const rot = getVal(p, "Rotation");
+                            if (rot) {
+                                mesh.rotation.x = BABYLON.Tools.ToRadians(rot[0]);
+                                mesh.rotation.y = BABYLON.Tools.ToRadians(rot[1]);
+                                mesh.rotation.z = BABYLON.Tools.ToRadians(rot[2]);
+                            }
+
+                            if (skinMat) mesh.material = skinMat;
+                            else {
+                                const m = new BABYLON.StandardMaterial("pCol_" + getVal(p, "Name"), scene);
+                                const hex = getVal(p, "HexColor");
+                                m.diffuseColor = hex ? BABYLON.Color3.FromHexString(hex) : new BABYLON.Color3(1, 1, 1);
+                                m.specularColor = new BABYLON.Color3(0, 0, 0);
+                                mesh.material = m;
+                            }
+                            mesh.receiveShadows = true;
+                            shadowGenerator.addShadowCaster(mesh);
+                            meshMap.set(getVal(p, "Name"), mesh);
+                        });
+                    } catch (e) { log("RENDER_ERROR: " + e.message); }
+                },
+
+                spawnProp: function (config, parentNode = null) {
+                    const id = getVal(config, "Id") || "p_" + Date.now();
+                    const shape = (getVal(config, "Shape") || "Box").toLowerCase();
+                    const scale = parseVec3(getVal(config, "Scale"), { x: 1, y: 1, z: 1 });
+                    let mesh;
+                    try {
+                        if (shape === "sphere") mesh = BABYLON.MeshBuilder.CreateSphere(id, { diameter: 1 }, scene);
+                        else if (shape === "cylinder") mesh = BABYLON.MeshBuilder.CreateCylinder(id, { diameter: 1, height: 1 }, scene);
+                        else if (shape === "capsule") mesh = BABYLON.MeshBuilder.CreateCapsule(id, { radius: 0.5, height: 2 }, scene);
+                        else mesh = BABYLON.MeshBuilder.CreateBox(id, { size: 1 }, scene);
+                    } catch (e) { mesh = BABYLON.MeshBuilder.CreateBox(id, { size: 1 }, scene); }
+
+                    mesh.scaling = scale;
+                    propRegistry.set(id, mesh);
+                    if (parentNode) mesh.parent = parentNode;
+
+                    const rawPos = parseVec3(getVal(config, "Position"));
+                    mesh.intendedScale = scale;
+
+                    const pId = getVal(config, "ParentId");
+                    if (pId && propRegistry.has(pId)) {
+                        const parent = propRegistry.get(pId);
+                        const ps = parent.intendedScale || new BABYLON.Vector3(1, 1, 1);
+                        mesh.scaling = new BABYLON.Vector3(scale.x / ps.x, scale.y / ps.y, scale.z / ps.z);
+                        mesh.position = new BABYLON.Vector3(rawPos.x / ps.x, rawPos.y / ps.y, rawPos.z / ps.z);
+                        mesh.parent = parent;
+                    } else {
+                        mesh.scaling = scale; mesh.position = rawPos;
+                    }
+
+                    const rot = parseVec3(getVal(config, "Rotation"));
+                    mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(rot.x), BABYLON.Tools.ToRadians(rot.y), BABYLON.Tools.ToRadians(rot.z));
+                    mesh.material = createPBR(id, config);
+                    shadowGenerator.addShadowCaster(mesh);
+                    mesh.receiveShadows = true;
+                },
+
+                spawnRecipe: function (json, name = "Prop", isSelectable = true, transform = null) {
+                    this.clear();
+                    let data = (typeof json === 'string') ? JSON.parse(json) : json;
+                    const container = new BABYLON.TransformNode("recipe_" + (getVal(data, "Name") || Date.now()), scene);
+                    container.scaling.set(1.0, 1.0, 1.0);
+                    container.position.y = 0.5;
+                    const parts = getVal(data, "Parts");
+                    if (parts && Array.isArray(parts)) {
+                        parts.forEach(p => this.spawnProp(p, container));
+                    }
+                },
+
+                setAnimation: function (name) { console.log("Anim: " + name); }
+            };
+
+            engine.runRenderLoop(() => scene.render());
+        };
+
+        createScene();
+        window.addEventListener("resize", () => engine.resize());
+    </script>
+</body>
+
+</html>

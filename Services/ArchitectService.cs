@@ -29,7 +29,7 @@ namespace MCTwinStudio.Services
             _brain.JsonResponseReceived += HandleBrainResponse;
         }
 
-        public void Forge(string prompt, string mode, VoxelOptions? voxelOptions = null)
+        public async void Forge(string prompt, string mode, VoxelOptions? voxelOptions = null)
         {
             string primer = MCTwinProtocol.GetPrimer(mode);
             string fullPrompt = primer;
@@ -51,7 +51,7 @@ namespace MCTwinStudio.Services
 
             if (mode == "Scene")
             {
-                var recipes = _assetService.ListAvailableRecipes();
+                var recipes = await _assetService.ListAvailableRecipes();
                 fullPrompt += "\n\n[AVAILABLE ASSETS (USE THESE IF POSSIBLE)]\n" + string.Join(", ", recipes);
                 fullPrompt += "\n\nIf the user asks for something NOT in this list, give it a unique name and I will generate it later.";
             }
@@ -61,7 +61,7 @@ namespace MCTwinStudio.Services
             _brain.SendPrompt(fullPrompt);
         }
 
-        private void HandleBrainResponse(object? sender, string json)
+        private async void HandleBrainResponse(object? sender, string json)
         {
             _isProcessingQueue = false;
             try
@@ -72,11 +72,11 @@ namespace MCTwinStudio.Services
 
                 if (type == "Scene")
                 {
-                    _sceneService.SaveScene("ai_delivery", json);
+                    await _sceneService.SaveScene("ai_delivery", json);
                     OnStatusUpdate?.Invoke("AI Scene Delivery Saved.");
                     
                     // Recursive Logic: Check for missing assets
-                    CheckForMissingAssets(root);
+                    await CheckForMissingAssets(root);
                     
                     OnSceneDelivered?.Invoke(json);
                 }
@@ -84,14 +84,14 @@ namespace MCTwinStudio.Services
                 {
                     var model = new ProceduralModel { RawRecipeJson = json };
                     model.Name = root.TryGetProperty("Name", out var pn) ? pn.GetString() ?? "Prop" : "Prop";
-                    _assetService.SaveAsset(model.Name, json, AssetCategory.Prop);
+                    await _assetService.SaveAsset(model.Name, json, AssetCategory.Prop);
                     OnAssetDelivered?.Invoke(model);
                 }
                 else
                 {
                     // Voxel
                     var human = MapToHumanoid(root);
-                    _assetService.SaveAsset(human.Name, json, AssetCategory.Actor);
+                    await _assetService.SaveAsset(human.Name, json, AssetCategory.Actor);
                     OnAssetDelivered?.Invoke(human);
                 }
             }
@@ -105,7 +105,7 @@ namespace MCTwinStudio.Services
             }
         }
 
-        private void CheckForMissingAssets(JsonElement root)
+        private async Task CheckForMissingAssets(JsonElement root)
         {
             if (!root.TryGetProperty("Items", out var items) || items.ValueKind != JsonValueKind.Array) return;
 
@@ -115,7 +115,7 @@ namespace MCTwinStudio.Services
                 string recipeName = item.TryGetProperty("RecipeName", out var rn) ? rn.GetString() ?? "" : "";
                 if (string.IsNullOrEmpty(recipeName)) continue;
 
-                if (string.IsNullOrEmpty(_assetService.GetBestMatch(recipeName)))
+                if (string.IsNullOrEmpty(await _assetService.GetBestMatch(recipeName)))
                 {
                     if (!missing.Contains(recipeName)) missing.Add(recipeName);
                 }

@@ -15,7 +15,7 @@ namespace MCTwinStudio.Services
             EngineConfig.Initialize();
         }
 
-        public void SaveScene(string name, string json)
+        public Task SaveScene(string name, string json)
         {
             try
             {
@@ -27,9 +27,10 @@ namespace MCTwinStudio.Services
             {
                 MessageBox.Show($"Save Scene Failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            return Task.CompletedTask;
         }
 
-        public string LoadScene()
+        public Task<string> LoadScene()
         {
             using (var dialog = new OpenFileDialog())
             {
@@ -37,23 +38,23 @@ namespace MCTwinStudio.Services
                 dialog.Filter = "MCTwin Scenes (*.scene.json)|*.scene.json";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    try { return File.ReadAllText(dialog.FileName); }
+                    try { return Task.FromResult(File.ReadAllText(dialog.FileName)); }
                     catch (Exception ex) { MessageBox.Show($"Load Scene Failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
                 }
             }
-            return string.Empty;
+            return Task.FromResult(string.Empty);
         }
 
-        public string[] ListScenes()
+        public Task<string[]> ListScenes()
         {
-            if (!Directory.Exists(EngineConfig.ScenesDir)) return new string[0];
+            if (!Directory.Exists(EngineConfig.ScenesDir)) return Task.FromResult(new string[0]);
             var files = Directory.GetFiles(EngineConfig.ScenesDir, "*.scene.json");
             var sceneNames = new string[files.Length];
             for (int i = 0; i < files.Length; i++)
             {
                 sceneNames[i] = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(files[i]));
             }
-            return sceneNames;
+            return Task.FromResult(sceneNames);
         }
     }
 }

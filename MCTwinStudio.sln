@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MCTwin.Shared", "MCTwin.Sha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MCTwin.Engine.WinForms", "MCTwin.Engine.WinForms\MCTwin.Engine.WinForms.csproj", "{61EAD712-D61B-4A6F-A063-66B083E67884}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MCTwin.Web", "MCTwin.Web\MCTwin.Web.csproj", "{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{61EAD712-D61B-4A6F-A063-66B083E67884}.Release|x64.Build.0 = Release|Any CPU
 		{61EAD712-D61B-4A6F-A063-66B083E67884}.Release|x86.ActiveCfg = Release|Any CPU
 		{61EAD712-D61B-4A6F-A063-66B083E67884}.Release|x86.Build.0 = Release|Any CPU
+		{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}.Debug|x64.Build.0 = Debug|Any CPU
+		{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}.Debug|x86.Build.0 = Debug|Any CPU
+		{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}.Release|Any CPU.Build.0 = Release|Any CPU
+		{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}.Release|x64.ActiveCfg = Release|Any CPU
+		{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}.Release|x64.Build.0 = Release|Any CPU
+		{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}.Release|x86.ActiveCfg = Release|Any CPU
+		{054B4AEF-D6C3-486E-BE5A-EC8FB767E020}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -15,16 +15,16 @@ namespace MCTwinStudio
 {
     public class WorldForm : Form
     {
-        private WebView2 _webView;
+        private WebView2? _webView;
         private IMCTwinRenderer _controller = null!;
         private HumanoidModel? _model;
-        private CoreWebView2Environment _env;
+        private CoreWebView2Environment? _env;
         private IAssetService _assetService;
         private ISceneService _sceneService;
-        private Controls.PaletteControl _palette = null!;
-        private Button _btnMove, _btnRot, _btnSize, _btnDrag, _btnNone, _btnPullAI;
-        private Panel _pnlSaveOverlay = null!;
-        private TextBox _txtSaveName = null!;
+        private Controls.PaletteControl? _palette;
+        private Button? _btnMove, _btnRot, _btnSize, _btnDrag, _btnNone, _btnPullAI;
+        private Panel? _pnlSaveOverlay;
+        private TextBox? _txtSaveName;
         private string? _pendingSceneJson = null;
 
         public WorldForm(HumanoidModel? model, CoreWebView2Environment env, IAssetService assetService, ISceneService sceneService)
@@ -62,13 +62,13 @@ namespace MCTwinStudio
             AddLabel(pnlSettings, "Scene Management");
             var btnLoadScene = new Button { Text = "LOAD SCENE", Dock = DockStyle.Top, Height = 35, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(40, 40, 40), ForeColor = Color.White };
             btnLoadScene.Click += async (s, e) => {
-                string json = _sceneService.LoadScene();
+                string json = await _sceneService.LoadScene();
                 if (!string.IsNullOrEmpty(json)) {
                     var scene = JsonSerializer.Deserialize<SceneModel>(json);
                     if (scene != null) {
                         await _controller.ClearAll();
                         foreach (var item in scene.Items) {
-                            string recipe = _assetService.GetBestMatch(item.RecipeName);
+                            string recipe = await _assetService.GetBestMatch(item.RecipeName);
                             if (!string.IsNullOrEmpty(recipe)) ImportProp(recipe, item.RecipeName, item);
                         }
                     }
@@ -77,7 +77,7 @@ namespace MCTwinStudio
             var btnSaveScene = new Button { Text = "SAVE SCENE", Dock = DockStyle.Top, Height = 35, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(40, 40, 40), ForeColor = Color.White };
             btnSaveScene.Click += async (s, e) => {
                 _pendingSceneJson = await _controller.GetSceneData();
-                if (_pendingSceneJson != null) {
+                if (_pendingSceneJson != null && _pnlSaveOverlay != null && _txtSaveName != null) {
                     _pnlSaveOverlay.Visible = true;
                     _pnlSaveOverlay.BringToFront();
                     _txtSaveName.Text = "New Scene";
@@ -98,7 +98,7 @@ namespace MCTwinStudio
                     string json = File.ReadAllText(path);
                     var scene = JsonSerializer.Deserialize<SceneModel>(json);
                     if (scene != null) foreach (var item in scene.Items) {
-                        string recipe = _assetService.GetBestMatch(item.RecipeName);
+                        string recipe = await _assetService.GetBestMatch(item.RecipeName);
                         if (!string.IsNullOrEmpty(recipe)) ImportProp(recipe, item.RecipeName, item);
                     }
                 }
@@ -213,6 +213,7 @@ namespace MCTwinStudio
 
         private async void InitializeAsync()
         {
+            if (_webView == null) return;
             await _webView.EnsureCoreWebView2Async(_env);
             _controller = new DesktopSceneController(_webView);
             

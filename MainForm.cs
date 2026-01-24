@@ -36,11 +36,9 @@ namespace MCTwinStudio
         private RadioButton _rbVoxel = null!;
         private RadioButton _rbProcedural = null!;
         private RadioButton _rbScene = null!;
-        private RadioButton _rbSculpted = null!;
         private PaletteControl _palette = null!;
 
         private BaseModel? _currentModel = null;
-        private string _currentDescription = "";
 
         public MainForm()
         {
@@ -127,8 +125,6 @@ namespace MCTwinStudio
             // Studio UI Elements
             int btnY = 5;
             int btnW = 150;
-            int btnH = 35;
-            int rightMargin = 20;
 
             _btnToggleBrain = CreateToggleBtn("OPEN AI BRAIN", NexusStyles.AccentIndigo, btnY);
             _btnToggleBrain.Click += (s, e) => ToggleBrain();
@@ -198,7 +194,7 @@ namespace MCTwinStudio
             pnlButtons.Controls.Add(btnLoadRefined);
         }
 
-        private void RefreshPalette() => _palette.RefreshItems();
+        private void RefreshPalette() => _ = _palette.RefreshItems();
 
         private Button CreateToggleBtn(string text, Color color, int y)
         {
@@ -250,7 +246,7 @@ namespace MCTwinStudio
                         _currentModel = model;
                         _viewport.RenderModel(model);
                         _jsonViewer.SetJson(model.ExportJson());
-                        _palette.RefreshItems(); // Sync palette
+                        _ = _palette.RefreshItems(); // Sync palette
                         _btnForge.Enabled = true;
                         _btnForge.Text = "FORGE";
                         AddLog($"AI Asset Delivered & Saved: {model.Name}");
@@ -298,17 +294,17 @@ namespace MCTwinStudio
             _viewport.RenderModel(h);
         }
 
-        private void SaveAsset() 
+        private async void SaveAsset() 
         { 
             if (_currentModel == null) return;
             string json = (_currentModel is ProceduralModel p) ? p.RawRecipeJson : _currentModel.ExportJson();
             var category = (_currentModel is HumanoidModel) ? AssetCategory.Actor : AssetCategory.Prop;
-            _assetService.SaveAsset(_currentModel.Name, json, category);
+            await _assetService.SaveAsset(_currentModel.Name, json, category);
             AddLog($"Asset Saved: {_currentModel.Name}");
         }
 
-        private void LoadAsset() { 
-            string json = _assetService.LoadAsset(); 
+        private async void LoadAsset() { 
+            string json = await _assetService.LoadAsset(); 
             if (!string.IsNullOrEmpty(json)) ProcessAssetJson(json);
         }
 

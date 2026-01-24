@@ -38,17 +38,17 @@ namespace MCTwinStudio.Controls
                 Font = new Font("Segoe UI", 9)
             };
 
-            _lstPalette.DoubleClick += (s, e) => {
+            _lstPalette.DoubleClick += async (s, e) => {
                 if (_lstPalette.SelectedItem != null) {
                     string name = _lstPalette.SelectedItem.ToString()!;
-                    string recipe = _assetService.GetBestMatch(name);
+                    string recipe = await _assetService.GetBestMatch(name);
                     if (!string.IsNullOrEmpty(recipe)) OnAssetSelected?.Invoke(name, recipe);
                 }
             };
 
             this.Controls.Add(_lstPalette);
             _lstPalette.BringToFront();
-            RefreshItems();
+            _ = RefreshItems();
             UpdateToggleStates();
         }
 
@@ -62,9 +62,9 @@ namespace MCTwinStudio.Controls
                 Font = new Font("Segoe UI", 8, FontStyle.Bold) 
             };
             btn.FlatAppearance.BorderSize = 0;
-            btn.Click += (s, e) => {
+            btn.Click += async (s, e) => {
                 _currentCategory = cat;
-                RefreshItems();
+                await RefreshItems();
                 UpdateToggleStates();
             };
             return btn;
@@ -76,10 +76,10 @@ namespace MCTwinStudio.Controls
             _btnProps.BackColor = _currentCategory == AssetCategory.Prop ? NexusStyles.AccentIndigo : Color.Transparent;
         }
 
-        public void RefreshItems()
+        public async Task RefreshItems()
         {
             _lstPalette.Items.Clear();
-            var recipes = _assetService.ListAvailableRecipes(_currentCategory);
+            var recipes = await _assetService.ListAvailableRecipes(_currentCategory);
             foreach (var r in recipes) _lstPalette.Items.Add(r);
         }
     }

@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MCTwinStudio.Services
 {
     public interface ISceneService
     {
-        void SaveScene(string name, string json);
-        string LoadScene();
-        string[] ListScenes();
+        Task SaveScene(string name, string json);
+        Task<string> LoadScene();
+        Task<string[]> ListScenes();
     }
 }

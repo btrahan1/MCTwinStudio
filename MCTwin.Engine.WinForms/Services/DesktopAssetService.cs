@@ -15,7 +15,7 @@ namespace MCTwinStudio.Services
 
         public string GetDirectory(AssetCategory category) => category == AssetCategory.Actor ? EngineConfig.ActorsDir : EngineConfig.PropsDir;
 
-        public void SaveAsset(string name, string json, AssetCategory category = AssetCategory.Prop)
+        public Task SaveAsset(string name, string json, AssetCategory category = AssetCategory.Prop)
         {
             try
             {
@@ -29,9 +29,10 @@ namespace MCTwinStudio.Services
             {
                 MessageBox.Show($"Save Failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            return Task.CompletedTask;
         }
 
-        public string LoadAsset(AssetCategory? category = null)
+        public Task<string> LoadAsset(AssetCategory? category = null)
         {
             using (var dialog = new OpenFileDialog())
             {
@@ -39,20 +40,20 @@ namespace MCTwinStudio.Services
                 dialog.Filter = "MCTwin Recipes (*.json)|*.json";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    try { return File.ReadAllText(dialog.FileName); }
+                    try { return Task.FromResult(File.ReadAllText(dialog.FileName)); }
                     catch (Exception ex) { MessageBox.Show($"Load Failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
                 }
             }
-            return string.Empty;
+            return Task.FromResult(string.Empty);
         }
 
-        public string GetBestMatch(string recipeName)
+        public Task<string> GetBestMatch(string recipeName)
         {
             // Search BOTH directories
             string actorMatch = FindMatchInDir(EngineConfig.ActorsDir, recipeName);
-            if (!string.IsNullOrEmpty(actorMatch)) return actorMatch;
+            if (!string.IsNullOrEmpty(actorMatch)) return Task.FromResult(actorMatch);
 
-            return FindMatchInDir(EngineConfig.PropsDir, recipeName);
+            return Task.FromResult(FindMatchInDir(EngineConfig.PropsDir, recipeName));
         }
 
         private string FindMatchInDir(string dir, string recipeName)
@@ -63,7 +64,7 @@ namespace MCTwinStudio.Services
             return files.Count > 0 ? File.ReadAllText(files[0]) : string.Empty;
         }
 
-        public string[] ListAvailableRecipes(AssetCategory? category = null)
+        public Task<string[]> ListAvailableRecipes(AssetCategory? category = null)
         {
             var recipes = new System.Collections.Generic.HashSet<string>();
             
@@ -72,7 +73,7 @@ namespace MCTwinStudio.Services
 
             var list = new List<string>(recipes);
             list.Sort();
-            return list.ToArray();
+            return Task.FromResult(list.ToArray());
         }
 
         private void ScanDir(string dir, HashSet<string> recipes)

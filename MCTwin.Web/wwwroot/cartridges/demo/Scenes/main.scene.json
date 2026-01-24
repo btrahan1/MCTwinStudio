@@ -1,0 +1,81 @@
+{
+    "Name": "The Obsidian Vault",
+    "Items": [
+        {
+            "RecipeName": "brazier_lit",
+            "ArtType": "Procedural",
+            "Position": [
+                5,
+                0,
+                5
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                1,
+                1,
+                1
+            ]
+        },
+        {
+            "RecipeName": "brazier_lit",
+            "ArtType": "Procedural",
+            "Position": [
+                -5,
+                0,
+                5
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                1,
+                1,
+                1
+            ]
+        },
+        {
+            "RecipeName": "brazier_lit",
+            "ArtType": "Procedural",
+            "Position": [
+                5,
+                0,
+                -5
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                1,
+                1,
+                1
+            ]
+        },
+        {
+            "RecipeName": "brazier_lit",
+            "ArtType": "Procedural",
+            "Position": [
+                -5,
+                0,
+                -5
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                1,
+                1,
+                1
+            ]
+        }
+    ]
+}

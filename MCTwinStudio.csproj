@@ -11,10 +11,13 @@
   <ItemGroup>
     <Compile Remove="MCTwin.Shared\**" />
     <Compile Remove="MCTwin.Engine.WinForms\**" />
+    <Compile Remove="MCTwin.Web\**" />
     <EmbeddedResource Remove="MCTwin.Shared\**" />
     <EmbeddedResource Remove="MCTwin.Engine.WinForms\**" />
+    <EmbeddedResource Remove="MCTwin.Web\**" />
     <None Remove="MCTwin.Shared\**" />
     <None Remove="MCTwin.Engine.WinForms\**" />
+    <None Remove="MCTwin.Web\**" />
   </ItemGroup>
 
   <ItemGroup>
