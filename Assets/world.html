@@ -438,45 +438,50 @@
                     const id = config.Id || "prop_" + Date.now();
                     const targetRegistry = registry || this.propRegistry;
 
-                    // 1. Create the Bone (The coordinate hub)
-                    const bone = new BABYLON.TransformNode("bone_" + id, scene);
-                    const pos = parseVec3(config.Position);
-                    const rot = parseVec3(config.Rotation);
-                    bone.position = pos;
-                    bone.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(rot.x), BABYLON.Tools.ToRadians(rot.y), BABYLON.Tools.ToRadians(rot.z));
-
-                    if (config.ParentId && targetRegistry[config.ParentId]) {
-                        bone.parent = targetRegistry[config.ParentId];
-                    } else if (parentNode) {
-                        bone.parent = parentNode;
-                    }
-
-                    // Register the BONE so children attach to an unscaled hub
-                    targetRegistry[id] = bone;
-
-                    // 2. Create the Visual (The actual geometry)
                     let mesh;
                     const shape = (config.Shape || "Box").toLowerCase();
                     const scale = parseVec3(config.Scale, { x: 1, y: 1, z: 1 });
 
                     try {
-                        const meshOpts = { size: 1, diameter: 1, height: 1, segments: 16, tessellation: 32 };
                         switch (shape) {
-                            case "sphere": mesh = BABYLON.MeshBuilder.CreateSphere("mesh_" + id, meshOpts, scene); break;
-                            case "cylinder": mesh = BABYLON.MeshBuilder.CreateCylinder("mesh_" + id, meshOpts, scene); break;
-                            case "plane": mesh = BABYLON.MeshBuilder.CreatePlane("mesh_" + id, meshOpts, scene); mesh.rotation.x = Math.PI / 2; break;
-                            case "torus": mesh = BABYLON.MeshBuilder.CreateTorus("mesh_" + id, meshOpts, scene); break;
-                            case "capsule": mesh = BABYLON.MeshBuilder.CreateCapsule("mesh_" + id, meshOpts, scene); break;
-                            case "cone": mesh = BABYLON.MeshBuilder.CreateCylinder("mesh_" + id, { diameterTop: 0, diameterBottom: 1, height: 1, tessellation: 32 }, scene); break;
-                            default: mesh = BABYLON.MeshBuilder.CreateBox("mesh_" + id, meshOpts, scene);
+                            case "sphere": mesh = BABYLON.MeshBuilder.CreateSphere("prop_" + id, { diameter: 1, segments: 16 }, scene); break;
+                            case "cylinder": mesh = BABYLON.MeshBuilder.CreateCylinder("prop_" + id, { diameter: 1, height: 1, tessellation: 32 }, scene); break;
+                            case "plane": mesh = BABYLON.MeshBuilder.CreatePlane("prop_" + id, { size: 1 }, scene); mesh.rotation.x = Math.PI / 2; break;
+                            case "torus": mesh = BABYLON.MeshBuilder.CreateTorus("prop_" + id, { diameter: 1, thickness: 0.2, tessellation: 32 }, scene); break;
+                            case "capsule": mesh = BABYLON.MeshBuilder.CreateCapsule("prop_" + id, { radius: 0.5, height: 2, tessellation: 32 }, scene); break;
+                            default: mesh = BABYLON.MeshBuilder.CreateBox("prop_" + id, { size: 1 }, scene);
                         }
-                    } catch (e) { mesh = BABYLON.MeshBuilder.CreateBox("mesh_" + id, { size: 1 }, scene); }
+                    } catch (e) { mesh = BABYLON.MeshBuilder.CreateBox("prop_" + id, { size: 1 }, scene); }
 
-                    mesh.parent = bone;
                     mesh.scaling = scale;
-                    mesh.material = createMaterial(id, config);
-                    mesh.isPickable = true;
+                    targetRegistry[id] = mesh;
 
+                    if (config.ParentId && targetRegistry[config.ParentId]) {
+                        mesh.parent = targetRegistry[config.ParentId];
+                    } else if (parentNode) {
+                        mesh.parent = parentNode;
+                    }
+
+                    const rawPos = parseVec3(config.Position);
+                    const rawScale = scale;
+                    mesh.intendedScale = rawScale;
+
+                    if (config.ParentId && targetRegistry[config.ParentId]) {
+                        const parentProp = targetRegistry[config.ParentId];
+                        const ps = parentProp.intendedScale || new BABYLON.Vector3(1, 1, 1);
+                        // Compensate for immediate parent's non-uniform scaling
+                        mesh.scaling = new BABYLON.Vector3(rawScale.x / ps.x, rawScale.y / ps.y, rawScale.z / ps.z);
+                        mesh.position = new BABYLON.Vector3(rawPos.x / ps.x, rawPos.y / ps.y, rawPos.z / ps.z);
+                    } else {
+                        // Root part of the recipe or unparented prop
+                        mesh.scaling = rawScale;
+                        mesh.position = rawPos;
+                    }
+
+                    const rot = parseVec3(config.Rotation);
+                    mesh.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(rot.x), BABYLON.Tools.ToRadians(rot.y), BABYLON.Tools.ToRadians(rot.z));
+
+                    mesh.material = createMaterial(id, config);
                     shadowGenerator.addShadowCaster(mesh);
                     mesh.receiveShadows = true;
 
@@ -633,12 +638,10 @@
                 runTimeline: function (timeline, registry = null) {
                     const reg = registry || this.propRegistry;
                     timeline.forEach(event => {
-                        let target = reg[event.TargetId];
+                        const target = reg[event.TargetId];
                         if (!target) return;
-
                         const frameRate = 30;
                         const duration = (event.Duration || 1) * frameRate;
-
                         if (event.Action === "Move") {
                             const endPos = parseVec3(event.Value);
                             BABYLON.Animation.CreateAndStartAnimation("anim_mv_" + event.TargetId, target, "position", frameRate, duration, target.position, endPos, 0);
@@ -647,18 +650,12 @@
                             const endRot = new BABYLON.Vector3(BABYLON.Tools.ToRadians(rot.x), BABYLON.Tools.ToRadians(rot.y), BABYLON.Tools.ToRadians(rot.z));
                             BABYLON.Animation.CreateAndStartAnimation("anim_rot_" + event.TargetId, target, "rotation", frameRate, duration, target.rotation, endRot, 0);
                         } else if (event.Action === "Scale") {
-                            // Scale the VISUAL mesh, not the bone coordinate system
-                            const visual = target.getChildMeshes()[0];
-                            if (visual) {
-                                const endScale = parseVec3(event.Value);
-                                BABYLON.Animation.CreateAndStartAnimation("anim_scale_" + event.TargetId, visual, "scaling", frameRate, duration, visual.scaling, endScale, 0);
-                            }
-                        } else if (event.Action === "Color") {
-                            const visual = target.getChildMeshes()[0];
-                            if (visual && visual.material) {
-                                const endCol = parseVec3(event.Value);
-                                BABYLON.Animation.CreateAndStartAnimation("anim_col_" + event.TargetId, visual.material, "albedoColor", frameRate, duration, visual.material.albedoColor, new BABYLON.Color3(endCol.x, endCol.y, endCol.z), 0);
-                            }
+                            const endScale = parseVec3(event.Value);
+                            BABYLON.Animation.CreateAndStartAnimation("anim_scale_" + event.TargetId, target, "scaling", frameRate, duration, target.scaling, endScale, 0);
+                        } else if (event.Action === "Color" && target.material) {
+                            const endCol = parseVec3(event.Value); // [r,g,b] 0-1 range
+                            BABYLON.Animation.CreateAndStartAnimation("anim_col_" + event.TargetId, target.material, "albedoColor", frameRate, duration, target.material.albedoColor, new BABYLON.Color3(endCol.x, endCol.y, endCol.z), 0);
+                            if (target.material.emissiveColor) BABYLON.Animation.CreateAndStartAnimation("anim_emi_" + event.TargetId, target.material, "emissiveColor", frameRate, duration, target.material.emissiveColor, new BABYLON.Color3(endCol.x, endCol.y, endCol.z), 0);
                         }
                     });
                 },
