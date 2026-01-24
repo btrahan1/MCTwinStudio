@@ -6,6 +6,8 @@ using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using MCTwinStudio.Core;
 using MCTwinStudio.Core.Models;
+using MCTwinStudio.Core.Interfaces;
+using MCTwinStudio.Services;
 using System.Text.Json;
 using System.Collections.Generic;
 
@@ -14,25 +16,25 @@ namespace MCTwinStudio
     public class WorldForm : Form
     {
         private WebView2 _webView;
-        private SceneController _controller = null!;
-        private HumanoidModel _model;
+        private IMCTwinRenderer _controller = null!;
+        private HumanoidModel? _model;
         private CoreWebView2Environment _env;
-        private Services.AssetService _assetService;
-        private Services.SceneService _sceneService;
+        private IAssetService _assetService;
+        private ISceneService _sceneService;
         private Controls.PaletteControl _palette = null!;
         private Button _btnMove, _btnRot, _btnSize, _btnDrag, _btnNone, _btnPullAI;
         private Panel _pnlSaveOverlay = null!;
         private TextBox _txtSaveName = null!;
         private string? _pendingSceneJson = null;
 
-        public WorldForm(HumanoidModel model, CoreWebView2Environment env, Services.AssetService assetService)
+        public WorldForm(HumanoidModel? model, CoreWebView2Environment env, IAssetService assetService, ISceneService sceneService)
         {
-            _model = model ?? CreateDefaultModel();
+            _model = model;
             _assetService = assetService;
-            _sceneService = new Services.SceneService();
+            _sceneService = sceneService;
             _env = env;
 
-            this.Text = $"World Explorer - {_model.Name}";
+            this.Text = $"World Explorer - {(_model?.Name ?? "Sandbox")}";
             this.Size = new Size(1280, 720);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = NexusStyles.BackColor;
@@ -41,12 +43,7 @@ namespace MCTwinStudio
             InitializeAsync();
         }
 
-        private HumanoidModel CreateDefaultModel()
-        {
-            var m = new HumanoidModel { Name = "Quick Steve", SkinToneHex = "#C68E6F", ShirtHex = "#0099AA", PantsHex = "#333399", EyeHex = "#FFFFFF" };
-            m.GenerateSkin();
-            return m;
-        }
+        // CreateDefaultModel removed as skinning is now host-specific
 
         private void InitializeLayout()
         {
@@ -217,12 +214,12 @@ namespace MCTwinStudio
         private async void InitializeAsync()
         {
             await _webView.EnsureCoreWebView2Async(_env);
-            _controller = new SceneController(_webView);
+            _controller = new DesktopSceneController(_webView);
             
             string htmlPath = Path.Combine(EngineConfig.RendererDir, "world.html");
             if (File.Exists(htmlPath)) _webView.CoreWebView2.Navigate($"file:///{htmlPath.Replace('\\', '/')}");
             
-            _webView.NavigationCompleted += (s, e) => { if (e.IsSuccess) _controller.RenderModel(_model); };
+            _webView.NavigationCompleted += (s, e) => { if (e.IsSuccess && _model != null) _controller.RenderModel(_model); };
         }
 
         public async void ImportProp(string json, string name = "Prop", SceneItem? transform = null)
@@ -247,7 +244,13 @@ namespace MCTwinStudio
                         h.ArmPixels = GetPixels(tex, "Arms");
                         h.LegPixels = GetPixels(tex, "Legs");
                     }
-                    h.GenerateSkin();
+                    // Skin generation should happen here via service
+                    var skinGen = new Services.SkinGenerator();
+                    var bmp = skinGen.Generate(h.SkinToneHex, h.ShirtHex, h.PantsHex, h.EyeHex, h.FacePixels, h.HatPixels, h.ChestPixels, h.ArmPixels, h.LegPixels);
+                    using (var ms = new System.IO.MemoryStream()) {
+                        bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        h.SkinBase64 = "data:image/png;base64," + Convert.ToBase64String(ms.ToArray());
+                    }
                     await _controller.SpawnVoxel(new { Parts = h.GetParts(), Skin = h.SkinBase64 }, name, false, transform);
                 } else {
                     await _controller.SpawnRecipe(json, name, false, transform);

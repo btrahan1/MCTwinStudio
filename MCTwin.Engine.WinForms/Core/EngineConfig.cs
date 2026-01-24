@@ -19,7 +19,6 @@ namespace MCTwinStudio.Core
             Directory.CreateDirectory(ActorsDir);
             Directory.CreateDirectory(PropsDir);
             Directory.CreateDirectory(ScenesDir);
-            // RendererDir (Assets) is expected to exist as part of the engine delivery
         }
     }
 }

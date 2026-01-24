@@ -8,11 +8,9 @@ using MCTwinStudio.Core.Models;
 
 namespace MCTwinStudio.Services
 {
-    public class SceneService
+    public class DesktopSceneService : ISceneService
     {
-        private string _scenesDir;
-
-        public SceneService()
+        public DesktopSceneService()
         {
             EngineConfig.Initialize();
         }
@@ -39,14 +37,8 @@ namespace MCTwinStudio.Services
                 dialog.Filter = "MCTwin Scenes (*.scene.json)|*.scene.json";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    try
-                    {
-                        return File.ReadAllText(dialog.FileName);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Load Scene Failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    try { return File.ReadAllText(dialog.FileName); }
+                    catch (Exception ex) { MessageBox.Show($"Load Scene Failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
                 }
             }
             return string.Empty;
@@ -54,13 +46,14 @@ namespace MCTwinStudio.Services
 
         public string[] ListScenes()
         {
-            if (!Directory.Exists(_scenesDir)) return new string[0];
-            var files = Directory.GetFiles(_scenesDir, "*.scene.json");
+            if (!Directory.Exists(EngineConfig.ScenesDir)) return new string[0];
+            var files = Directory.GetFiles(EngineConfig.ScenesDir, "*.scene.json");
+            var sceneNames = new string[files.Length];
             for (int i = 0; i < files.Length; i++)
             {
-                files[i] = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(files[i]));
+                sceneNames[i] = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(files[i]));
             }
-            return files;
+            return sceneNames;
         }
     }
 }

@@ -22,32 +22,10 @@ namespace MCTwinStudio.Core.Models
         public string[]? HatPixels { get; set; } = null;
         public bool ShowHat { get; set; } = false;
 
-        public void GenerateSkin()
-        {
-            var gen = new Services.SkinGenerator();
-            // Pass all hybrid regions
-            var bmp = gen.Generate(
-                SkinToneHex, ShirtHex, PantsHex, EyeHex, 
-                FacePixels, HatPixels, 
-                ChestPixels, ArmPixels, LegPixels
-            );
-            
-            using (var ms = new System.IO.MemoryStream())
-            {
-                bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                SkinBase64 = "data:image/png;base64," + System.Convert.ToBase64String(ms.ToArray());
-            }
-        }
-
         public override List<ModelPart> GetParts()
         {
-            if (string.IsNullOrEmpty(SkinBase64)) GenerateSkin();
-            
             var parts = new List<ModelPart>();
             
-            // OFFSETS must match SkinGenerator layout.
-            // Dimensions allow calculating inner faces.
-
             // 1. HEAD (Region: 0,0)
             parts.Add(new ModelPart {
                 Name = "Head",

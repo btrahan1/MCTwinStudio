@@ -6,11 +6,9 @@ using MCTwinStudio.Core;
 
 namespace MCTwinStudio.Services
 {
-    public class AssetService
+    public class DesktopAssetService : IAssetService
     {
-        public enum AssetCategory { Actor, Prop }
-
-        public AssetService()
+        public DesktopAssetService()
         {
             EngineConfig.Initialize();
         }

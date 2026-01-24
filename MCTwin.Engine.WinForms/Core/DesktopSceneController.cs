@@ -4,18 +4,15 @@ using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using System.Text.Json;
 using MCTwinStudio.Core.Models;
+using MCTwinStudio.Core.Interfaces;
 
 namespace MCTwinStudio.Core
 {
-    /// <summary>
-    /// Bridges C# to the JavaScript Scene logic in WebView2.
-    /// Centralizes all ExecuteScriptAsync calls.
-    /// </summary>
-    public class SceneController
+    public class DesktopSceneController : IMCTwinRenderer
     {
         private readonly WebView2 _webView;
 
-        public SceneController(WebView2 webView)
+        public DesktopSceneController(WebView2 webView)
         {
             _webView = webView;
         }
@@ -48,7 +45,6 @@ namespace MCTwinStudio.Core
         {
             if (_webView?.CoreWebView2 == null) return;
             
-            // Format value correctly for JSON (bool, number, or string)
             string jsonValue = value;
             if (value != "true" && value != "false" && !double.TryParse(value, out _))
             {
@@ -58,7 +54,7 @@ namespace MCTwinStudio.Core
             await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.updateWorld) window.MCTwin.updateWorld({{ {property}: {jsonValue} }});");
         }
 
-        public async Task SpawnVoxel(object payload, string name, bool isSelectable = false, SceneItem? transform = null)
+        public async Task SpawnVoxel(object payload, string name, bool isSelectable = false, object? transform = null)
         {
             if (_webView?.CoreWebView2 == null) return;
             string payloadJson = JsonSerializer.Serialize(payload);
@@ -68,7 +64,7 @@ namespace MCTwinStudio.Core
             await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.spawnVoxel) window.MCTwin.spawnVoxel({payloadJson}, {escapedName}, {isSelectable.ToString().ToLower()}, {transformJson});");
         }
 
-        public async Task SpawnRecipe(string recipeJson, string name, bool isSelectable = false, SceneItem? transform = null)
+        public async Task SpawnRecipe(string recipeJson, string name, bool isSelectable = false, object? transform = null)
         {
             if (_webView?.CoreWebView2 == null) return;
             string escapedName = JsonSerializer.Serialize(name);
@@ -77,14 +73,13 @@ namespace MCTwinStudio.Core
             await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.spawnRecipe) window.MCTwin.spawnRecipe({recipeJson}, {escapedName}, {isSelectable.ToString().ToLower()}, {transformJson});");
         }
 
-        public async Task<string?> GetSceneData()
+        public async Task<string> GetSceneData()
         {
-            if (_webView?.CoreWebView2 == null) return null;
+            if (_webView?.CoreWebView2 == null) return "";
             string res = await _webView.ExecuteScriptAsync("window.MCTwin.getSceneData();");
-            if (res == "null" || string.IsNullOrEmpty(res)) return null;
+            if (res == "null" || string.IsNullOrEmpty(res)) return "";
             
-            // WebView2 returns a JSON-encoded string of the JS result
-            return JsonSerializer.Deserialize<string>(res);
+            return JsonSerializer.Deserialize<string>(res) ?? "";
         }
 
         public async Task ToggleAnimation(bool enabled)
@@ -99,7 +94,6 @@ namespace MCTwinStudio.Core
             await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.setAnimation) window.MCTwin.setAnimation('{name}');");
         }
 
-        // Studio-specific (viewer.html)
         public async Task RenderModel(BaseModel model)
         {
             if (_webView?.CoreWebView2 == null) return;

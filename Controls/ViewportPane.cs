@@ -6,13 +6,14 @@ using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using MCTwinStudio.Core;
 using MCTwinStudio.Core.Models;
+using MCTwinStudio.Core.Interfaces;
 
 namespace MCTwinStudio.Controls
 {
     public class ViewportPane : UserControl
     {
         private WebView2 _webView = null!;
-        public SceneController Controller { get; private set; } = null!;
+        public IMCTwinRenderer Renderer { get; private set; } = null!;
         public event EventHandler<string>? MeshSelected;
         public event EventHandler<string>? LogReceived;
 
@@ -29,7 +30,7 @@ namespace MCTwinStudio.Controls
             this.Controls.Add(_webView);
 
             await _webView.EnsureCoreWebView2Async(env);
-            Controller = new SceneController(_webView);
+            Renderer = new DesktopSceneController(_webView);
 
             _webView.CoreWebView2.WebMessageReceived += (s, e) => {
                 string msg = e.TryGetWebMessageAsString();
@@ -41,9 +42,9 @@ namespace MCTwinStudio.Controls
             if (File.Exists(htmlPath)) _webView.CoreWebView2.Navigate($"file:///{htmlPath.Replace('\\', '/')}");
         }
 
-        public async void RenderModel(BaseModel model) => await Controller.RenderModel(model);
-        public async void RenderRecipe(string json) => await Controller.SpawnRecipe(json, "Preview");
-        public async void ClearScene() => await Controller.ClearAll();
-        public async void PlayAnimation(string name) => await Controller.PlayAnimation(name);
+        public async void RenderModel(BaseModel model) => await Renderer.RenderModel(model);
+        public async void RenderRecipe(string json) => await Renderer.SpawnRecipe(json, "Preview");
+        public async void ClearScene() => await Renderer.ClearAll();
+        public async void PlayAnimation(string name) => await Renderer.PlayAnimation(name);
     }
 }

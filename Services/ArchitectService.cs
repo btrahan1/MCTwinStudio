@@ -10,8 +10,8 @@ namespace MCTwinStudio.Services
     public class ArchitectService
     {
         private readonly BrainPane _brain;
-        private readonly AssetService _assetService;
-        private readonly SceneService _sceneService;
+        private readonly IAssetService _assetService;
+        private readonly ISceneService _sceneService;
 
         public event Action<BaseModel>? OnAssetDelivered;
         public event Action<string>? OnSceneDelivered;
@@ -20,7 +20,7 @@ namespace MCTwinStudio.Services
         private readonly Queue<GenerationRequest> _requestQueue = new Queue<GenerationRequest>();
         private bool _isProcessingQueue = false;
 
-        public ArchitectService(BrainPane brain, AssetService assetService, SceneService sceneService)
+        public ArchitectService(BrainPane brain, IAssetService assetService, ISceneService sceneService)
         {
             _brain = brain;
             _assetService = assetService;
@@ -84,14 +84,14 @@ namespace MCTwinStudio.Services
                 {
                     var model = new ProceduralModel { RawRecipeJson = json };
                     model.Name = root.TryGetProperty("Name", out var pn) ? pn.GetString() ?? "Prop" : "Prop";
-                    _assetService.SaveAsset(model.Name, json, AssetService.AssetCategory.Prop);
+                    _assetService.SaveAsset(model.Name, json, AssetCategory.Prop);
                     OnAssetDelivered?.Invoke(model);
                 }
                 else
                 {
                     // Voxel
                     var human = MapToHumanoid(root);
-                    _assetService.SaveAsset(human.Name, json, AssetService.AssetCategory.Actor);
+                    _assetService.SaveAsset(human.Name, json, AssetCategory.Actor);
                     OnAssetDelivered?.Invoke(human);
                 }
             }
@@ -176,7 +176,6 @@ namespace MCTwinStudio.Services
                 h.LegPixels = GetPixels(tex, "Legs");
             }
 
-            h.GenerateSkin();
             return h;
         }
 

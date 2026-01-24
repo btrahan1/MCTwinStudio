@@ -5,6 +5,7 @@ using Microsoft.Web.WebView2.Core;
 using System.Text.Json;
 using MCTwinStudio.Core;
 using MCTwinStudio.Core.Models;
+using MCTwinStudio.Core.Interfaces;
 using MCTwinStudio.Controls;
 using System.Collections.Generic;
 using MCTwinStudio.Services;
@@ -19,8 +20,8 @@ namespace MCTwinStudio
         private BrainPane _brain = null!;
         private OptionsPane _options = null!;
         private CoreWebView2Environment _sharedEnv = null!;
-        private AssetService _assetService = null!;
-        private SceneService _sceneService = null!;
+        private IAssetService _assetService = null!;
+        private ISceneService _sceneService = null!;
         private ArchitectService _architectService = null!;
         
         private TextBox _txtPrompt = null!;
@@ -48,8 +49,8 @@ namespace MCTwinStudio
             this.BackColor = NexusStyles.BackColor;
             this.ForeColor = NexusStyles.WhiteText;
             this.StartPosition = FormStartPosition.CenterScreen;
-            _assetService = new AssetService();
-            _sceneService = new SceneService();
+            _assetService = new DesktopAssetService();
+            _sceneService = new DesktopSceneService();
             InitializeLayout();
             InitializeWebViews();
         }
@@ -179,7 +180,8 @@ namespace MCTwinStudio
             var btnExplore = new Button { Text = "EXPLORE", Dock = DockStyle.Top, Height = 40, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.CardColor, ForeColor = NexusStyles.AccentPink, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
             btnExplore.Click += (s, e) => {
                 if (_activeWorld == null || _activeWorld.IsDisposed) {
-                    _activeWorld = new WorldForm(_currentModel as HumanoidModel, _sharedEnv, _assetService);
+                    var model = _currentModel as HumanoidModel;
+                    _activeWorld = new WorldForm(model, _sharedEnv, _assetService, _sceneService);
                     _activeWorld.Show();
                 } else {
                     _activeWorld.BringToFront();
@@ -195,6 +197,8 @@ namespace MCTwinStudio
             btnLoadRefined.Click += (s, e) => LoadAsset();
             pnlButtons.Controls.Add(btnLoadRefined);
         }
+
+        private void RefreshPalette() => _palette.RefreshItems();
 
         private Button CreateToggleBtn(string text, Color color, int y)
         {
@@ -235,6 +239,14 @@ namespace MCTwinStudio
                 _architectService = new ArchitectService(_brain, _assetService, _sceneService);
                 _architectService.OnAssetDelivered += (model) => {
                     this.Invoke(new Action(() => {
+                        if (model is HumanoidModel h) {
+                             var skinGen = new SkinGenerator();
+                             var bmp = skinGen.Generate(h.SkinToneHex, h.ShirtHex, h.PantsHex, h.EyeHex, h.FacePixels, h.HatPixels, h.ChestPixels, h.ArmPixels, h.LegPixels);
+                             using (var ms = new System.IO.MemoryStream()) {
+                                 bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                                 h.SkinBase64 = "data:image/png;base64," + Convert.ToBase64String(ms.ToArray());
+                             }
+                        }
                         _currentModel = model;
                         _viewport.RenderModel(model);
                         _jsonViewer.SetJson(model.ExportJson());
@@ -275,17 +287,23 @@ namespace MCTwinStudio
 
         private void QuickSteve()
         {
-            var steve = new HumanoidModel { Name = "Quick Steve", SkinToneHex = "#C68E6F", ShirtHex = "#0099AA", PantsHex = "#333399", EyeHex = "#FFFFFF" };
-            steve.GenerateSkin();
-            _currentModel = steve;
-            _viewport.RenderModel(steve);
+            var h = new HumanoidModel { Name = "Quick Steve", SkinToneHex = "#C68E6F", ShirtHex = "#0099AA", PantsHex = "#333399", EyeHex = "#FFFFFF" };
+            var skinGen = new SkinGenerator();
+            var bmp = skinGen.Generate(h.SkinToneHex, h.ShirtHex, h.PantsHex, h.EyeHex, h.FacePixels, h.HatPixels, h.ChestPixels, h.ArmPixels, h.LegPixels);
+            using (var ms = new System.IO.MemoryStream()) {
+                bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                h.SkinBase64 = "data:image/png;base64," + Convert.ToBase64String(ms.ToArray());
+            }
+            _currentModel = h;
+            _viewport.RenderModel(h);
         }
 
         private void SaveAsset() 
         { 
             if (_currentModel == null) return;
             string json = (_currentModel is ProceduralModel p) ? p.RawRecipeJson : _currentModel.ExportJson();
-            _assetService.SaveAsset(_currentModel.Name, json);
+            var category = (_currentModel is HumanoidModel) ? AssetCategory.Actor : AssetCategory.Prop;
+            _assetService.SaveAsset(_currentModel.Name, json, category);
             AddLog($"Asset Saved: {_currentModel.Name}");
         }
 
@@ -331,7 +349,14 @@ namespace MCTwinStudio
                 h.ArmPixels = GetPixels(tex, "Arms");
                 h.LegPixels = GetPixels(tex, "Legs");
             }
-            h.GenerateSkin();
+            
+            // Skin generation via Host-Specific service
+            var skinGen = new SkinGenerator();
+            var bmp = skinGen.Generate(h.SkinToneHex, h.ShirtHex, h.PantsHex, h.EyeHex, h.FacePixels, h.HatPixels, h.ChestPixels, h.ArmPixels, h.LegPixels);
+            using (var ms = new System.IO.MemoryStream()) {
+                bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                h.SkinBase64 = "data:image/png;base64," + Convert.ToBase64String(ms.ToArray());
+            }
             return h;
         }
 

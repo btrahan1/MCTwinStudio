@@ -3,18 +3,19 @@ using System.Drawing;
 using System.Windows.Forms;
 using MCTwinStudio.Services;
 using MCTwinStudio.Core;
+using MCTwinStudio.Core.Interfaces;
 
 namespace MCTwinStudio.Controls
 {
     public class PaletteControl : UserControl
     {
         private ListBox _lstPalette;
-        private AssetService _assetService;
-        private AssetService.AssetCategory _currentCategory = AssetService.AssetCategory.Actor;
+        private IAssetService _assetService;
+        private AssetCategory _currentCategory = AssetCategory.Actor;
         private Button _btnActors, _btnProps;
         public event Action<string, string>? OnAssetSelected;
 
-        public PaletteControl(AssetService assetService)
+        public PaletteControl(IAssetService assetService)
         {
             _assetService = assetService;
             this.Dock = DockStyle.Top;
@@ -22,8 +23,9 @@ namespace MCTwinStudio.Controls
             this.BackColor = NexusStyles.CardColor;
             
             var pnlHeader = new Panel { Dock = DockStyle.Top, Height = 40, Padding = new Padding(5) };
-            _btnActors = CreateToggleBtn("ACTORS", AssetService.AssetCategory.Actor);
-            _btnProps = CreateToggleBtn("PROPS", AssetService.AssetCategory.Prop);
+            pnlHeader.BackColor = Color.FromArgb(45, 45, 50);
+            _btnActors = CreateToggleBtn("ACTORS", AssetCategory.Actor);
+            _btnProps = CreateToggleBtn("PROPS", AssetCategory.Prop);
             pnlHeader.Controls.Add(_btnProps);
             pnlHeader.Controls.Add(_btnActors);
             this.Controls.Add(pnlHeader);
@@ -50,7 +52,7 @@ namespace MCTwinStudio.Controls
             UpdateToggleStates();
         }
 
-        private Button CreateToggleBtn(string text, AssetService.AssetCategory cat)
+        private Button CreateToggleBtn(string text, AssetCategory cat)
         {
             var btn = new Button { 
                 Text = text, 
@@ -70,8 +72,8 @@ namespace MCTwinStudio.Controls
 
         private void UpdateToggleStates()
         {
-            _btnActors.BackColor = _currentCategory == AssetService.AssetCategory.Actor ? NexusStyles.AccentIndigo : Color.Transparent;
-            _btnProps.BackColor = _currentCategory == AssetService.AssetCategory.Prop ? NexusStyles.AccentIndigo : Color.Transparent;
+            _btnActors.BackColor = _currentCategory == AssetCategory.Actor ? NexusStyles.AccentIndigo : Color.Transparent;
+            _btnProps.BackColor = _currentCategory == AssetCategory.Prop ? NexusStyles.AccentIndigo : Color.Transparent;
         }
 
         public void RefreshItems()
