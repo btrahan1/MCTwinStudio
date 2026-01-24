@@ -87,6 +87,12 @@ namespace MCTwinStudio.Core
             return JsonSerializer.Deserialize<string>(res);
         }
 
+        public async Task ToggleAnimation(bool enabled)
+        {
+            if (_webView?.CoreWebView2 == null) return;
+            await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.toggleAnimation) window.MCTwin.toggleAnimation({enabled.ToString().ToLower()});");
+        }
+
         public async Task PlayAnimation(string name)
         {
             if (_webView?.CoreWebView2 == null) return;

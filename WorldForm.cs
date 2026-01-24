@@ -123,10 +123,17 @@ namespace MCTwinStudio
             _btnDrag = AddGizmoBtn(pnlGizmo, "DRAG", "drag");
             _btnNone = AddGizmoBtn(pnlGizmo, "OFF", "none");
             UpdateGizmoButtonStates(_btnMove);
+            
             var btnGrid = new Button { Text = "GRID: OFF", Width = 105, Height = 35, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(60, 60, 60), ForeColor = Color.White };
             bool gridOn = false;
             btnGrid.Click += (s, e) => { gridOn = !gridOn; btnGrid.Text = gridOn ? "GRID: ON" : "GRID: OFF"; _controller.ToggleGrid(gridOn); };
+            
+            var btnAnim = new Button { Text = "ANIMATE: OFF", Width = 105, Height = 35, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(60, 60, 60), ForeColor = Color.White };
+            bool animOn = false;
+            btnAnim.Click += (s, e) => { animOn = !animOn; btnAnim.Text = animOn ? "ANIMATE: ON" : "ANIMATE: OFF"; _controller.ToggleAnimation(animOn); };
+
             pnlGizmo.Controls.Add(btnGrid);
+            pnlGizmo.Controls.Add(btnAnim);
             pnlSettings.Controls.Add(pnlGizmo);
 
             // 5. Lighting

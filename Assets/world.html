@@ -235,34 +235,21 @@
             // ANIMATION & MOVEMENT
             let animTime = 0;
             let isMoving = false;
+            let isGlobalAnimating = false;
 
             scene.registerBeforeRender(function () {
                 const dt = engine.getDeltaTime() / 1000.0;
                 animTime += dt;
 
+                // 1. Player Movement (Manual)
                 if (playerRoot) {
                     const speed = 2.5 * dt;
                     isMoving = false;
 
-                    // Rotation
-                    // A/D rotate the body?
-                    // Let's do "Tank Controls" for simplicity, or "Camera Relative"
-                    // Tank Controls: A/D Rotate, W/S Move
-                    // But Camera is ArcRotate...
-                    // Let's just do World Space movement for now:
-                    // W = -Z (North), S = +Z (South), A = -X (West), D = +X (East)
-
-                    // Actually, let's just do simple Tank Controls relative to character facing.
-                    // default facing is North (+Z) or South (-Z)? 
-                    // Let's assume Forward is +Z.
-
-                    // WoW-Style Controls
-                    // A/D = Rotate
                     const turnSpeed = 3.0 * dt;
                     if (input.a) playerRoot.rotation.y -= turnSpeed;
                     if (input.d) playerRoot.rotation.y += turnSpeed;
 
-                    // W/S = Move Forward/Back
                     const forward = new BABYLON.Vector3(Math.sin(playerRoot.rotation.y), 0, Math.cos(playerRoot.rotation.y));
 
                     if (input.w) {
@@ -274,35 +261,115 @@
                         isMoving = true;
                     }
 
-                    // Diagonals override rotation, but position works
-
-                    // Cam Follow
                     if (isMoving) {
                         const desiredTarget = new BABYLON.Vector3(playerRoot.position.x, playerRoot.position.y + 1, playerRoot.position.z);
                         camera.target = BABYLON.Vector3.Lerp(camera.target, desiredTarget, 0.1);
                     }
 
-                    // Animation
-                    const legR = meshMap.get("RightLeg");
-                    const legL = meshMap.get("LeftLeg");
-                    const armR = meshMap.get("RightArm");
-                    const armL = meshMap.get("LeftArm");
+                    animateVoxelNodes(playerRoot, isMoving, animTime);
+                }
 
-                    if (isMoving) {
-                        const wSpeed = 10;
-                        const phase = Math.sin(animTime * wSpeed);
-                        if (legR) legR.rotation.x = phase * 0.8;
-                        if (legL) legL.rotation.x = -phase * 0.8;
-                        if (armR) armR.rotation.x = -phase * 0.8;
-                        if (armL) armL.rotation.x = phase * 0.8;
-                    } else {
-                        // Idle
-                        [legR, legL, armR, armL].forEach(m => { if (m) m.rotation.x = 0; });
-                        if (armR) armR.rotation.z = 0.05 + Math.sin(animTime) * 0.05;
-                        if (armL) armL.rotation.z = -0.05 - Math.sin(animTime) * 0.05;
-                    }
+                // 2. Global AI Animation (NPCs & Props)
+                if (isGlobalAnimating) {
+                    scene.transformNodes.forEach(node => {
+                        if (node === playerRoot) return;
+                        if (!node.id || (!node.id.startsWith("recipe_") && node.id !== "root")) return;
+
+                        const meta = node.metadata || {};
+
+                        // --- NPC Random Walk ---
+                        if (meta.artType === "Voxel") {
+                            if (!meta.ai) {
+                                meta.ai = {
+                                    targetPos: node.position.clone(),
+                                    state: 'idle',
+                                    timer: Math.random() * 2
+                                };
+                            }
+
+                            const ai = meta.ai;
+                            ai.timer -= dt;
+
+                            if (ai.state === 'idle' && ai.timer <= 0) {
+                                // Pick new target
+                                ai.state = 'moving';
+                                ai.targetPos = node.position.add(new BABYLON.Vector3((Math.random() - 0.5) * 10, 0, (Math.random() - 0.5) * 10));
+                                ai.timer = 5 + Math.random() * 5;
+                            } else if (ai.state === 'moving') {
+                                const dist = BABYLON.Vector3.Distance(node.position, ai.targetPos);
+                                if (dist < 0.5 || ai.timer <= 0) {
+                                    ai.state = 'idle';
+                                    ai.timer = 2 + Math.random() * 3;
+                                } else {
+                                    // Move & Rotate towards target
+                                    const dir = ai.targetPos.subtract(node.position).normalize();
+                                    node.position.addInPlace(dir.scale(1.5 * dt));
+
+                                    const targetRot = Math.atan2(dir.x, dir.z);
+                                    let diff = targetRot - node.rotation.y;
+                                    while (diff < -Math.PI) diff += Math.PI * 2;
+                                    while (diff > Math.PI) diff -= Math.PI * 2;
+                                    node.rotation.y += diff * 0.1;
+
+                                    animateVoxelNodes(node, true, animTime);
+                                }
+                            }
+
+                            if (ai.state === 'idle') {
+                                animateVoxelNodes(node, false, animTime);
+                            }
+                        }
+
+                        // --- Prop Animation Looping ---
+                        const propTimeline = meta.recipeData ? (meta.recipeData.Timeline || meta.recipeData.AnimationSequences) : null;
+                        if (meta.artType !== "Voxel" && propTimeline) {
+                            if (meta.animTimer === undefined) meta.animTimer = 0;
+                            meta.animTimer += dt;
+
+                            // Simple loop based on timeline duration
+                            // Calculate max duration in timeline
+                            let maxDuration = 2.0;
+                            if (Array.isArray(propTimeline)) {
+                                propTimeline.forEach(ev => {
+                                    const d = (ev.Time || 0) + (ev.Duration || 1);
+                                    if (d > maxDuration) maxDuration = d;
+                                });
+                            }
+
+                            if (meta.animTimer > maxDuration) {
+                                meta.animTimer = 0;
+                                window.MCTwin.runTimeline(propTimeline, meta.instanceRegistry);
+                            }
+                        }
+                    });
                 }
             });
+
+            function animateVoxelNodes(root, moving, time) {
+                const map = new Map();
+                root.getChildMeshes().forEach(m => {
+                    const name = m.name.split('_')[0];
+                    map.set(name, m);
+                });
+
+                const legR = map.get("RightLeg");
+                const legL = map.get("LeftLeg");
+                const armR = map.get("RightArm");
+                const armL = map.get("LeftArm");
+
+                if (moving) {
+                    const wSpeed = 10;
+                    const phase = Math.sin(time * wSpeed);
+                    if (legR) legR.rotation.x = phase * 0.8;
+                    if (legL) legL.rotation.x = -phase * 0.8;
+                    if (armR) armR.rotation.x = -phase * 0.8;
+                    if (armL) armL.rotation.x = phase * 0.8;
+                } else {
+                    [legR, legL, armR, armL].forEach(m => { if (m) m.rotation.x = 0; });
+                    if (armR) armR.rotation.z = 0.05 + Math.sin(time) * 0.05;
+                    if (armL) armL.rotation.z = -0.05 - Math.sin(time) * 0.05;
+                }
+            }
 
 
             // --- NEXUS BRIDGE INTEGRATION ---
@@ -367,8 +434,9 @@
                 },
 
                 propRegistry: {},
-                spawnProp: function (config, parentNode = null) {
+                spawnProp: function (config, parentNode = null, registry = null) {
                     const id = config.Id || "prop_" + Date.now();
+                    const targetRegistry = registry || this.propRegistry;
 
                     let mesh;
                     const shape = (config.Shape || "Box").toLowerCase();
@@ -386,10 +454,10 @@
                     } catch (e) { mesh = BABYLON.MeshBuilder.CreateBox("prop_" + id, { size: 1 }, scene); }
 
                     mesh.scaling = scale;
-                    this.propRegistry[id] = mesh;
+                    targetRegistry[id] = mesh;
 
-                    if (config.ParentId && this.propRegistry[config.ParentId]) {
-                        mesh.parent = this.propRegistry[config.ParentId];
+                    if (config.ParentId && targetRegistry[config.ParentId]) {
+                        mesh.parent = targetRegistry[config.ParentId];
                     } else if (parentNode) {
                         mesh.parent = parentNode;
                     }
@@ -398,8 +466,8 @@
                     const rawScale = scale;
                     mesh.intendedScale = rawScale;
 
-                    if (config.ParentId && this.propRegistry[config.ParentId]) {
-                        const parentProp = this.propRegistry[config.ParentId];
+                    if (config.ParentId && targetRegistry[config.ParentId]) {
+                        const parentProp = targetRegistry[config.ParentId];
                         const ps = parentProp.intendedScale || new BABYLON.Vector3(1, 1, 1);
                         // Compensate for immediate parent's non-uniform scaling
                         mesh.scaling = new BABYLON.Vector3(rawScale.x / ps.x, rawScale.y / ps.y, rawScale.z / ps.z);
@@ -427,7 +495,8 @@
 
                         const recipeId = data.Id || "recipe_" + Date.now();
                         const container = new BABYLON.TransformNode(recipeId, scene);
-                        container.metadata = { recipeName: recipeName };
+                        const instanceRegistry = {};
+                        container.metadata = { recipeName: recipeName, artType: "Procedural", recipeData: data, instanceRegistry: instanceRegistry };
 
                         // Minecraft scaling: 16 units = 1 block.
                         const globalScaleMultiplier = 1.0;
@@ -449,13 +518,13 @@
 
                             // 1. Spawn All under container
                             data.Parts.forEach(p => {
-                                this.spawnProp(p, container);
+                                this.spawnProp(p, container, instanceRegistry);
                             });
 
                             // 2. Re-Parent within recipe
                             data.Parts.forEach(p => {
-                                if (p.ParentId && this.propRegistry[p.ParentId] && this.propRegistry[p.Id]) {
-                                    this.propRegistry[p.Id].parent = this.propRegistry[p.ParentId];
+                                if (p.ParentId && instanceRegistry[p.ParentId] && instanceRegistry[p.Id]) {
+                                    instanceRegistry[p.Id].parent = instanceRegistry[p.ParentId];
                                 }
                             });
 
@@ -510,6 +579,19 @@
                     if (gridMesh) gridMesh.setEnabled(enabled);
                 },
 
+                toggleAnimation: function (enabled) {
+                    isGlobalAnimating = enabled;
+                    log("Animation Toggled: " + (enabled ? "ON" : "OFF"));
+                    if (!enabled) {
+                        // Reset all to idle/neutral
+                        scene.transformNodes.forEach(node => {
+                            if (node.metadata && node.metadata.artType === "Voxel") {
+                                animateVoxelNodes(node, false, 0);
+                            }
+                        });
+                    }
+                },
+
                 toggleDebug: function (enabled) {
                     debugConsole.style.display = enabled ? "block" : "none";
                 },
@@ -553,15 +635,23 @@
                     }
                 },
 
-                runTimeline: function (timeline) {
+                runTimeline: function (timeline, registry = null) {
+                    const reg = registry || this.propRegistry;
                     timeline.forEach(event => {
-                        const target = this.propRegistry[event.TargetId];
+                        const target = reg[event.TargetId];
                         if (!target) return;
                         const frameRate = 30;
                         const duration = (event.Duration || 1) * frameRate;
                         if (event.Action === "Move") {
                             const endPos = parseVec3(event.Value);
                             BABYLON.Animation.CreateAndStartAnimation("anim_mv_" + event.TargetId, target, "position", frameRate, duration, target.position, endPos, 0);
+                        } else if (event.Action === "Rotate") {
+                            const rot = parseVec3(event.Value);
+                            const endRot = new BABYLON.Vector3(BABYLON.Tools.ToRadians(rot.x), BABYLON.Tools.ToRadians(rot.y), BABYLON.Tools.ToRadians(rot.z));
+                            BABYLON.Animation.CreateAndStartAnimation("anim_rot_" + event.TargetId, target, "rotation", frameRate, duration, target.rotation, endRot, 0);
+                        } else if (event.Action === "Scale") {
+                            const endScale = parseVec3(event.Value);
+                            BABYLON.Animation.CreateAndStartAnimation("anim_scale_" + event.TargetId, target, "scaling", frameRate, duration, target.scaling, endScale, 0);
                         } else if (event.Action === "Color" && target.material) {
                             const endCol = parseVec3(event.Value); // [r,g,b] 0-1 range
                             BABYLON.Animation.CreateAndStartAnimation("anim_col_" + event.TargetId, target.material, "albedoColor", frameRate, duration, target.material.albedoColor, new BABYLON.Color3(endCol.x, endCol.y, endCol.z), 0);
