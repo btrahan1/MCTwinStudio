@@ -84,14 +84,14 @@ namespace MCTwinStudio.Services
                 {
                     var model = new ProceduralModel { RawRecipeJson = json };
                     model.Name = root.TryGetProperty("Name", out var pn) ? pn.GetString() ?? "Prop" : "Prop";
-                    _assetService.SaveAsset(model.Name, json);
+                    _assetService.SaveAsset(model.Name, json, AssetService.AssetCategory.Prop);
                     OnAssetDelivered?.Invoke(model);
                 }
                 else
                 {
                     // Voxel
                     var human = MapToHumanoid(root);
-                    _assetService.SaveAsset(human.Name, json);
+                    _assetService.SaveAsset(human.Name, json, AssetService.AssetCategory.Actor);
                     OnAssetDelivered?.Invoke(human);
                 }
             }

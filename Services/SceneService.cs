@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Windows.Forms;
+using MCTwinStudio.Core;
 using MCTwinStudio.Core.Models;
 
 namespace MCTwinStudio.Services
@@ -13,11 +14,7 @@ namespace MCTwinStudio.Services
 
         public SceneService()
         {
-            _scenesDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scenes");
-            if (!Directory.Exists(_scenesDir))
-            {
-                Directory.CreateDirectory(_scenesDir);
-            }
+            EngineConfig.Initialize();
         }
 
         public void SaveScene(string name, string json)
@@ -25,7 +22,7 @@ namespace MCTwinStudio.Services
             try
             {
                 string safeName = string.Join("_", name.Split(Path.GetInvalidFileNameChars()));
-                string path = Path.Combine(_scenesDir, $"{safeName}.scene.json");
+                string path = Path.Combine(EngineConfig.ScenesDir, $"{safeName}.scene.json");
                 File.WriteAllText(path, json);
             }
             catch (Exception ex)
@@ -38,7 +35,7 @@ namespace MCTwinStudio.Services
         {
             using (var dialog = new OpenFileDialog())
             {
-                dialog.InitialDirectory = _scenesDir;
+                dialog.InitialDirectory = EngineConfig.ScenesDir;
                 dialog.Filter = "MCTwin Scenes (*.scene.json)|*.scene.json";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {

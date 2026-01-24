@@ -37,7 +37,7 @@ namespace MCTwinStudio.Controls
                 if (msg.StartsWith("LOG:")) LogReceived?.Invoke(this, msg.Replace("LOG:", ""));
             };
             
-            string htmlPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "viewer.html");
+            string htmlPath = Path.Combine(EngineConfig.RendererDir, "viewer.html");
             if (File.Exists(htmlPath)) _webView.CoreWebView2.Navigate($"file:///{htmlPath.Replace('\\', '/')}");
         }
 

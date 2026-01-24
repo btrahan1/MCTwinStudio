@@ -219,7 +219,7 @@ namespace MCTwinStudio
             await _webView.EnsureCoreWebView2Async(_env);
             _controller = new SceneController(_webView);
             
-            string htmlPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "world.html");
+            string htmlPath = Path.Combine(EngineConfig.RendererDir, "world.html");
             if (File.Exists(htmlPath)) _webView.CoreWebView2.Navigate($"file:///{htmlPath.Replace('\\', '/')}");
             
             _webView.NavigationCompleted += (s, e) => { if (e.IsSuccess) _controller.RenderModel(_model); };

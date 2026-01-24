@@ -1,30 +1,30 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Windows.Forms;
+using MCTwinStudio.Core;
 
 namespace MCTwinStudio.Services
 {
     public class AssetService
     {
-        private string _creationsDir;
+        public enum AssetCategory { Actor, Prop }
 
         public AssetService()
         {
-            _creationsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Creations");
-            if (!Directory.Exists(_creationsDir))
-            {
-                Directory.CreateDirectory(_creationsDir);
-            }
+            EngineConfig.Initialize();
         }
 
-        public void SaveAsset(string name, string json)
+        public string GetDirectory(AssetCategory category) => category == AssetCategory.Actor ? EngineConfig.ActorsDir : EngineConfig.PropsDir;
+
+        public void SaveAsset(string name, string json, AssetCategory category = AssetCategory.Prop)
         {
             try
             {
-                // Clean name for filename
+                string dir = GetDirectory(category);
                 string safeName = string.Join("_", name.Split(Path.GetInvalidFileNameChars()));
                 string filename = $"{safeName}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
-                string path = Path.Combine(_creationsDir, filename);
+                string path = Path.Combine(dir, filename);
                 File.WriteAllText(path, json);
             }
             catch (Exception ex)
@@ -33,22 +33,16 @@ namespace MCTwinStudio.Services
             }
         }
 
-        public string LoadAsset()
+        public string LoadAsset(AssetCategory? category = null)
         {
             using (var dialog = new OpenFileDialog())
             {
-                dialog.InitialDirectory = _creationsDir;
+                dialog.InitialDirectory = category.HasValue ? GetDirectory(category.Value) : EngineConfig.RootDataPath;
                 dialog.Filter = "MCTwin Recipes (*.json)|*.json";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    try
-                    {
-                        return File.ReadAllText(dialog.FileName);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Load Failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    try { return File.ReadAllText(dialog.FileName); }
+                    catch (Exception ex) { MessageBox.Show($"Load Failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
                 }
             }
             return string.Empty;
@@ -56,27 +50,41 @@ namespace MCTwinStudio.Services
 
         public string GetBestMatch(string recipeName)
         {
-            if (!Directory.Exists(_creationsDir)) return string.Empty;
-            
-            // Look for files starting with recipeName
-            var files = new List<string>(Directory.GetFiles(_creationsDir, $"{recipeName}*.json"));
-            
-            // Sort by modification date descending to get the latest
+            // Search BOTH directories
+            string actorMatch = FindMatchInDir(EngineConfig.ActorsDir, recipeName);
+            if (!string.IsNullOrEmpty(actorMatch)) return actorMatch;
+
+            return FindMatchInDir(EngineConfig.PropsDir, recipeName);
+        }
+
+        private string FindMatchInDir(string dir, string recipeName)
+        {
+            if (!Directory.Exists(dir)) return string.Empty;
+            var files = new List<string>(Directory.GetFiles(dir, $"{recipeName}*.json"));
             files.Sort((a, b) => File.GetLastWriteTime(b).CompareTo(File.GetLastWriteTime(a)));
-            
             return files.Count > 0 ? File.ReadAllText(files[0]) : string.Empty;
         }
 
-        public string[] ListAvailableRecipes()
+        public string[] ListAvailableRecipes(AssetCategory? category = null)
         {
-            if (!Directory.Exists(_creationsDir)) return new string[0];
-            var files = Directory.GetFiles(_creationsDir, "*.json");
             var recipes = new System.Collections.Generic.HashSet<string>();
+            
+            if (category == null || category == AssetCategory.Actor) ScanDir(EngineConfig.ActorsDir, recipes);
+            if (category == null || category == AssetCategory.Prop) ScanDir(EngineConfig.PropsDir, recipes);
+
+            var list = new List<string>(recipes);
+            list.Sort();
+            return list.ToArray();
+        }
+
+        private void ScanDir(string dir, HashSet<string> recipes)
+        {
+            if (!Directory.Exists(dir)) return;
+            var files = Directory.GetFiles(dir, "*.json");
             foreach (var f in files)
             {
-                // Typical format: Name_YYYYMMDD_HHMMSS.json or just Name.json
                 string name = Path.GetFileNameWithoutExtension(f);
-                if (name.Contains("_202")) // Looks like a timestamped file
+                if (name.Contains("_202"))
                 {
                     int idx = name.LastIndexOf('_');
                     if (idx > 0)
@@ -88,9 +96,6 @@ namespace MCTwinStudio.Services
                 }
                 recipes.Add(name);
             }
-            var list = new List<string>(recipes);
-            list.Sort();
-            return list.ToArray();
         }
     }
 }
