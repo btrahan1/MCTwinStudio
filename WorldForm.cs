@@ -21,6 +21,9 @@ namespace MCTwinStudio
         private Services.SceneService _sceneService;
         private Controls.PaletteControl _palette = null!;
         private Button _btnMove, _btnRot, _btnSize, _btnDrag, _btnNone, _btnPullAI;
+        private Panel _pnlSaveOverlay = null!;
+        private TextBox _txtSaveName = null!;
+        private string? _pendingSceneJson = null;
 
         public WorldForm(HumanoidModel model, CoreWebView2Environment env, Services.AssetService assetService)
         {
@@ -76,10 +79,13 @@ namespace MCTwinStudio
             };
             var btnSaveScene = new Button { Text = "SAVE SCENE", Dock = DockStyle.Top, Height = 35, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(40, 40, 40), ForeColor = Color.White };
             btnSaveScene.Click += async (s, e) => {
-                string? sceneJson = await _controller.GetSceneData();
-                if (sceneJson != null) {
-                    string name = Microsoft.VisualBasic.Interaction.InputBox("Enter Scene Name:", "Save Scene", "New Scene");
-                    if (!string.IsNullOrEmpty(name)) _sceneService.SaveScene(name, sceneJson);
+                _pendingSceneJson = await _controller.GetSceneData();
+                if (_pendingSceneJson != null) {
+                    _pnlSaveOverlay.Visible = true;
+                    _pnlSaveOverlay.BringToFront();
+                    _txtSaveName.Text = "New Scene";
+                    _txtSaveName.Focus();
+                    _txtSaveName.SelectAll();
                 }
             };
             pnlSettings.Controls.Add(btnLoadScene);
@@ -167,6 +173,38 @@ namespace MCTwinStudio
 
             // Standard Top-Down Ordering by reversing Dock order
             foreach (Control c in pnlSettings.Controls) c.BringToFront();
+
+            InitializeSaveOverlay();
+        }
+
+        private void InitializeSaveOverlay()
+        {
+            _pnlSaveOverlay = new Panel { 
+                Size = new Size(350, 150), 
+                BackColor = NexusStyles.CardColor, 
+                BorderStyle = BorderStyle.FixedSingle, 
+                Visible = false 
+            };
+            // Center in form
+            _pnlSaveOverlay.Location = new Point((this.ClientSize.Width - 350) / 2, (this.ClientSize.Height - 150) / 2);
+            
+            var lbl = new Label { Text = "ENTER SCENE NAME:", Left = 20, Top = 20, Width = 310, ForeColor = Color.White, Font = new Font("Segoe UI", 9, FontStyle.Bold) };
+            _txtSaveName = new TextBox { Left = 20, Top = 50, Width = 310, BackColor = Color.FromArgb(30, 30, 30), ForeColor = NexusStyles.AccentAmber, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Segoe UI", 10) };
+            
+            var btnDoSave = new Button { Text = "CONFIRM SAVE", Left = 20, Top = 90, Width = 150, Height = 35, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.AccentIndigo, ForeColor = Color.White };
+            btnDoSave.Click += (s, e) => {
+                if (!string.IsNullOrEmpty(_txtSaveName.Text) && _pendingSceneJson != null) {
+                    _sceneService.SaveScene(_txtSaveName.Text, _pendingSceneJson);
+                }
+                _pnlSaveOverlay.Visible = false;
+            };
+
+            var btnCancel = new Button { Text = "CANCEL", Left = 180, Top = 90, Width = 150, Height = 35, FlatStyle = FlatStyle.Flat, BackColor = Color.DimGray, ForeColor = Color.White };
+            btnCancel.Click += (s, e) => { _pnlSaveOverlay.Visible = false; };
+
+            _pnlSaveOverlay.Controls.AddRange(new Control[] { lbl, _txtSaveName, btnDoSave, btnCancel });
+            this.Controls.Add(_pnlSaveOverlay);
+            _pnlSaveOverlay.BringToFront();
         }
 
         private async void InitializeAsync()
