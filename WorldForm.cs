@@ -26,6 +26,7 @@ namespace MCTwinStudio
         private Panel? _pnlSaveOverlay;
         private TextBox? _txtSaveName;
         private string? _pendingSceneJson = null;
+        private bool _isExportMode = false;
 
         public WorldForm(HumanoidModel? model, CoreWebView2Environment env, IAssetService assetService, ISceneService sceneService)
         {
@@ -77,6 +78,7 @@ namespace MCTwinStudio
             var btnSaveScene = new Button { Text = "SAVE SCENE", Dock = DockStyle.Top, Height = 35, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(40, 40, 40), ForeColor = Color.White };
             btnSaveScene.Click += async (s, e) => {
                 _pendingSceneJson = await _controller.GetSceneData();
+                _isExportMode = false;
                 if (_pendingSceneJson != null && _pnlSaveOverlay != null && _txtSaveName != null) {
                     _pnlSaveOverlay.Visible = true;
                     _pnlSaveOverlay.BringToFront();
@@ -85,8 +87,22 @@ namespace MCTwinStudio
                     _txtSaveName.SelectAll();
                 }
             };
+            var btnExport = new Button { Text = "EXPORT CARTRIDGE", Dock = DockStyle.Top, Height = 35, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(50, 50, 55), ForeColor = NexusStyles.AccentAmber };
+            btnExport.Click += async (s, e) => {
+                 _pendingSceneJson = await _controller.GetSceneData();
+                 _isExportMode = true;
+                if (_pendingSceneJson != null && _pnlSaveOverlay != null && _txtSaveName != null) {
+                    _pnlSaveOverlay.Visible = true;
+                    _pnlSaveOverlay.BringToFront();
+                    _txtSaveName.Text = (_model?.Name ?? "SceneCartridge");
+                    _txtSaveName.Focus();
+                    _txtSaveName.SelectAll();
+                }
+            };
+
             pnlSettings.Controls.Add(btnLoadScene);
             pnlSettings.Controls.Add(btnSaveScene);
+            pnlSettings.Controls.Add(btnExport);
 
             // 2. AI Architect
             AddLabel(pnlSettings, "AI Architect");
@@ -196,9 +212,49 @@ namespace MCTwinStudio
             _txtSaveName = new TextBox { Left = 20, Top = 50, Width = 310, BackColor = Color.FromArgb(30, 30, 30), ForeColor = NexusStyles.AccentAmber, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Segoe UI", 10) };
             
             var btnDoSave = new Button { Text = "CONFIRM SAVE", Left = 20, Top = 90, Width = 150, Height = 35, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.AccentIndigo, ForeColor = Color.White };
-            btnDoSave.Click += (s, e) => {
+            btnDoSave.Click += async (s, e) => {
                 if (!string.IsNullOrEmpty(_txtSaveName.Text) && _pendingSceneJson != null) {
-                    _sceneService.SaveScene(_txtSaveName.Text, _pendingSceneJson);
+                    string name = _txtSaveName.Text;
+                    if (_isExportMode) {
+                        try {
+                            string exportsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exports");
+                            Directory.CreateDirectory(exportsDir);
+                            string filename = Path.Combine(exportsDir, name.Replace(" ", "_") + ".html");
+                            
+                            // DEEP EXPORT: Gather all unique assets used in the scene
+                            var sceneObj = JsonSerializer.Deserialize<SceneModel>(_pendingSceneJson);
+                            var uniqueAssets = new Dictionary<string, object>();
+                            
+                            if (sceneObj != null) {
+                                foreach (var item in sceneObj.Items) {
+                                    if (!uniqueAssets.ContainsKey(item.RecipeName)) {
+                                        string assetJson = await _assetService.GetBestMatch(item.RecipeName);
+                                        if (!string.IsNullOrEmpty(assetJson)) {
+                                            using var doc = JsonDocument.Parse(assetJson);
+                                            uniqueAssets[item.RecipeName] = doc.RootElement.Clone();
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Bundle Structure
+                            var bundle = new {
+                                Name = name,
+                                Type = "SceneBundle",
+                                Scene = sceneObj,
+                                Assets = uniqueAssets
+                            };
+                            string bundleJson = JsonSerializer.Serialize(bundle);
+
+                            var exporter = new CartridgeExporter(System.IO.Path.GetDirectoryName(Application.ExecutablePath));
+                            await exporter.ExportAsync(name, bundleJson, filename);
+                            
+                             MessageBox.Show($"Cartridge Exported Successfully!\n{filename}", "Export Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = exportsDir, UseShellExecute = true });
+                        } catch (Exception ex) { MessageBox.Show($"Export Failed: {ex.Message}"); }
+                    } else {
+                        _sceneService.SaveScene(name, _pendingSceneJson);
+                    }
                 }
                 _pnlSaveOverlay.Visible = false;
             };
@@ -268,6 +324,8 @@ namespace MCTwinStudio
             }
             return null;
         }
+
+
 
         private Button AddGizmoBtn(FlowLayoutPanel p, string text, string mode)
         {

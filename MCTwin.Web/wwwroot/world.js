@@ -1,4 +1,34 @@
 const debugConsole = document.getElementById("debugConsole");
+if (debugConsole) {
+    debugConsole.style.display = "none";
+    debugConsole.style.position = "absolute";
+    debugConsole.style.top = "0";
+    debugConsole.style.zIndex = "100";
+    debugConsole.style.color = "lime";
+}
+
+// FORCE FULLSCREEN LAYOUT (Injected Fix)
+document.documentElement.style.width = "100%";
+document.documentElement.style.height = "100%";
+document.documentElement.style.margin = "0";
+document.documentElement.style.padding = "0";
+document.body.style.width = "100%";
+document.body.style.height = "100%";
+document.body.style.margin = "0";
+document.body.style.padding = "0";
+document.body.style.overflow = "hidden";
+
+const cvs = document.getElementById("renderCanvas");
+if (cvs) {
+    cvs.style.position = "absolute";
+    cvs.style.top = "0";
+    cvs.style.left = "0";
+    cvs.style.width = "100%";
+    cvs.style.height = "100%";
+    cvs.style.display = "block";
+    cvs.style.zIndex = "1";
+}
+
 function log(msg) {
     const div = document.createElement("div");
     div.innerText = "[" + new Date().toLocaleTimeString() + "] " + msg;
