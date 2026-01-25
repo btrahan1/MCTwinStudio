@@ -31,8 +31,134 @@ namespace MCTwinStudio
         // Prop Editor
         private Panel? _pnlPpt;
         private TextBox? _txtPptTags;
+        private ComboBox? _cbBehavior;
         private Label? _lblPptId;
         private string? _selectedId = null;
+
+        // ... [Constructor remains same] ...
+
+        private string[] LoadAvailableBehaviors()
+        {
+            try {
+                // Determine path relative to exe
+                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "behaviors.js");
+                if (!File.Exists(path)) return Array.Empty<string>();
+
+                var lines = File.ReadAllLines(path);
+                var list = new List<string>();
+                
+                // Simple regex-like scan for keys like "Spin": {
+                foreach (var line in lines) {
+                    var trimmed = line.Trim();
+                    if (trimmed.StartsWith("\"") && trimmed.EndsWith("\": {")) {
+                        // Extract "Name"
+                        var name = trimmed.Substring(1, trimmed.Length - 4); // Remove " and ": {
+                        list.Add(name);
+                    }
+                }
+                return list.ToArray();
+            } catch { return Array.Empty<string>(); }
+        }
+
+        private void InitializePptPanel(Panel parent)
+        {
+             AddLabel(parent, "Selection Properties");
+             _pnlPpt = new Panel { Dock = DockStyle.Top, Height = 220, BackColor = Color.FromArgb(50,50,55), Padding = new Padding(5), Visible = true };
+             
+             _lblPptId = new Label { Text = "Select an Object...", Dock = DockStyle.Top, Height = 20, ForeColor = Color.Gray, Font = new Font("Consolas", 8) };
+             
+             // Behavior Dropdown
+             AddLabel(_pnlPpt, "Behavior");
+             _cbBehavior = new ComboBox { Dock = DockStyle.Top, Height = 30, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(30,30,30), ForeColor = Color.White, DropDownStyle = ComboBoxStyle.DropDown };
+             _cbBehavior.Items.AddRange(LoadAvailableBehaviors());
+             _cbBehavior.SelectedIndexChanged += (s, e) => {
+                 // When behavior changes, ensure it's in the tags text box
+                 UpdateTagsTextFromCombo();
+                 UpdateSelectedTags(); // Auto-apply
+             };
+             // Allow typing new ones
+             _cbBehavior.TextChanged += (s, e) => { /* Optional: Validate */ };
+             
+             var lblTags = new Label { Text = "Parameters (Key=Value)", Dock = DockStyle.Top, Height = 20, ForeColor = Color.White };
+             _txtPptTags = new TextBox { Dock = DockStyle.Top, Height = 80, Multiline = true, BackColor = Color.FromArgb(30,30,30), ForeColor = NexusStyles.AccentAmber, Font = new Font("Consolas", 9), ScrollBars = ScrollBars.Vertical };
+             
+             var btnUpdate = new Button { Text = "UPDATE TAGS", Dock = DockStyle.Top, Height = 30, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.AccentIndigo, ForeColor = Color.White };
+             btnUpdate.Click += (s, e) => UpdateSelectedTags();
+             
+             _pnlPpt.Controls.AddRange(new Control[] { btnUpdate, _txtPptTags, lblTags, _cbBehavior, _lblPptId });
+             // Reverse order for dock
+             _lblPptId.BringToFront(); // Top
+             // Then the label "Behavior" (added via AddLabel, which puts it in controls) need to settle order.
+             // Simplest is to clear and re-add in reverse dock order
+             _pnlPpt.Controls.Clear();
+             _pnlPpt.Controls.Add(btnUpdate);          // Bottom
+             _pnlPpt.Controls.Add(_txtPptTags);        // Middle
+             _pnlPpt.Controls.Add(lblTags);            // Middle
+             _pnlPpt.Controls.Add(_cbBehavior);        // Top-ish
+             _pnlPpt.Controls.Add(new Label { Text = "Behavior", Dock = DockStyle.Top, Height = 20, ForeColor = Color.LightGray });
+             _pnlPpt.Controls.Add(_lblPptId);          // Top
+             
+             parent.Controls.Add(_pnlPpt);
+        }
+
+        private void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+        {
+             try {
+                 string json = e.WebMessageAsJson;
+                 using var doc = JsonDocument.Parse(json);
+                 if (doc.RootElement.TryGetProperty("type", out var t) && t.GetString() == "selection") {
+                      var data = doc.RootElement.GetProperty("data");
+                      _selectedId = data.GetProperty("id").GetString();
+                      string recipe = data.GetProperty("recipeName").GetString() ?? "?";
+                      
+                      if (_pnlPpt != null && _lblPptId != null && _txtPptTags != null && _cbBehavior != null) {
+                          _pnlPpt.Visible = true;
+                          _lblPptId.Text = $"ID: {recipe}";
+                          
+                          var sb = new System.Text.StringBuilder();
+                          string foundBehavior = "";
+                          
+                          if (data.TryGetProperty("tags", out var tags) && tags.ValueKind == JsonValueKind.Object) {
+                               foreach(var prop in tags.EnumerateObject()) {
+                                   if (prop.Name == "Behavior") foundBehavior = prop.Value.GetString() ?? "";
+                                   else sb.AppendLine($"{prop.Name}={prop.Value.GetString()}");
+                               }
+                          }
+                          _txtPptTags.Text = sb.ToString();
+                          _cbBehavior.Text = foundBehavior; // Set params
+                      }
+                 }
+             } catch {}
+        }
+        
+        private void UpdateTagsTextFromCombo()
+        {
+            // If user selects "Spin", ensure "Behavior=Spin" is accounted for
+            // Actually, we separate them in UI, but merge them in Model.
+        }
+
+        private async void UpdateSelectedTags()
+        {
+             if (_selectedId == null || _txtPptTags == null || _cbBehavior == null) return;
+             
+             var tags = new Dictionary<string,string>();
+             
+             // 1. Add Behavior if set
+             if (!string.IsNullOrWhiteSpace(_cbBehavior.Text)) {
+                 tags["Behavior"] = _cbBehavior.Text.Trim();
+             }
+
+             // 2. Add other tags
+             foreach(var line in _txtPptTags.Lines) {
+                 var parts = line.Split('=', 2);
+                 if (parts.Length == 2) {
+                     string k = parts[0].Trim();
+                     if (k != "Behavior") tags[k] = parts[1].Trim();
+                 }
+             }
+             
+             await _controller.UpdateNodeTags(_selectedId, tags);
+        }
 
         public WorldForm(HumanoidModel? model, CoreWebView2Environment env, IAssetService assetService, ISceneService sceneService)
         {
@@ -303,67 +429,6 @@ namespace MCTwinStudio
             };
         }
 
-        private void InitializePptPanel(Panel parent)
-        {
-             AddLabel(parent, "Selection Properties");
-             // CHANGE: Visible by default so user knows it exists
-             _pnlPpt = new Panel { Dock = DockStyle.Top, Height = 180, BackColor = Color.FromArgb(50,50,55), Padding = new Padding(5), Visible = true };
-             
-             _lblPptId = new Label { Text = "Select an Object...", Dock = DockStyle.Top, Height = 20, ForeColor = Color.Gray, Font = new Font("Consolas", 8) };
-             
-             var lblTags = new Label { Text = "Tags (Key=Value)", Dock = DockStyle.Top, Height = 20, ForeColor = Color.White };
-             _txtPptTags = new TextBox { Dock = DockStyle.Top, Height = 100, Multiline = true, BackColor = Color.FromArgb(30,30,30), ForeColor = NexusStyles.AccentAmber, Font = new Font("Consolas", 9), ScrollBars = ScrollBars.Vertical };
-             
-             var btnUpdate = new Button { Text = "UPDATE TAGS", Dock = DockStyle.Top, Height = 30, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.AccentIndigo, ForeColor = Color.White };
-             btnUpdate.Click += (s, e) => UpdateSelectedTags();
-             
-             _pnlPpt.Controls.AddRange(new Control[] { btnUpdate, _txtPptTags, lblTags, _lblPptId });
-             foreach(Control c in _pnlPpt.Controls) c.BringToFront();
-
-             parent.Controls.Add(_pnlPpt);
-        }
-
-        private void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
-        {
-             try {
-                 string json = e.WebMessageAsJson;
-                 using var doc = JsonDocument.Parse(json);
-                 if (doc.RootElement.TryGetProperty("type", out var t) && t.GetString() == "selection") {
-                      var data = doc.RootElement.GetProperty("data");
-                      _selectedId = data.GetProperty("id").GetString();
-                      string recipe = data.GetProperty("recipeName").GetString() ?? "?";
-                      
-                      if (_pnlPpt != null && _lblPptId != null && _txtPptTags != null) {
-                          _pnlPpt.Visible = true;
-                          _lblPptId.Text = $"ID: {recipe}"; // Shortened
-                          
-                          var sb = new System.Text.StringBuilder();
-                          if (data.TryGetProperty("tags", out var tags) && tags.ValueKind == JsonValueKind.Object) {
-                               foreach(var prop in tags.EnumerateObject()) {
-                                   sb.AppendLine($"{prop.Name}={prop.Value.GetString()}");
-                               }
-                          }
-                          _txtPptTags.Text = sb.ToString();
-                      }
-                 }
-             } catch {}
-        }
-
-        private async void UpdateSelectedTags()
-        {
-             if (_selectedId == null || _txtPptTags == null) return;
-             
-             var tags = new Dictionary<string,string>();
-             foreach(var line in _txtPptTags.Lines) {
-                 var parts = line.Split('=', 2);
-                 if (parts.Length == 2) {
-                     tags[parts[0].Trim()] = parts[1].Trim();
-                 }
-             }
-             
-             await _controller.UpdateNodeTags(_selectedId, tags);
-        }
-
         public async void ImportProp(string json, string name = "Prop", SceneItem? transform = null)
         {
             try {
@@ -409,8 +474,6 @@ namespace MCTwinStudio
             }
             return null;
         }
-
-
 
         private Button AddGizmoBtn(FlowLayoutPanel p, string text, string mode)
         {

@@ -65,5 +65,10 @@ namespace MCTwinStudio.Web.Renderers
         {
             await _jsRuntime.InvokeVoidAsync("MCTwinBridge.call", "MCTwin.clearAll");
         }
+
+        public async Task UpdateNodeTags(string id, Dictionary<string, string> tags)
+        {
+            await _jsRuntime.InvokeVoidAsync("MCTwinBridge.call", "MCTwin.updateNodeTags", id, tags);
+        }
     }
 }
