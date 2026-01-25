@@ -28,6 +28,12 @@ namespace MCTwinStudio
         private string? _pendingSceneJson = null;
         private bool _isExportMode = false;
 
+        // Prop Editor
+        private Panel? _pnlPpt;
+        private TextBox? _txtPptTags;
+        private Label? _lblPptId;
+        private string? _selectedId = null;
+
         public WorldForm(HumanoidModel? model, CoreWebView2Environment env, IAssetService assetService, ISceneService sceneService)
         {
             _model = model;
@@ -191,8 +197,20 @@ namespace MCTwinStudio
             trkSize.Scroll += (s, e) => _controller.UpdateWorldProperty("groundSize", trkSize.Value.ToString());
             pnlSettings.Controls.Add(trkSize);
 
+            // 8. Properties (Top Most)
+            InitializePptPanel(pnlSettings);
+
             // Standard Top-Down Ordering by reversing Dock order
-            foreach (Control c in pnlSettings.Controls) c.BringToFront();
+            // Note: We want Selection (Added Last) to be completely FIRST (Index 0).
+            // The previous loop reversed everything so First Added (Scene) was Top.
+            // We'll keep that for 1-7, but ensure 8 is Front.
+            
+            // 1. Reverse 1-7 (Scene..FloorSize) to make Scene Top of that stack
+            foreach (Control c in pnlSettings.Controls) {
+                if (c != _pnlPpt) c.BringToFront();
+            }
+            // 2. Now Bring Selection to Front (Absolute Top)
+            if (_pnlPpt != null) _pnlPpt.BringToFront();
 
             InitializeSaveOverlay();
         }
@@ -276,7 +294,74 @@ namespace MCTwinStudio
             string htmlPath = Path.Combine(EngineConfig.RendererDir, "world.html");
             if (File.Exists(htmlPath)) _webView.CoreWebView2.Navigate($"file:///{htmlPath.Replace('\\', '/')}");
             
-            _webView.NavigationCompleted += (s, e) => { if (e.IsSuccess && _model != null) _controller.RenderModel(_model); };
+            
+            _webView.NavigationCompleted += (s, e) => { 
+                if (e.IsSuccess) {
+                    _webView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
+                    if (_model != null) _controller.RenderModel(_model); 
+                }
+            };
+        }
+
+        private void InitializePptPanel(Panel parent)
+        {
+             AddLabel(parent, "Selection Properties");
+             // CHANGE: Visible by default so user knows it exists
+             _pnlPpt = new Panel { Dock = DockStyle.Top, Height = 180, BackColor = Color.FromArgb(50,50,55), Padding = new Padding(5), Visible = true };
+             
+             _lblPptId = new Label { Text = "Select an Object...", Dock = DockStyle.Top, Height = 20, ForeColor = Color.Gray, Font = new Font("Consolas", 8) };
+             
+             var lblTags = new Label { Text = "Tags (Key=Value)", Dock = DockStyle.Top, Height = 20, ForeColor = Color.White };
+             _txtPptTags = new TextBox { Dock = DockStyle.Top, Height = 100, Multiline = true, BackColor = Color.FromArgb(30,30,30), ForeColor = NexusStyles.AccentAmber, Font = new Font("Consolas", 9), ScrollBars = ScrollBars.Vertical };
+             
+             var btnUpdate = new Button { Text = "UPDATE TAGS", Dock = DockStyle.Top, Height = 30, FlatStyle = FlatStyle.Flat, BackColor = NexusStyles.AccentIndigo, ForeColor = Color.White };
+             btnUpdate.Click += (s, e) => UpdateSelectedTags();
+             
+             _pnlPpt.Controls.AddRange(new Control[] { btnUpdate, _txtPptTags, lblTags, _lblPptId });
+             foreach(Control c in _pnlPpt.Controls) c.BringToFront();
+
+             parent.Controls.Add(_pnlPpt);
+        }
+
+        private void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
+        {
+             try {
+                 string json = e.WebMessageAsJson;
+                 using var doc = JsonDocument.Parse(json);
+                 if (doc.RootElement.TryGetProperty("type", out var t) && t.GetString() == "selection") {
+                      var data = doc.RootElement.GetProperty("data");
+                      _selectedId = data.GetProperty("id").GetString();
+                      string recipe = data.GetProperty("recipeName").GetString() ?? "?";
+                      
+                      if (_pnlPpt != null && _lblPptId != null && _txtPptTags != null) {
+                          _pnlPpt.Visible = true;
+                          _lblPptId.Text = $"ID: {recipe}"; // Shortened
+                          
+                          var sb = new System.Text.StringBuilder();
+                          if (data.TryGetProperty("tags", out var tags) && tags.ValueKind == JsonValueKind.Object) {
+                               foreach(var prop in tags.EnumerateObject()) {
+                                   sb.AppendLine($"{prop.Name}={prop.Value.GetString()}");
+                               }
+                          }
+                          _txtPptTags.Text = sb.ToString();
+                      }
+                 }
+             } catch {}
+        }
+
+        private async void UpdateSelectedTags()
+        {
+             if (_selectedId == null || _txtPptTags == null) return;
+             
+             var tags = new Dictionary<string,string>();
+             foreach(var line in _txtPptTags.Lines) {
+                 var parts = line.Split('=', 2);
+                 if (parts.Length == 2) {
+                     tags[parts[0].Trim()] = parts[1].Trim();
+                 }
+             }
+             
+             await _controller.UpdateNodeTags(_selectedId, tags);
         }
 
         public async void ImportProp(string json, string name = "Prop", SceneItem? transform = null)

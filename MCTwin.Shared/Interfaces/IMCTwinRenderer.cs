@@ -14,6 +14,7 @@ namespace MCTwinStudio.Core.Interfaces
         Task ToggleAnimation(bool enabled);
         Task PlayAnimation(string name);
         Task<string> GetSceneData();
+        Task UpdateNodeTags(string id, Dictionary<string, string> tags);
         Task ClearAll();
     }
 }

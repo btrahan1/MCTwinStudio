@@ -102,6 +102,17 @@ namespace MCTwinStudio.Services
                         if (root && !data.Scene) {{ // Only rotate if single item
                             scene.registerBeforeRender(() => root.rotation.y += 0.005);
                         }}
+
+                        // Simulation: Heartbeat
+                        scene.registerBeforeRender(() => {{
+                            const time = performance.now() * 0.001;
+                            scene.transformNodes.forEach(node => {{
+                                if (node.metadata && node.metadata.tags && node.metadata.tags['Category'] === 'Heartbeat') {{
+                                    const pulse = 1.0 + Math.sin(time * 5) * 0.2;
+                                    node.scaling = new BABYLON.Vector3(pulse, pulse, pulse);
+                                }}
+                            }});
+                        }});
                     }}, 500);
                 }}
             }}, 100);

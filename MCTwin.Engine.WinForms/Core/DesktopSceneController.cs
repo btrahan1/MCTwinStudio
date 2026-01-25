@@ -109,5 +109,11 @@ namespace MCTwinStudio.Core
                 await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.renderModel) window.MCTwin.renderModel({json});");
             }
         }
+        public async Task UpdateNodeTags(string id, Dictionary<string, string> tags)
+        {
+            if (_webView?.CoreWebView2 == null) return;
+            string tagsJson = JsonSerializer.Serialize(tags);
+            await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.updateNodeTags) window.MCTwin.updateNodeTags('{id}', {tagsJson});");
+        }
     }
 }
