@@ -27,6 +27,9 @@
     <Compile Remove="CantinaSimulator\**" />
     <EmbeddedResource Remove="CantinaSimulator\**" />
     <None Remove="CantinaSimulator\**" />
+    <Compile Remove="DungeonCrawler\**" />
+    <EmbeddedResource Remove="DungeonCrawler\**" />
+    <None Remove="DungeonCrawler\**" />
   </ItemGroup>
 
   <ItemGroup>

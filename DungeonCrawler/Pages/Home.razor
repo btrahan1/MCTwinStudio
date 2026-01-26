@@ -1,0 +1,15 @@
+﻿@page "/"
+@layout Layout.SimulationLayout
+@inject IJSRuntime JS
+
+<div id="three-container" style="width: 100vw; height: 100vh;"></div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("DungeonCrawler.init", "three-container");
+        }
+    }
+}

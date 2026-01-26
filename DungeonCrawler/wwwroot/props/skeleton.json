@@ -1,0 +1,186 @@
+{
+"Name": "Skeleton_Sentry",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "pelvis",
+"Shape": "Box",
+"Position": [0, 0.9, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.4, 0.2, 0.25],
+"ColorHex": "#E5E4E2",
+"Material": "Leather",
+"Operation": "Union"
+},
+{
+"Id": "spine",
+"ParentId": "pelvis",
+"Shape": "Cylinder",
+"Position": [0, 0.3, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 0.6, 0.1],
+"ColorHex": "#F0EAD6",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "ribcage_lower",
+"ParentId": "spine",
+"Shape": "Box",
+"Position": [0, 0.1, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.5, 0.1, 0.3],
+"ColorHex": "#F0EAD6",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "ribcage_upper",
+"ParentId": "spine",
+"Shape": "Box",
+"Position": [0, 0.25, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.6, 0.15, 0.35],
+"ColorHex": "#F0EAD6",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "skull",
+"ParentId": "spine",
+"Shape": "Box",
+"Position": [0, 0.5, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.35, 0.4, 0.35],
+"ColorHex": "#F0EAD6",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "eye_l",
+"ParentId": "skull",
+"Shape": "Box",
+"Position": [0.1, 0.1, 0.18],
+"Rotation": [0, 0, 0],
+"Scale": [0.08, 0.08, 0.05],
+"ColorHex": "#FF0000",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "eye_r",
+"ParentId": "skull",
+"Shape": "Box",
+"Position": [-0.1, 0.1, 0.18],
+"Rotation": [0, 0, 0],
+"Scale": [0.08, 0.08, 0.05],
+"ColorHex": "#FF0000",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "leg_l_upper",
+"ParentId": "pelvis",
+"Shape": "Cylinder",
+"Position": [0.15, -0.2, 0],
+"Rotation": [10, 0, 0],
+"Scale": [0.1, 0.45, 0.1],
+"ColorHex": "#F0EAD6",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "leg_l_lower",
+"ParentId": "leg_l_upper",
+"Shape": "Cylinder",
+"Position": [0, -0.45, 0],
+"Rotation": [-5, 0, 0],
+"Scale": [0.08, 0.45, 0.08],
+"ColorHex": "#F0EAD6",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "leg_r_upper",
+"ParentId": "pelvis",
+"Shape": "Cylinder",
+"Position": [-0.15, -0.2, 0],
+"Rotation": [-10, 0, 0],
+"Scale": [0.1, 0.45, 0.1],
+"ColorHex": "#F0EAD6",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "leg_r_lower",
+"ParentId": "leg_r_upper",
+"Shape": "Cylinder",
+"Position": [0, -0.45, 0],
+"Rotation": [5, 0, 0],
+"Scale": [0.08, 0.45, 0.08],
+"ColorHex": "#F0EAD6",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "arm_l_upper",
+"ParentId": "ribcage_upper",
+"Shape": "Cylinder",
+"Position": [0.35, 0, 0],
+"Rotation": [0, 0, -45],
+"Scale": [0.08, 0.4, 0.08],
+"ColorHex": "#F0EAD6",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "arm_r_upper",
+"ParentId": "ribcage_upper",
+"Shape": "Cylinder",
+"Position": [-0.35, 0, 0],
+"Rotation": [45, 0, 45],
+"Scale": [0.08, 0.4, 0.08],
+"ColorHex": "#F0EAD6",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "spear_shaft",
+"ParentId": "arm_r_upper",
+"Shape": "Cylinder",
+"Position": [0, -0.4, 0.2],
+"Rotation": [-90, 0, 0],
+"Scale": [0.05, 2.2, 0.05],
+"ColorHex": "#5C4033",
+"Material": "Leather",
+"Operation": "Union"
+},
+{
+"Id": "spear_head",
+"ParentId": "spear_shaft",
+"Shape": "Cone",
+"Position": [0, 1.1, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 0.4, 0.15],
+"ColorHex": "#888888",
+"Material": "Metal",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Rotate",
+"TargetId": "skull",
+"Value": [0, -15, 0],
+"Duration": 2.0
+},
+{
+"Time": 2.0,
+"Action": "Rotate",
+"TargetId": "skull",
+"Value": [0, 15, 0],
+"Duration": 2.0
+}
+]
+}

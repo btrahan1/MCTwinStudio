@@ -1,0 +1,15 @@
+@inherits LayoutComponentBase
+
+<div class="page">
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<style>
+    body, html { margin: 0; padding: 0; overflow: hidden; background: #050505; color: white; }
+    .page { display: flex; flex-direction: column; height: 100vh; }
+    main { flex: 1; }
+</style>

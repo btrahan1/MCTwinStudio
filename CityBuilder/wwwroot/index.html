@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CityBuilder</title>
+    <base href="/" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="CityBuilder.styles.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="app">
+        <div id="city-container" style="width: 100vw; height: 100vh; overflow: hidden; background: #87CEEB;"></div>
+        <!-- UI Overlay -->
+        <div
+            style="position: absolute; top: 10px; left: 10px; color: white; background: rgba(0,0,0,0.5); padding: 10px; font-family: monospace;">
+            <h3>City Builder</h3>
+            <div id="status">initializing...</div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="app.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            if (window.CityBuilder) window.CityBuilder.init('city-container');
+        });
+    </script>
+</body>
+
+</html>
