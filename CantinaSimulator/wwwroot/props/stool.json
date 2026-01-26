@@ -1,0 +1,85 @@
+{
+  "Name": "Casino_Stool",
+  "Type": "Procedural",
+  "Parts": [
+    {
+      "Id": "base_plate",
+      "Shape": "Cylinder",
+      "Position": [0, 0.025, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.6, 0.05, 0.6],
+      "ColorHex": "#1A1A1A",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "central_pillar",
+      "Shape": "Cylinder",
+      "Position": [0, 0.35, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.1, 0.7, 0.1],
+      "ColorHex": "#2D2D2D",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "foot_ring",
+      "Shape": "Torus",
+      "Position": [0, 0.2, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.4, 0.03, 0.4],
+      "ColorHex": "#404040",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "seat_cushion",
+      "Shape": "Cylinder",
+      "Position": [0, 0.75, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.5, 0.15, 0.5],
+      "ColorHex": "#1a0033",
+      "Material": "Leather",
+      "Operation": "Union"
+    },
+    {
+      "Id": "accent_glow_ring",
+      "Shape": "Torus",
+      "Position": [0, 0.68, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.52, 0.02, 0.52],
+      "ColorHex": "#00f2ff",
+      "Material": "Glow",
+      "Operation": "Union"
+    },
+    {
+      "Id": "backrest_support",
+      "Shape": "Box",
+      "Position": [0, 0.9, 0.2],
+      "Rotation": [10, 0, 0],
+      "Scale": [0.1, 0.4, 0.05],
+      "ColorHex": "#1A1A1A",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "backrest_pad",
+      "Shape": "Box",
+      "Position": [0, 1.1, 0.25],
+      "Rotation": [10, 0, 0],
+      "Scale": [0.4, 0.3, 0.08],
+      "ColorHex": "#1a0033",
+      "Material": "Leather",
+      "Operation": "Union"
+    }
+  ],
+  "Timeline": [
+    {
+      "Time": 0.0,
+      "Action": "Rotate",
+      "TargetId": "seat_cushion",
+      "Value": [0, 360, 0],
+      "Duration": 10.0
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+﻿@page "/"
+@layout Layout.SimulationLayout
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Star Wars Simulator</PageTitle>
+
+<div id="sim-container" style="width: 100vw; height: 100vh; background-color: black; overflow: hidden;"></div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("StarWarsSimulator.init", "sim-container");
+        }
+    }
+}

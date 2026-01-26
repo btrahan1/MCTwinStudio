@@ -1,0 +1,93 @@
+{
+"Name": "Wall_Torch",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "wall_mount",
+"Shape": "Box",
+"Position": [0, 0, -0.02],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 0.4, 0.05],
+"ColorHex": "#2C2C2C",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "torch_arm",
+"Shape": "Cylinder",
+"Position": [0, -0.05, 0.08],
+"Rotation": [-30, 0, 0],
+"Scale": [0.04, 0.3, 0.04],
+"ColorHex": "#3D3D3D",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "torch_cup",
+"ParentId": "torch_arm",
+"Shape": "Cone",
+"Position": [0, 0.18, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 0.1, 0.15],
+"ColorHex": "#4A4A4A",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "flame_core",
+"ParentId": "torch_cup",
+"Shape": "Sphere",
+"Position": [0, 0.1, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 0.2, 0.1],
+"ColorHex": "#FF4500",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "flame_outer",
+"ParentId": "flame_core",
+"Shape": "Sphere",
+"Position": [0, 0.05, 0],
+"Rotation": [0, 0, 0],
+"Scale": [1.2, 1.4, 1.2],
+"ColorHex": "#FFD700",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "light_glow",
+"ParentId": "flame_core",
+"Shape": "Sphere",
+"Position": [0, 0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [5, 5, 5],
+"ColorHex": "#FFA500",
+"Material": "Glass",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Scale",
+"TargetId": "flame_core",
+"Value": [0.1, 0.2, 0.1],
+"Duration": 0.0
+},
+{
+"Time": 0.2,
+"Action": "Scale",
+"TargetId": "flame_core",
+"Value": [0.12, 0.25, 0.12],
+"Duration": 0.2
+},
+{
+"Time": 0.4,
+"Action": "Scale",
+"TargetId": "flame_core",
+"Value": [0.09, 0.18, 0.09],
+"Duration": 0.2
+}
+]
+}

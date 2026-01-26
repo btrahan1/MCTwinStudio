@@ -1,0 +1,17 @@
+﻿@page "/"
+@layout Layout.SimulationLayout
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Cantina Simulator</PageTitle>
+
+<div id="sim-container" style="width: 100vw; height: 100vh; overflow: hidden;"></div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("CantinaSimulator.init", "sim-container");
+        }
+    }
+}

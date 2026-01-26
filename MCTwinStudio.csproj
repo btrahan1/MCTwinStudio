@@ -18,6 +18,15 @@
     <None Remove="MCTwin.Shared\**" />
     <None Remove="MCTwin.Engine.WinForms\**" />
     <None Remove="MCTwin.Web\**" />
+    <Compile Remove="StarWarsSimulator\**" />
+    <EmbeddedResource Remove="StarWarsSimulator\**" />
+    <None Remove="StarWarsSimulator\**" />
+    <Compile Remove="HothSimulator\**" />
+    <EmbeddedResource Remove="HothSimulator\**" />
+    <None Remove="HothSimulator\**" />
+    <Compile Remove="CantinaSimulator\**" />
+    <EmbeddedResource Remove="CantinaSimulator\**" />
+    <None Remove="CantinaSimulator\**" />
   </ItemGroup>
 
   <ItemGroup>

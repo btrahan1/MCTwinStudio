@@ -187,6 +187,7 @@
         let faceTexture, hairOpacityTexture;
         let headMaterial, hairMaterial, clothesMaterial, pantsMaterial, skinMaterial;
         let headGroup, hairShell, hairBun;
+        let skirtMesh, legL, legR; // For visibility toggles
 
         const createScene = function () {
             const scene = new BABYLON.Scene(engine);
@@ -236,17 +237,12 @@
             pantsMaterial = new BABYLON.StandardMaterial("pantsMat", scene);
             pantsMaterial.diffuseColor = BABYLON.Color3.FromHexString(currentConfig.pantsColor);
 
-            // --- HAT / HELMET SUPPORT (Simple) ---
-            // We can re-purpose the hair shell as a helmet/hat for certain presets
-            // This is just a materials/config change, logic handled in updateHair
-
 
             // --- CHARACTER ROOT ---
             const root = new BABYLON.TransformNode("root", scene);
 
 
             // --- 1. HEAD (Ellipsoid) ---
-            // Reduced diameter (1.8 -> 1.5) and raised Y (3.6 -> 3.8) to sit "in" the shoulders
             const headMesh = BABYLON.MeshBuilder.CreateSphere("head", { diameter: 1.5, segments: 32 }, scene);
             headMesh.scaling = new BABYLON.Vector3(1, 1.25, 1);
             headMesh.position.y = 3.8;
@@ -281,75 +277,124 @@
             shadowGenerator.addShadowCaster(hairBun);
 
 
-            // --- 2. TORSO (Rounded Box / Soft Block) ---
-            // Using a Box scaled to look like a thick torso
-            const torso = BABYLON.MeshBuilder.CreateBox("torso", { width: 1.2, height: 1.6, depth: 0.6 }, scene);
-            torso.position.y = 2.4; // Below head
-            torso.parent = root;
+            // --- 2. TORSO (The "Blouse" - Tapered Cylinder + Facets) ---
+            const torso = BABYLON.MeshBuilder.CreateCylinder("torso", {
+                diameterTop: 0.9,
+                diameterBottom: 1.25,
+                height: 1.6,
+                tessellation: 12,
+                subdivisions: 4       // Sequin Grid
+            }, scene);
+
+            torso.convertToFlatShadedMesh();
+            torso.scaling.z = 0.65; // Flatten
+            torso.position.y = 2.4;
             torso.material = clothesMaterial;
+            torso.parent = root;
             shadowGenerator.addShadowCaster(torso);
 
-            // Neck connection (cylinder) - Thicker and shorter
-            const neck = BABYLON.MeshBuilder.CreateCylinder("neck", { diameter: 0.6, height: 0.4 }, scene);
-            neck.position.y = 3.25;
-            neck.parent = root;
-            neck.material = skinMaterial;
+            // --- DETAILS (Shoulders & Bust) ---
+            // Shoulder Joints
+            const shldrL = BABYLON.MeshBuilder.CreateSphere("shldrL", { diameter: 0.7, segments: 8 }, scene);
+            shldrL.position.set(-0.55, 3.0, 0);
+            shldrL.material = clothesMaterial;
+            shldrL.convertToFlatShadedMesh();
+            shldrL.parent = root;
 
+            const shldrR = BABYLON.MeshBuilder.CreateSphere("shldrR", { diameter: 0.7, segments: 8 }, scene);
+            shldrR.position.set(0.55, 3.0, 0);
+            shldrR.material = clothesMaterial;
+            shldrR.convertToFlatShadedMesh();
+            shldrR.parent = root;
 
-            // --- 3. ARMS (Capsules) ---
-            const armL = BABYLON.MeshBuilder.CreateCapsule("armL", { radius: 0.25, height: 1.8 }, scene);
-            armL.position.set(-0.9, 2.4, 0);
+            // Bust
+            const bust = BABYLON.MeshBuilder.CreateSphere("bust", { diameter: 1.0, segments: 12 }, scene);
+            bust.scaling.z = 0.3;
+            bust.scaling.y = 0.7;
+            bust.position.set(0, 2.7, 0.22);
+            bust.material = clothesMaterial;
+            bust.convertToFlatShadedMesh();
+            bust.parent = root;
+
+            // --- 3. ARMS (Stretched Spheres) ---
+            const armL = BABYLON.MeshBuilder.CreateSphere("armL", { diameter: 0.5, segments: 8 }, scene);
+            armL.scaling.y = 3.6;
+            armL.position.set(-0.75, 2.3, 0);
+            armL.material = clothesMaterial;
+            armL.convertToFlatShadedMesh();
             armL.parent = root;
-            armL.material = clothesMaterial; // Long sleeves
             shadowGenerator.addShadowCaster(armL);
 
-            const armR = BABYLON.MeshBuilder.CreateCapsule("armR", { radius: 0.25, height: 1.8 }, scene);
-            armR.position.set(0.9, 2.4, 0);
-            armR.parent = root;
+            const armR = BABYLON.MeshBuilder.CreateSphere("armR", { diameter: 0.5, segments: 8 }, scene);
+            armR.scaling.y = 3.6;
+            armR.position.set(0.75, 2.3, 0);
             armR.material = clothesMaterial;
+            armR.convertToFlatShadedMesh();
+            armR.parent = root;
             shadowGenerator.addShadowCaster(armR);
-
 
             // --- 4. HANDS (Mitten/Spheres) ---
             const handL = BABYLON.MeshBuilder.CreateSphere("handL", { diameter: 0.45 }, scene);
-            handL.position.y = -0.8; // Relative to Arm
-            handL.scaling.y = 1.2;
+            handL.position.y = -0.3; // Relative to Sphere Arm (different pivot)
+            handL.scaling.y = 0.3;   // Adjusted scaling for sphere parent
             handL.parent = armL;
             handL.material = skinMaterial;
 
             const handR = BABYLON.MeshBuilder.CreateSphere("handR", { diameter: 0.45 }, scene);
-            handR.position.y = -0.8;
-            handR.scaling.y = 1.2;
+            handR.position.y = -0.3;
+            handR.scaling.y = 0.3;
             handR.parent = armR;
             handR.material = skinMaterial;
 
 
-            // --- 5. LEGS (Capsules) ---
-            const legL = BABYLON.MeshBuilder.CreateCapsule("legL", { radius: 0.28, height: 1.8 }, scene);
+            // --- 5. LEGS (Stretched Spheres) ---
+            legL = BABYLON.MeshBuilder.CreateSphere("legL", { diameter: 0.56, segments: 8 }, scene);
+            legL.scaling.y = 3.2;
             legL.position.set(-0.4, 0.9, 0);
-            legL.parent = root;
             legL.material = pantsMaterial;
+            legL.convertToFlatShadedMesh();
+            legL.parent = root;
             shadowGenerator.addShadowCaster(legL);
 
-            const legR = BABYLON.MeshBuilder.CreateCapsule("legR", { radius: 0.28, height: 1.8 }, scene);
+            legR = BABYLON.MeshBuilder.CreateSphere("legR", { diameter: 0.56, segments: 8 }, scene);
+            legR.scaling.y = 3.2;
             legR.position.set(0.4, 0.9, 0);
-            legR.parent = root;
             legR.material = pantsMaterial;
+            legR.convertToFlatShadedMesh();
+            legR.parent = root;
             shadowGenerator.addShadowCaster(legR);
 
 
             // --- 6. FEET (Hemispheres) ---
             const footL = BABYLON.MeshBuilder.CreateSphere("footL", { diameter: 0.7, slice: 0.5 }, scene);
-            footL.position.y = -0.9;
-            footL.position.z = 0.2; // Stick out forward
+            footL.position.y = -0.3; // Relative to Sphere Leg
+            footL.position.z = 0.05;
+            footL.scaling.y = 0.3;
             footL.parent = legL;
-            footL.material = pantsMaterial; // Shoes match pants for now
+            footL.material = pantsMaterial;
 
             const footR = BABYLON.MeshBuilder.CreateSphere("footR", { diameter: 0.7, slice: 0.5 }, scene);
-            footR.position.y = -0.9;
-            footR.position.z = 0.2;
+            footR.position.y = -0.3;
+            footR.position.z = 0.05;
+            footR.scaling.y = 0.3;
             footR.parent = legR;
             footR.material = pantsMaterial;
+
+            // --- SKIRT GEOMETRY (Hidden by default, used for dress style) ---
+            skirtMesh = BABYLON.MeshBuilder.CreateCylinder("skirt", {
+                diameterTop: 1.1,
+                diameterBottom: 1.8,
+                height: 1.4,
+                tessellation: 12,
+                subdivisions: 4
+            }, scene);
+
+            skirtMesh.convertToFlatShadedMesh();
+            skirtMesh.position.y = 1.6;
+            skirtMesh.material = clothesMaterial;
+            skirtMesh.parent = root;
+            skirtMesh.isVisible = false;
+            shadowGenerator.addShadowCaster(skirtMesh);
 
 
             // Initial Draw
@@ -512,9 +557,6 @@
             hairMaterial.diffuseColor = BABYLON.Color3.FromHexString(currentConfig.hairColor);
             ctx.globalCompositeOperation = "source-over";
             hairOpacityTexture.update();
-
-            // Bun logic
-            if (hairBun) hairBun.isVisible = (currentConfig.hairStyle === 'bangs' || currentConfig.hairStyle === 'bun');
         }
 
         function updateColors() {
@@ -527,6 +569,21 @@
             updateFace();
             updateHair();
             updateColors();
+
+            // Toggle Skirt
+            if (skirtMesh) {
+                if (currentConfig.hairStyle === 'bangs' || currentConfig.hairStyle === 'bob') {
+                    // Female / Dress
+                    skirtMesh.isVisible = true;
+                    if (legL) legL.material = skinMaterial;
+                    if (legR) legR.material = skinMaterial;
+                } else {
+                    // Male / Pants
+                    skirtMesh.isVisible = false;
+                    if (legL) legL.material = pantsMaterial;
+                    if (legR) legR.material = pantsMaterial;
+                }
+            }
         }
 
         document.getElementById("skinColor").addEventListener("input", (e) => { currentConfig.skinColor = e.target.value; update(); });
@@ -555,6 +612,7 @@
             currentConfig.eyeStyle = "oval";
             currentConfig.hasGlasses = true;
 
+            // Update UI
             updateUI();
             update();
         }

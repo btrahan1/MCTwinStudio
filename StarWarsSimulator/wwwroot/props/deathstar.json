@@ -1,0 +1,109 @@
+{
+"Name": "The Death Star",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "main_sphere",
+"Shape": "Sphere",
+"Position": [0, 5, 0],
+"Rotation": [0, 0, 0],
+"Scale": [10, 10, 10],
+"ColorHex": "#808080",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "superlaser_dish_cutout",
+"Shape": "Sphere",
+"Position": [0, 7.8, 3.8],
+"Rotation": [-30, 0, 0],
+"Scale": [3.8, 3.8, 1.5],
+"ColorHex": "#707070",
+"Material": "Metal",
+"Operation": "Subtract"
+},
+{
+"Id": "superlaser_emitter",
+"Shape": "Sphere",
+"Position": [0, 7.6, 3.5],
+"Rotation": [0, 0, 0],
+"Scale": [0.4, 0.4, 0.4],
+"ColorHex": "#CCFFCC",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "equatorial_trench",
+"Shape": "Torus",
+"Position": [0, 5, 0],
+"Rotation": [90, 0, 0],
+"Scale": [10.05, 10.05, 0.08],
+"ColorHex": "#202020",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "polar_detail_north",
+"Shape": "Cylinder",
+"Position": [0, 10, 0],
+"Rotation": [0, 0, 0],
+"Scale": [1.5, 0.1, 1.5],
+"ColorHex": "#606060",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "city_lights_1",
+"Shape": "Sphere",
+"Position": [3.5, 4.0, 3.5],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 0.1, 0.1],
+"ColorHex": "#FFFFEE",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "city_lights_2",
+"Shape": "Sphere",
+"Position": [-3.5, 6.0, 3.5],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 0.1, 0.1],
+"ColorHex": "#FFFFEE",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "city_lights_3",
+"Shape": "Sphere",
+"Position": [0, 3.0, -4.8],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 0.1, 0.1],
+"ColorHex": "#FFFFEE",
+"Material": "Glow",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Rotate",
+"TargetId": "main_sphere",
+"Value": [0, 360, 0],
+"Duration": 20.0
+},
+{
+"Time": 5.0,
+"Action": "Color",
+"TargetId": "superlaser_emitter",
+"Value": [0.0, 1.0, 0.0],
+"Duration": 0.5
+},
+{
+"Time": 5.5,
+"Action": "Scale",
+"TargetId": "superlaser_emitter",
+"Value": [1.2, 1.2, 1.2],
+"Duration": 0.2
+}
+]
+}

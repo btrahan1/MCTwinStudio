@@ -1,0 +1,17 @@
+﻿@page "/"
+@layout Layout.SimulationLayout
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Battle of Hoth</PageTitle>
+
+<div id="sim-container" style="width: 100vw; height: 100vh; overflow: hidden;"></div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("HothSimulator.init", "sim-container");
+        }
+    }
+}

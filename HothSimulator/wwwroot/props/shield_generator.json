@@ -1,0 +1,165 @@
+{
+"Name": "Hoth_DSS02_Shield_Generator",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "foundation_base",
+"ParentId": null,
+"Shape": "Box",
+"Position": [0, 0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [4.0, 0.5, 4.0],
+"ColorHex": "#D0D0D0",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "central_axis_rod",
+"ParentId": "foundation_base",
+"Shape": "Cylinder",
+"Position": [0, 1.5, 0],
+"Rotation": [90, 0, 0],
+"Scale": [0.8, 2.0, 0.8],
+"ColorHex": "#404040",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "disk_1_core",
+"ParentId": "central_axis_rod",
+"Shape": "Cylinder",
+"Position": [0, 1.5, 4.5],
+"Rotation": [90, 0, 0],
+"Scale": [3.5, 0.6, 3.5],
+"ColorHex": "#A0A0A0",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "disk_1_rim",
+"ParentId": "disk_1_core",
+"Shape": "Torus",
+"Position": [0, 1.5, 4.5],
+"Rotation": [90, 0, 0],
+"Scale": [3.8, 3.8, 0.4],
+"ColorHex": "#808080",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "disk_2_core",
+"ParentId": "central_axis_rod",
+"Shape": "Cylinder",
+"Position": [0, 1.5, 1.5],
+"Rotation": [90, 0, 0],
+"Scale": [3.5, 0.6, 3.5],
+"ColorHex": "#A0A0A0",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "disk_2_rim",
+"ParentId": "disk_2_core",
+"Shape": "Torus",
+"Position": [0, 1.5, 1.5],
+"Rotation": [90, 0, 0],
+"Scale": [3.8, 3.8, 0.4],
+"ColorHex": "#808080",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "disk_3_core",
+"ParentId": "central_axis_rod",
+"Shape": "Cylinder",
+"Position": [0, 1.5, -1.5],
+"Rotation": [90, 0, 0],
+"Scale": [3.5, 0.6, 3.5],
+"ColorHex": "#A0A0A0",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "disk_3_rim",
+"ParentId": "disk_3_core",
+"Shape": "Torus",
+"Position": [0, 1.5, -1.5],
+"Rotation": [90, 0, 0],
+"Scale": [3.8, 3.8, 0.4],
+"ColorHex": "#808080",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "disk_4_core",
+"ParentId": "central_axis_rod",
+"Shape": "Cylinder",
+"Position": [0, 1.5, -4.5],
+"Rotation": [90, 0, 0],
+"Scale": [3.5, 0.6, 3.5],
+"ColorHex": "#A0A0A0",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "disk_4_rim",
+"ParentId": "disk_4_core",
+"Shape": "Torus",
+"Position": [0, 1.5, -4.5],
+"Rotation": [90, 0, 0],
+"Scale": [3.8, 3.8, 0.4],
+"ColorHex": "#808080",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "glow_emitter_front",
+"ParentId": "central_axis_rod",
+"Shape": "Sphere",
+"Position": [0, 1.5, 6.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.5, 0.5, 0.5],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "support_strut_left",
+"ParentId": "foundation_base",
+"Shape": "Box",
+"Position": [1.5, 0.5, 0],
+"Rotation": [0, 0, 15],
+"Scale": [0.4, 2.5, 11.5],
+"ColorHex": "#606060",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "support_strut_right",
+"ParentId": "foundation_base",
+"Shape": "Box",
+"Position": [-1.5, 0.5, 0],
+"Rotation": [0, 0, -15],
+"Scale": [0.4, 2.5, 11.5],
+"ColorHex": "#606060",
+"Material": "Metal",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Color",
+"TargetId": "glow_emitter_front",
+"Value": [0, 1, 1],
+"Duration": 2.0
+},
+{
+"Time": 2.0,
+"Action": "Color",
+"TargetId": "glow_emitter_front",
+"Value": [0.5, 1, 1],
+"Duration": 1.0
+}
+]
+}

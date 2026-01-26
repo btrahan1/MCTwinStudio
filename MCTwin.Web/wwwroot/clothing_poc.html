@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Clothing Geometry POC (Dress vs Pants)</title>
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 280px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        button.active {
+            background: #004494;
+            border: 2px solid #002a5c;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+</head>
+
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <div id="controls">
+        <h3>Clothing Geometry</h3>
+        <p>Silhouette Variation</p>
+
+        <label>Outfit Type:</label>
+        <button id="btnPants" onclick="setOutfit('pants')">Standard Pants</button>
+        <button id="btnDress" onclick="setOutfit('dress')">A-Line Dress</button>
+        <button id="btnGown" onclick="setOutfit('gown')">Long Gown</button>
+
+        <label>Rotation:</label>
+        <button onclick="toggleSpin()">Toggle Spin</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        let scene, root, skirtMesh;
+        let legL, legR, footL, footR;
+        let isSpinning = false;
+
+        const createScene = function () {
+            scene = new BABYLON.Scene(engine);
+            scene.clearColor = new BABYLON.Color4(0.9, 0.9, 0.95, 1);
+
+            const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 8, new BABYLON.Vector3(0, 1.5, 0), scene);
+            camera.attachControl(canvas, true);
+
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+            light.intensity = 0.8;
+            const dirLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-0.5, -0.5, -1), scene);
+            dirLight.position = new BABYLON.Vector3(5, 5, 5);
+
+            const shadowGenerator = new BABYLON.ShadowGenerator(1024, dirLight);
+            shadowGenerator.useBlurExponentialShadowMap = true;
+
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 10, height: 10 }, scene);
+            ground.receiveShadows = true;
+
+            // --- MATERIALS ---
+            const skinMat = new BABYLON.StandardMaterial("skin", scene);
+            skinMat.diffuseColor = BABYLON.Color3.FromHexString("#ffdbac");
+
+            const clothesMat = new BABYLON.StandardMaterial("clothes", scene);
+            clothesMat.diffuseColor = BABYLON.Color3.FromHexString("#336699"); // Blue Dress/Shirt
+
+            const pantsMat = new BABYLON.StandardMaterial("pants", scene);
+            pantsMat.diffuseColor = BABYLON.Color3.FromHexString("#222222"); // Black Pants
+
+            root = new BABYLON.TransformNode("root", scene);
+
+            // --- BASE BODY (Simplified) ---
+            // Head
+            const head = BABYLON.MeshBuilder.CreateSphere("head", { diameter: 1.5 }, scene);
+            head.position.y = 3.8;
+            head.scaling = new BABYLON.Vector3(1, 1.25, 1);
+            head.material = skinMat;
+            head.parent = root;
+            shadowGenerator.addShadowCaster(head);
+
+            // Torso (The "Blouse" - Tapered Cylinder)
+            // Reverting to Cylinder to fix "Chubby" look, but keeping subdivisions for sequins
+            const torso = BABYLON.MeshBuilder.CreateCylinder("torso", {
+                diameterTop: 0.9,
+                diameterBottom: 1.25,
+                height: 1.6,
+                tessellation: 12,
+                subdivisions: 4       // Sequin Grid
+            }, scene);
+
+            torso.convertToFlatShadedMesh();
+            torso.scaling.z = 0.65; // Flatten
+
+            torso.position.y = 2.4;
+            torso.material = clothesMat;
+            torso.parent = root;
+            shadowGenerator.addShadowCaster(torso);
+
+            // --- DETAILS (Shoulders & Bust) ---
+            // Shoulder Joints (Spheres to round off the connection)
+            const shldrL = BABYLON.MeshBuilder.CreateSphere("shldrL", { diameter: 0.7, segments: 8 }, scene);
+            shldrL.position.set(-0.55, 3.0, 0); // Top Corner
+            shldrL.material = clothesMat;
+            shldrL.convertToFlatShadedMesh();
+            shldrL.parent = root;
+
+            const shldrR = BABYLON.MeshBuilder.CreateSphere("shldrR", { diameter: 0.7, segments: 8 }, scene);
+            shldrR.position.set(0.55, 3.0, 0);
+            shldrR.material = clothesMat;
+            shldrR.convertToFlatShadedMesh();
+            shldrR.parent = root;
+
+            // Bust (Subtle flattened sphere)
+            const bust = BABYLON.MeshBuilder.CreateSphere("bust", { diameter: 1.0, segments: 12 }, scene);
+            bust.scaling.z = 0.3; // Flatten significantly (was 0.5)
+            bust.scaling.y = 0.7; // Elongate slightly vertically
+            bust.position.set(0, 2.7, 0.22); // Push back slightly (was 0.25)
+            bust.material = clothesMat;
+            bust.convertToFlatShadedMesh();
+            bust.parent = root;
+
+            // Arms (Stretched Spheres = Cigar Shape)
+            const armL = BABYLON.MeshBuilder.CreateSphere("armL", { diameter: 0.5, segments: 8 }, scene);
+            armL.scaling.y = 3.6; // Stretch to length 1.8 approx (0.5 * 3.6)
+            armL.position.set(-0.75, 2.3, 0);
+            armL.material = clothesMat;
+            armL.convertToFlatShadedMesh();
+            armL.parent = root;
+            shadowGenerator.addShadowCaster(armL);
+
+            const armR = BABYLON.MeshBuilder.CreateSphere("armR", { diameter: 0.5, segments: 8 }, scene);
+            armR.scaling.y = 3.6;
+            armR.position.set(0.75, 2.3, 0);
+            armR.material = clothesMat;
+            armR.convertToFlatShadedMesh();
+            armR.parent = root;
+            shadowGenerator.addShadowCaster(armR);
+
+            // --- LEGS ---
+            legL = BABYLON.MeshBuilder.CreateSphere("legL", { diameter: 0.56, segments: 8 }, scene);
+            legL.scaling.y = 3.2;
+            legL.position.set(-0.4, 0.9, 0);
+            legL.material = pantsMat;
+            legL.convertToFlatShadedMesh();
+            legL.parent = root;
+            shadowGenerator.addShadowCaster(legL);
+
+            legR = BABYLON.MeshBuilder.CreateSphere("legR", { diameter: 0.56, segments: 8 }, scene);
+            legR.scaling.y = 3.2;
+            legR.position.set(0.4, 0.9, 0);
+            legR.material = pantsMat;
+            legR.convertToFlatShadedMesh();
+            legR.parent = root;
+            shadowGenerator.addShadowCaster(legR);
+
+            // --- SKIRT GEOMETRY (Fixed Alignment) ---
+            // Reverting to Cylinder but keeping the "Sequin Grid" via subdivisions
+            skirtMesh = BABYLON.MeshBuilder.CreateCylinder("skirt", {
+                diameterTop: 1.1,
+                diameterBottom: 1.8,
+                height: 1.4,
+                tessellation: 12,
+                subdivisions: 4   // This creates the faceted grid
+            }, scene);
+
+            skirtMesh.convertToFlatShadedMesh();
+            skirtMesh.position.y = 1.6; // Perfect waist alignment
+            skirtMesh.material = clothesMat;
+            skirtMesh.parent = root;
+            skirtMesh.isVisible = false; // Hidden by default
+            shadowGenerator.addShadowCaster(skirtMesh);
+
+
+            scene.registerBeforeRender(() => {
+                if (isSpinning) root.rotation.y += 0.01;
+            });
+
+            return scene;
+        };
+
+        // Create the scene (assigns to global 'scene')
+        createScene();
+
+        function setOutfit(type) {
+            const clothesMat = scene.getMaterialByName("clothes");
+            const pantsMat = scene.getMaterialByName("pants");
+
+            if (type === 'pants') {
+                // Skirt Hidden
+                skirtMesh.isVisible = false;
+                // Legs Visible & Black (Pants)
+                legL.isVisible = true; legR.isVisible = true;
+                legL.material = pantsMat; legR.material = pantsMat;
+
+                // Reset styling
+                document.getElementById('btnPants').className = 'active';
+                document.getElementById('btnDress').className = '';
+                document.getElementById('btnGown').className = '';
+
+            } else if (type === 'dress') {
+                // Skirt Visible (A-Line)
+                skirtMesh.isVisible = true;
+                skirtMesh.scaling.y = 1.0;
+                skirtMesh.position.y = 1.6;
+                skirtMesh.scaling.x = 1.0; skirtMesh.scaling.z = 1.0;
+
+                // Legs Visible but SKIN colored (bare legs sticking out)
+                legL.isVisible = true; legR.isVisible = true;
+                legL.material = scene.getMaterialByName("skin");
+                legR.material = scene.getMaterialByName("skin");
+
+                document.getElementById('btnPants').className = '';
+                document.getElementById('btnDress').className = 'active';
+                document.getElementById('btnGown').className = '';
+
+            } else if (type === 'gown') {
+                // Skirt Visible (Long)
+                skirtMesh.isVisible = true;
+                skirtMesh.scaling.y = 1.8; // Longer
+                skirtMesh.position.y = 0.9; // Lower down
+                skirtMesh.scaling.x = 1.2; skirtMesh.scaling.z = 1.2; // Wider base
+
+                // Legs Hidden (Covered by gown)
+                legL.isVisible = false; legR.isVisible = false;
+
+                document.getElementById('btnPants').className = '';
+                document.getElementById('btnDress').className = '';
+                document.getElementById('btnGown').className = 'active';
+            }
+        }
+
+        function toggleSpin() { isSpinning = !isSpinning; }
+
+        engine.runRenderLoop(() => scene.render());
+        window.addEventListener("resize", () => engine.resize());
+
+        // Init
+        setOutfit('pants');
+
+    </script>
+</body>
+
+</html>
