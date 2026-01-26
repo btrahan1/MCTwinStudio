@@ -36,6 +36,7 @@ namespace MCTwinStudio
         private RadioButton _rbVoxel = null!;
         private RadioButton _rbProcedural = null!;
         private RadioButton _rbScene = null!;
+        private RadioButton _rbBehavior = null!;
         private PaletteControl _palette = null!;
 
         private BaseModel? _currentModel = null;
@@ -147,16 +148,18 @@ namespace MCTwinStudio
             var pnlArtType = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 40, BackColor = Color.FromArgb(40, 40, 45), FlowDirection = FlowDirection.LeftToRight, Padding = new Padding(10, 5, 0, 0) };
             pnlControl.Controls.Add(pnlArtType);
 
-            _rbVoxel = new RadioButton { Text = "NPC", Checked = true, ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 70 };
-            _rbProcedural = new RadioButton { Text = "PROP", ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 80 };
-            _rbScene = new RadioButton { Text = "SCENE", ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 80 };
+            _rbVoxel = new RadioButton { Text = "NPC", Checked = true, ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 55 };
+            _rbProcedural = new RadioButton { Text = "PROP", ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 60 };
+            _rbScene = new RadioButton { Text = "SCENE", ForeColor = NexusStyles.WhiteText, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 65 };
+            _rbBehavior = new RadioButton { Text = "BEHAVIOR", ForeColor = NexusStyles.AccentAmber, Font = new Font("Segoe UI", 9, FontStyle.Bold), Width = 85 };
 
             _rbVoxel.CheckedChanged += (s, e) => UpdateAIModeFile();
             _rbProcedural.CheckedChanged += (s, e) => UpdateAIModeFile();
             _rbScene.CheckedChanged += (s, e) => UpdateAIModeFile();
+            _rbBehavior.CheckedChanged += (s, e) => UpdateAIModeFile();
             UpdateAIModeFile();
             
-            pnlArtType.Controls.AddRange(new Control[] { _rbVoxel, _rbProcedural, _rbScene });
+            pnlArtType.Controls.AddRange(new Control[] { _rbVoxel, _rbProcedural, _rbScene, _rbBehavior });
 
             _txtPrompt = new TextBox { Dock = DockStyle.Fill, Multiline = true, BackColor = NexusStyles.CardColor, ForeColor = NexusStyles.AccentAmber, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Consolas", 12) };
             pnlControl.Controls.Add(_txtPrompt);
@@ -215,7 +218,7 @@ namespace MCTwinStudio
         }
 
         private void UpdateAIModeFile() {
-            string m = _rbVoxel.Checked ? "Voxel" : (_rbProcedural.Checked ? "Procedural" : "Scene");
+            string m = _rbVoxel.Checked ? "Voxel" : (_rbProcedural.Checked ? "Procedural" : (_rbBehavior.Checked ? "Behavior" : "Scene"));
             try { System.IO.File.WriteAllText(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ai_mode.txt"), m); } catch {}
         }
 
@@ -265,20 +268,28 @@ namespace MCTwinStudio
             } catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
-        private void ForgeAsset()
+        private async void ForgeAsset()
         {
             string userPrompt = _txtPrompt.Text.Trim();
             if (string.IsNullOrEmpty(userPrompt)) return;
-            string mode = _rbVoxel.Checked ? "Voxel" : (_rbProcedural.Checked ? "Procedural" : "Scene");
-            var options = new VoxelOptions {
-                GenerateFace = _options.GenerateFace,
-                GenerateChest = _options.GenerateChest,
-                GenerateArms = _options.GenerateArms,
-                GenerateLegs = _options.GenerateLegs
-            };
-            _architectService.Forge(userPrompt, mode, options);
+            
             _btnForge.Enabled = false;
             _btnForge.Text = "WAITING...";
+
+            string mode = _rbVoxel.Checked ? "Voxel" : (_rbProcedural.Checked ? "Procedural" : (_rbBehavior.Checked ? "Behavior" : "Scene"));
+            
+            if (mode == "Behavior") {
+                _architectService.Forge(userPrompt, "Behavior");
+            } 
+            else {
+                var options = new VoxelOptions {
+                    GenerateFace = _options.GenerateFace,
+                    GenerateChest = _options.GenerateChest,
+                    GenerateArms = _options.GenerateArms,
+                    GenerateLegs = _options.GenerateLegs
+                };
+                _architectService.Forge(userPrompt, mode, options);
+            }
         }
 
         private void QuickSteve()

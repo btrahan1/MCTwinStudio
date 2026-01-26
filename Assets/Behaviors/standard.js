@@ -58,6 +58,38 @@ window.MCTwinBehaviors = {
 
     // --- DATA DRIVEN BEHAVIORS ---
 
+    "Wave": {
+        // "I want him to wave": Simulating a jump/wobble excitement animation
+        // Args: Speed (default 10.0), Duration (default 2.0)
+        onInteract: (node, args) => {
+            // Start Waving
+            node.metadata.isWaving = true;
+            node.metadata.waveTimer = parseFloat(args.Duration || "2.0");
+            node.metadata.startY = node.positio.y; // Capture baseline
+        },
+        onTick: (node, args, time) => {
+            if (!node.metadata.isWaving) return;
+
+            const speed = parseFloat(args.Speed || "10.0");
+            const dt = 0.016; // Approx 60fps delta
+            node.metadata.waveTimer -= dt;
+
+            if (node.metadata.waveTimer <= 0) {
+                // Stop Waving
+                node.metadata.isWaving = false;
+                node.position.y = node.metadata.startY;
+                node.rotation.z = 0;
+                return;
+            }
+
+            // 2. Jump (Y-Axis)
+            node.position.y = node.metadata.startY + Math.abs(Math.sin(time * speed)) * 0.5;
+
+            // 3. Wobble (Z-Axis Rotation)
+            node.rotation.z = Math.sin(time * speed * 2) * 0.2;
+        }
+    },
+
     "MapLoader": {
         // Fetches locations and spawns pins
         // Args: ApiUrl (optional override)

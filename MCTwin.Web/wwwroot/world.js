@@ -694,6 +694,7 @@ const createScene = function () {
                     if (pos) rootNode.position = new BABYLON.Vector3(pos[0], pos[1], pos[2]);
                     if (rot) rootNode.rotation = new BABYLON.Vector3(BABYLON.Tools.ToRadians(rot[0]), BABYLON.Tools.ToRadians(rot[1]), BABYLON.Tools.ToRadians(rot[2]));
                     if (scl) rootNode.scaling = new BABYLON.Vector3(scl[0], scl[1], scl[2]);
+                    if (transform.Tags) rootNode.metadata.tags = transform.Tags;
                 } else {
                     if (playerRoot) {
                         const forward = new BABYLON.Vector3(Math.sin(playerRoot.rotation.y), 0, Math.cos(playerRoot.rotation.y));

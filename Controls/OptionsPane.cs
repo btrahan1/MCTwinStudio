@@ -48,7 +48,6 @@ namespace MCTwinStudio.Controls
             _chkLegs = CreateCheck("Leg Regions (Symmetrical)", true);
 
             pnlContent.Controls.Add(_chkFace);
-            pnlContent.Controls.Add(_chkChest);
             pnlContent.Controls.Add(_chkArms);
             pnlContent.Controls.Add(_chkLegs);
         }

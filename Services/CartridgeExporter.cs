@@ -85,7 +85,11 @@ namespace MCTwinStudio.Services
                              data.Scene.Items.forEach(item => {
                                  const recipeData = window.CartridgeAssets ? window.CartridgeAssets[item.RecipeName] : null;
                                  if (recipeData) {
-                                     window.MCTwin.spawnRecipe(recipeData, item.RecipeName, false, item);
+                                     if (recipeData.Type === 'Voxel') {
+                                         window.MCTwin.spawnVoxel(recipeData, item.RecipeName, false, item);
+                                     } else {
+                                         window.MCTwin.spawnRecipe(recipeData, item.RecipeName, false, item);
+                                     }
                                  } else {
                                      console.log(""Missing asset data for: "" + item.RecipeName);
                                  }

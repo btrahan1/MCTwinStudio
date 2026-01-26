@@ -50,10 +50,17 @@ namespace MCTwinStudio
                 // Simple regex-like scan for keys like "Spin": {
                 foreach (var line in lines) {
                     var trimmed = line.Trim();
+                    // Pattern 1: "Wave": {
                     if (trimmed.StartsWith("\"") && trimmed.EndsWith("\": {")) {
-                        // Extract "Name"
-                        var name = trimmed.Substring(1, trimmed.Length - 4); // Remove " and ": {
+                        var name = trimmed.Substring(1, trimmed.Length - 5); 
                         list.Add(name);
+                    }
+                    // Pattern 2: window.MCTwinBehaviors['AI_Wave'] = {  (Allow ' or " quotes)
+                    else {
+                        var match = System.Text.RegularExpressions.Regex.Match(trimmed, @"MCTwinBehaviors\[['""](.*?)['""]\]\s*=\s*{");
+                        if (match.Success) {
+                            list.Add(match.Groups[1].Value);
+                        }
                     }
                 }
                 return list.ToArray();
@@ -172,8 +179,47 @@ namespace MCTwinStudio
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = NexusStyles.BackColor;
 
+            BundleBehaviors();
             InitializeLayout();
             InitializeAsync();
+        }
+
+        private void BundleBehaviors()
+        {
+            try {
+                var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Behaviors");
+                var outFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "behaviors.js");
+                
+                if (!Directory.Exists(dir)) return;
+
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine("// AUTO-GENERATED BUNDLE. DO NOT EDIT DIRECTLY.");
+                sb.AppendLine("// Edit files in Assets/Behaviors/ instead.");
+                sb.AppendLine();
+
+                // 1. Load Standard First (It inits the object)
+                var stdPath = Path.Combine(dir, "standard.js");
+                if (File.Exists(stdPath)) {
+                    sb.AppendLine(File.ReadAllText(stdPath));
+                    sb.AppendLine();
+                } else {
+                    // Fallback if missing
+                    sb.AppendLine("window.MCTwinBehaviors = {};");
+                }
+
+                // 2. Load Others
+                var files = Directory.GetFiles(dir, "*.js");
+                foreach(var f in files) {
+                    if (Path.GetFileName(f).ToLower() == "standard.js") continue;
+                    sb.AppendLine($"// --- {Path.GetFileName(f)} ---");
+                    sb.AppendLine(File.ReadAllText(f));
+                    sb.AppendLine();
+                }
+
+                File.WriteAllText(outFile, sb.ToString());
+            } catch (Exception ex) {
+                System.Diagnostics.Debug.WriteLine("Bundle Error: " + ex.Message);
+            }
         }
 
         // CreateDefaultModel removed as skinning is now host-specific
@@ -374,8 +420,15 @@ namespace MCTwinStudio
                                     if (!uniqueAssets.ContainsKey(item.RecipeName)) {
                                         string assetJson = await _assetService.GetBestMatch(item.RecipeName);
                                         if (!string.IsNullOrEmpty(assetJson)) {
-                                            using var doc = JsonDocument.Parse(assetJson);
-                                            uniqueAssets[item.RecipeName] = doc.RootElement.Clone();
+                                            if (IsVoxelType(assetJson)) {
+                                                // BAKING FOR EXPORT
+                                                var baked = BakeAsset(assetJson, item.RecipeName);
+                                                if (baked != null) uniqueAssets[item.RecipeName] = baked;
+                                            } else {
+                                                // Standard Static Asset
+                                                using var doc = JsonDocument.Parse(assetJson);
+                                                uniqueAssets[item.RecipeName] = doc.RootElement.Clone();
+                                            }
                                         }
                                     }
                                 }
@@ -431,6 +484,23 @@ namespace MCTwinStudio
 
         public async void ImportProp(string json, string name = "Prop", SceneItem? transform = null)
         {
+            var baked = BakeAsset(json, name);
+            if (baked != null && IsVoxelType(json)) {
+                 await _controller.SpawnVoxel(baked, name, false, transform);
+            } else {
+                 await _controller.SpawnRecipe(json, name, false, transform);
+            }
+        }
+
+        private bool IsVoxelType(string json) {
+            try { 
+                using var doc = JsonDocument.Parse(json);
+                string type = doc.RootElement.TryGetProperty("Type", out var t) ? t.GetString() ?? "" : "";
+                return type == "Voxel" || type == "Humanoid";
+            } catch { return false; }
+        }
+
+        private object? BakeAsset(string json, string name) {
             try {
                 using var doc = JsonDocument.Parse(json);
                 string type = doc.RootElement.TryGetProperty("Type", out var t) ? t.GetString() ?? "Procedural" : "Procedural";
@@ -451,18 +521,18 @@ namespace MCTwinStudio
                         h.ArmPixels = GetPixels(tex, "Arms");
                         h.LegPixels = GetPixels(tex, "Legs");
                     }
-                    // Skin generation should happen here via service
+                    
                     var skinGen = new Services.SkinGenerator();
                     var bmp = skinGen.Generate(h.SkinToneHex, h.ShirtHex, h.PantsHex, h.EyeHex, h.FacePixels, h.HatPixels, h.ChestPixels, h.ArmPixels, h.LegPixels);
+                    string b64 = "";
                     using (var ms = new System.IO.MemoryStream()) {
                         bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                        h.SkinBase64 = "data:image/png;base64," + Convert.ToBase64String(ms.ToArray());
+                        b64 = "data:image/png;base64," + Convert.ToBase64String(ms.ToArray());
                     }
-                    await _controller.SpawnVoxel(new { Parts = h.GetParts(), Skin = h.SkinBase64 }, name, false, transform);
-                } else {
-                    await _controller.SpawnRecipe(json, name, false, transform);
+                    return new { Type = "Voxel", Parts = h.GetParts(), Skin = b64 };
                 }
-            } catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.Message); }
+                return null; // Not a bake-able type
+            } catch { return null; }
         }
 
         private string GetProp(JsonElement el, string key, string def) => el.TryGetProperty(key, out var p) ? p.GetString() ?? def : def;
