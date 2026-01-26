@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Face POC 2 - Solid Shell Hair</title>
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+        }
+
+        button {
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+    </style>
+    <!-- Babylon.js CDN -->
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+</head>
+
+<body>
+    <canvas id="renderCanvas"></canvas>
+
+    <div id="controls">
+        <h3>Face POC 2: Solid Shells</h3>
+        <p>Capsule Head + Volume Hair Layer</p>
+
+        <div class="control-group">
+            <label>Skin Tone</label>
+            <input type="color" id="skinColor" value="#ffdbac">
+        </div>
+
+        <div class="control-group">
+            <label>Hair Style (Mask)</label>
+            <select id="hairStyle">
+                <option value="none">Bald</option>
+                <option value="bob">Bob Cut</option>
+                <option value="sidepart">Side Part</option>
+                <option value="bangs">Structured Bangs</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Hair Color</label>
+            <input type="color" id="hairColor" value="#cc3300">
+        </div>
+
+        <div class="control-group">
+            <label>Expression</label>
+            <select id="expression">
+                <option value="neutral">Neutral</option>
+                <option value="happy">Happy</option>
+                <option value="smirk">Smirk</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Debug</label>
+            <div>
+                <input type="checkbox" id="showWireframe"> Wirebase
+            </div>
+        </div>
+
+        <button onclick="setSecretary()">Preset: Secretary</button>
+        <button onclick="randomize()">Randomize</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("renderCanvas");
+        const engine = new BABYLON.Engine(canvas, true);
+
+        let faceTexture;
+        let hairOpacityTexture;
+        let headMaterial;
+        let hairMaterial;
+        let hairShell;
+        let hairBun;
+        let headMesh;
+
+        let currentConfig = {
+            skinColor: "#ffdbac",
+            hairColor: "#cc3300",
+            hairStyle: "bangs",
+            eyeStyle: "oval",
+            mouthStyle: "smirk",
+            hasGlasses: true,
+            hasBlush: true,
+            hasBrows: true
+        };
+
+        const createScene = function () {
+            const scene = new BABYLON.Scene(engine);
+            scene.clearColor = new BABYLON.Color4(0.9, 0.9, 0.95, 1);
+
+            // Camera
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 5, new BABYLON.Vector3(0, 0, 0), scene);
+            camera.attachControl(canvas, true);
+            camera.wheelPrecision = 50;
+            camera.minZ = 0.1;
+
+            // Lights
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+            light.intensity = 0.7;
+
+            const dirLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-0.5, -0.5, -1), scene);
+            dirLight.position = new BABYLON.Vector3(5, 5, 5);
+            dirLight.intensity = 0.6;
+
+            // --- 1. THE HEAD (ELLIPSOID) ---
+            // Replaced Capsule with Scaled Sphere for softer silhouette
+            headMesh = BABYLON.MeshBuilder.CreateSphere("head", { diameter: 1.8, segments: 32 }, scene);
+            headMesh.scaling = new BABYLON.Vector3(1, 1.25, 1); // Elongate slightly
+
+            // Material
+            headMaterial = new BABYLON.StandardMaterial("headMat", scene);
+            headMaterial.specularColor = new BABYLON.Color3(0.05, 0.05, 0.05); // Matte
+            headMesh.material = headMaterial;
+
+            // Face Texture (Canvas 1)
+            faceTexture = new BABYLON.DynamicTexture("faceTex", 1024, scene, true);
+            faceTexture.wAng = Math.PI; // Correct orientation for Sphere
+            headMaterial.diffuseTexture = faceTexture;
+
+
+            // --- 2. THE HAIR SHELL (Larger Sphere) ---
+            // We scale it up slightly to sit ON TOP of the head
+            hairShell = BABYLON.MeshBuilder.CreateSphere("hairShell", { diameter: 1.8, segments: 32 }, scene);
+            hairShell.parent = headMesh; // Attached to head
+            hairShell.scaling = new BABYLON.Vector3(1.05, 1.05, 1.06); // Layer thickness (slightly thicker z for hair volume)
+
+            // Material
+            hairMaterial = new BABYLON.StandardMaterial("hairMat", scene);
+            hairMaterial.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2); // Shinier than skin
+            hairMaterial.diffuseColor = BABYLON.Color3.FromHexString(currentConfig.hairColor);
+
+            // Opacity Mask (Canvas 2) - This cuts the "Bangs" shape out of the shell
+            // White = Visible Hair, Black = Invisible (Face shows through)
+            hairOpacityTexture = new BABYLON.DynamicTexture("hairOpacity", 1024, scene, true);
+            hairOpacityTexture.wAng = Math.PI;
+            hairMaterial.opacityTexture = hairOpacityTexture;
+
+            hairMaterial.opacityTexture = hairOpacityTexture;
+            hairMaterial.transparencyMode = BABYLON.Material.MATERIAL_ALPHATEST;
+            hairMaterial.backFaceCulling = false;
+
+            hairShell.material = hairMaterial;
+
+            // --- 3. HAIR BUN (Attached Geometry) ---
+            hairBun = BABYLON.MeshBuilder.CreateSphere("bun", { diameter: 0.8, segments: 16 }, scene);
+            hairBun.parent = headMesh;
+            hairBun.position.z = -0.75; // Back of head
+            hairBun.position.y = 0.3;   // Lower down
+            hairBun.scaling = new BABYLON.Vector3(0.8, 0.64, 0.5); // Counter-scale Y (0.8/1.25) to keep roundness
+            hairBun.material = hairMaterial;
+            hairBun.isVisible = false;
+
+            // Initial Draw
+            updateFace();
+            updateHair();
+
+            return scene;
+        };
+
+        // --- DRAWING: FACE (Features only) ---
+        function updateFace() {
+            if (!faceTexture) return;
+
+            const ctx = faceTexture.getContext();
+            const w = faceTexture.getSize().width;
+            const h = faceTexture.getSize().height;
+
+            // Base Skin color
+            ctx.fillStyle = currentConfig.skinColor;
+            ctx.fillRect(0, 0, w, h);
+            headMaterial.diffuseColor = BABYLON.Color3.FromHexString(currentConfig.skinColor); // Set base mat color too for lighting
+
+            const centerX = w / 2;
+            const eyeY = h * 0.45; // Centered vertically on the capsule face area
+            const mouthY = h * 0.58;
+            const eyeOffset = w * 0.12;
+
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            // Blush
+            if (currentConfig.hasBlush) {
+                ctx.fillStyle = "rgba(200, 50, 50, 0.15)";
+                ctx.beginPath();
+                ctx.arc(centerX - eyeOffset - 20, eyeY + 60, 45, 0, Math.PI * 2);
+                ctx.arc(centerX + eyeOffset + 20, eyeY + 60, 45, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Eyes
+            ctx.fillStyle = "#222";
+            ctx.strokeStyle = "#222";
+            ctx.lineWidth = 15;
+
+            if (currentConfig.eyeStyle === "oval") {
+                ctx.beginPath();
+                ctx.ellipse(centerX - eyeOffset, eyeY, 25, 45, 0, 0, Math.PI * 2);
+                ctx.ellipse(centerX + eyeOffset, eyeY, 25, 45, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Shine
+                ctx.fillStyle = "#FFF";
+                ctx.beginPath();
+                ctx.arc(centerX - eyeOffset + 8, eyeY - 12, 10, 0, Math.PI * 2);
+                ctx.arc(centerX + eyeOffset + 8, eyeY - 12, 10, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Dot
+                ctx.beginPath();
+                ctx.arc(centerX - eyeOffset, eyeY, 25, 0, Math.PI * 2);
+                ctx.arc(centerX + eyeOffset, eyeY, 25, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Glasses?
+            if (currentConfig.hasGlasses) {
+                ctx.fillStyle = "rgba(200, 240, 255, 0.4)";
+                ctx.strokeStyle = "#111";
+                ctx.lineWidth = 8;
+
+                // Lenses (slightly squared for capsule look)
+                let gx = 55; let gy = 40;
+
+                // Left
+                ctx.beginPath();
+                ctx.roundRect(centerX - eyeOffset - gx / 2 - 10, eyeY - gy / 2, gx + 20, gy + 10, 20);
+                ctx.fill();
+                ctx.stroke();
+
+                // Right
+                ctx.beginPath();
+                ctx.roundRect(centerX + eyeOffset - gx / 2 - 10, eyeY - gy / 2, gx + 20, gy + 10, 20);
+                ctx.fill();
+                ctx.stroke();
+
+                // Bridge
+                ctx.beginPath();
+                ctx.moveTo(centerX - eyeOffset + 25, eyeY);
+                ctx.lineTo(centerX + eyeOffset - 25, eyeY);
+                ctx.stroke();
+            }
+
+            // Mouth
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 12;
+            if (currentConfig.mouthStyle === 'smirk') {
+                ctx.beginPath();
+                ctx.moveTo(centerX - 30, mouthY);
+                ctx.quadraticCurveTo(centerX + 10, mouthY + 15, centerX + 40, mouthY - 10);
+                ctx.stroke();
+            } else if (currentConfig.mouthStyle === 'happy') {
+                ctx.beginPath();
+                ctx.arc(centerX, mouthY - 10, 50, 0.2, Math.PI - 0.2);
+                ctx.stroke();
+            }
+
+            faceTexture.update();
+        }
+
+        // --- DRAWING: HAIR MASK (Shell Cutout) ---
+        function updateHair() {
+            if (!hairOpacityTexture) return;
+
+            const ctx = hairOpacityTexture.getContext();
+            const w = hairOpacityTexture.getSize().width;
+            const h = hairOpacityTexture.getSize().height;
+            const centerX = w / 2;
+
+            // Clear to Black (Invisible) - Effectively bald by default
+            // Or Clear to White (Full Shell)
+
+            if (currentConfig.hairStyle === 'none') {
+                ctx.clearRect(0, 0, w, h); // Clear to Transparent
+                hairOpacityTexture.update();
+                hairShell.isVisible = false;
+                if (hairBun) hairBun.isVisible = false;
+                return;
+            } else {
+                hairShell.isVisible = true;
+                // Bun logic: Only for 'bangs' style for now (Secretary)
+                if (hairBun) hairBun.isVisible = (currentConfig.hairStyle === 'bangs' || currentConfig.hairStyle === 'bun');
+            }
+
+            // Reset: Fill with White (Hair exists everywhere)
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, w, h);
+
+            // Now "Erase" the face area (Paint Transparent)
+            // We use destination-out composite operation to "cut" the shape
+            ctx.globalCompositeOperation = "destination-out";
+            ctx.fillStyle = "black"; // Color doesn't matter, alpha does, but black is fine for mask
+
+            // Face Cutout Logic
+            // This shape determines the hairline!
+            ctx.beginPath();
+
+            if (currentConfig.hairStyle === 'bangs') {
+                // Structured Bangs Cutout
+                // We carve out the bottom half of the capsule face
+                // And a specific shape for the forehead
+                ctx.moveTo(centerX, h * 0.35); // Center dip of bangs
+
+                // Left Arch (over eye)
+                ctx.bezierCurveTo(w * 0.3, h * 0.32, w * 0.2, h * 0.4, w * 0.2, h * 0.6); // Down side of face
+                // Bottom of face (chin)
+                ctx.lineTo(w * 0.2, h);
+                ctx.lineTo(w * 0.8, h);
+                // Right side up
+                ctx.lineTo(w * 0.8, h * 0.6);
+                // Right Arch
+                ctx.bezierCurveTo(w * 0.8, h * 0.4, w * 0.7, h * 0.32, centerX, h * 0.35);
+
+                ctx.fill();
+
+            } else if (currentConfig.hairStyle === 'bob') {
+                // Simple Boxy Cutout
+                // Reveals face from mid-forehead down
+                ctx.beginPath();
+                // Start mid-forehead
+                ctx.moveTo(w * 0.2, h * 0.32);
+                // Straight across? No, slight curve
+                ctx.quadraticCurveTo(centerX, h * 0.35, w * 0.8, h * 0.32);
+                // Down sides
+                ctx.lineTo(w * 0.8, h);
+                ctx.lineTo(w * 0.2, h);
+                ctx.closePath();
+                ctx.fill();
+
+            } else if (currentConfig.hairStyle === 'sidepart') {
+                // Asymmetric Cutout
+                ctx.beginPath();
+                // Start high left
+                ctx.moveTo(w * 0.15, h * 0.3);
+                // Swoop down across forehead to right
+                ctx.bezierCurveTo(w * 0.3, h * 0.25, w * 0.6, h * 0.45, w * 0.85, h * 0.35);
+                // Down side
+                ctx.lineTo(w * 0.85, h);
+                ctx.lineTo(w * 0.15, h);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // NOTE: The Capsule texture mapping mirrors at the back. 
+            // So if we just paint the front face black, the back of the head stays white (solid hair).
+            // This gives us the "Solid Back" for free!
+
+            hairMaterial.diffuseColor = BABYLON.Color3.FromHexString(currentConfig.hairColor);
+
+            // Reset composite op
+            ctx.globalCompositeOperation = "source-over";
+
+            hairOpacityTexture.update();
+        }
+
+        // --- UI BINDINGS ---
+        function update() {
+            updateFace();
+            updateHair();
+        }
+
+        document.getElementById("skinColor").addEventListener("input", (e) => { currentConfig.skinColor = e.target.value; update(); });
+        document.getElementById("hairColor").addEventListener("input", (e) => { currentConfig.hairColor = e.target.value; update(); });
+        document.getElementById("hairStyle").addEventListener("change", (e) => { currentConfig.hairStyle = e.target.value; update(); });
+        document.getElementById("expression").addEventListener("change", (e) => {
+            const map = { 'neutral': 'line', 'happy': 'happy', 'smirk': 'smirk' };
+            currentConfig.mouthStyle = map[e.target.value] || 'line';
+            update();
+        });
+
+        document.getElementById("showWireframe").addEventListener("change", (e) => {
+            headMaterial.wireframe = e.target.checked;
+            hairMaterial.wireframe = e.target.checked;
+        });
+
+        function setSecretary() {
+            currentConfig.hairStyle = "bangs";
+            currentConfig.hairColor = "#cc3300";
+            currentConfig.skinColor = "#ffdbac";
+            currentConfig.hasGlasses = true;
+            currentConfig.mouthStyle = "smirk";
+
+            document.getElementById("hairColor").value = currentConfig.hairColor;
+            document.getElementById("skinColor").value = currentConfig.skinColor;
+            document.getElementById("hairStyle").value = currentConfig.hairStyle;
+
+            update();
+        }
+
+        function randomize() {
+            const hairs = ["bob", "sidepart", "bangs"];
+            currentConfig.hairStyle = hairs[Math.floor(Math.random() * hairs.length)];
+
+            const skins = ["#ffdbac", "#f1c27d", "#e0ac69", "#8d5524", "#c68642"];
+            currentConfig.skinColor = skins[Math.floor(Math.random() * skins.length)];
+
+            document.getElementById("hairStyle").value = currentConfig.hairStyle;
+            document.getElementById("skinColor").value = currentConfig.skinColor;
+
+            update();
+        }
+
+        const scene = createScene();
+        engine.runRenderLoop(() => scene.render());
+        window.addEventListener("resize", () => engine.resize());
+
+    </script>
+</body>
+
+</html>
