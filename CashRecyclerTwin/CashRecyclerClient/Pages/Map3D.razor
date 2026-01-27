@@ -58,6 +58,17 @@
                 </button>
             }
 
+            <!-- Drill Down Controls -->
+            @if (SelectedLocation != null)
+            {
+                <div class="position-absolute bottom-0 start-50 translate-middle-x mb-4 text-center">
+                    <h2 class="text-white text-shadow">@SelectedLocation.Name</h2>
+                    <button class="btn btn-lg btn-outline-info" @onclick="ReturnToMap">
+                        <i class="bi bi-arrow-up-circle"></i> Return to Fleet Map
+                    </button>
+                </div>
+            }
+
             <canvas id="map3d-canvas" style="width: 100%; height: 100%; outline: none;" tabindex="1"></canvas>
             
             <!-- Loading Overlay -->
@@ -76,6 +87,7 @@
     private bool IsLoading = true;
     private bool IsPanelCollapsed = false;
     private List<LocationDto> Locations = new();
+    private LocationDto? SelectedLocation = null;
 
     protected override void OnInitialized()
     {
@@ -85,16 +97,40 @@
     public void Dispose()
     {
         LayoutState.OnChange -= StateHasChanged;
-        // Ensure we exit full screen when leaving the page (optional, but good UX)
         if(LayoutState.IsFullScreen) LayoutState.SetFullScreen(false);
     }
 
     private async Task ToggleFullScreen()
     {
         LayoutState.SetFullScreen(!LayoutState.IsFullScreen);
-        // Force resize of engine after layout change (Give DOM 50ms to reflow)
         await Task.Delay(50);
         await JSRuntime.InvokeVoidAsync("triggerMapResize");
+    }
+    
+    [JSInvokable]
+    public async Task SelectLocation(int id)
+    {
+        SelectedLocation = Locations.FirstOrDefault(l => l.LocationId == id);
+        if (SelectedLocation != null)
+        {
+            await JSRuntime.InvokeVoidAsync("flyToLocation", id);
+            
+            // Send Cassette Data to 3D View
+            // Assuming 1 Recycler per location for now, or taking the first one
+            var recycler = SelectedLocation.Recyclers.FirstOrDefault();
+            if (recycler != null) 
+            {
+                await JSRuntime.InvokeVoidAsync("updateDetailData", recycler.Cassettes);
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private async Task ReturnToMap()
+    {
+        SelectedLocation = null;
+        await JSRuntime.InvokeVoidAsync("flyBackToMap");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -103,14 +139,12 @@
         {
             try
             {
-                // Fetch Data: Hierarchy -> Flatten Locations
                 var regions = await Http.GetFromJsonAsync<List<RegionDto>>("https://localhost:7020/api/dashboard/hierarchy");
                 if (regions != null)
                 {
                     Locations = regions.SelectMany(r => r.Locations).ToList();
                 }
 
-                // Initialize 3D Map
                 await JSRuntime.InvokeVoidAsync("initMap", DotNetObjectReference.Create(this), "map3d-canvas", Locations);
                 
                 IsLoading = false;
