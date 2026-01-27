@@ -9,6 +9,9 @@
         <div class="col">
             <h1 class="display-6">Cash Fleet Dashboard</h1>
             <button class="btn btn-primary" @onclick="LoadData">Refresh Data</button>
+            <button class="btn btn-outline-secondary ms-2" @onclick="ToggleView">
+                <i class="bi bi-layout-split"></i> @(IsVerticalView ? "Battery View" : "Detail View")
+            </button>
         </div>
         <div class="col text-end">
             <h3>Global Cash: @GlobalCash.ToString("C0")</h3>
@@ -26,13 +29,15 @@
             {
                 <div class="accordion-item mb-3 border-0 shadow-sm">
                     <h2 class="accordion-header">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@region.RegionId">
+                        <button class="accordion-button @(ExpandedRegions.Contains(region.RegionId) ? "" : "collapsed")" 
+                                type="button" 
+                                @onclick="() => ToggleRegion(region.RegionId)">
                             <span class="fs-4 fw-bold me-3">@region.Name</span>
                             <span class="badge bg-success fs-6">@region.TotalCash.ToString("C0") On Hand</span>
                             <span class="ms-auto badge bg-secondary">@region.Locations.Count Locations</span>
                         </button>
                     </h2>
-                    <div id="collapse-@region.RegionId" class="accordion-collapse collapse show">
+                    <div id="collapse-@region.RegionId" class="accordion-collapse collapse @(ExpandedRegions.Contains(region.RegionId) ? "show" : "")">
                         <div class="accordion-body bg-light">
                             <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
                                 @foreach (var loc in region.Locations)
@@ -56,24 +61,50 @@
                                                             <div class="progress-bar bg-info" role="progressbar" style="width: 50%"></div>
                                                         </div>
                                                         
-                                                        <!-- Cassettes (Mini View) -->
-                                                        <div class="d-flex gap-1 mt-2">
-                                                            @foreach (var cass in recycler.Cassettes.OrderBy(c => c.CassetteIndex))
-                                                            {
-                                                                var color = cass.PercentFull > 90 ? "bg-danger" : (cass.PercentFull < 10 ? "bg-warning" : "bg-primary");
-                                                                if (cass.Type == "Reject") color = "bg-dark";
+                                                        @if (IsVerticalView)
+                                                        {
+                                                            // Vertical List View
+                                                            <div class="d-flex flex-column gap-1">
+                                                                 @foreach (var cass in recycler.Cassettes.OrderBy(c => c.CassetteIndex))
+                                                                 {
+                                                                    var color = cass.PercentFull > 90 ? "bg-danger" : (cass.PercentFull < 10 ? "bg-warning" : "bg-primary");
+                                                                    if (cass.Type == "Reject") color = "bg-dark";
 
-                                                                <div class="flex-fill text-center p-1 border rounded" style="font-size: 0.7em;">
-                                                                    <div class="fw-bold">
-                                                                        @(cass.Denomination == 0 ? "Rej" : $"${cass.Denomination}")
+                                                                    <div class="d-flex align-items-center border rounded p-1" style="font-size: 0.8em;">
+                                                                        <div class="fw-bold me-2" style="width: 40px; text-align:right;">
+                                                                            @(cass.Denomination == 0 ? "Rej" : $"${cass.Denomination:0}")
+                                                                        </div>
+                                                                        <div class="progress flex-grow-1 me-2" style="height: 15px;">
+                                                                            <div class="progress-bar @color" role="progressbar" style="width: @(cass.PercentFull)%"></div>
+                                                                        </div>
+                                                                        <div class="fw-bold" style="width: 50px; text-align:right;">
+                                                                            @cass.CurrentCount
+                                                                        </div>
                                                                     </div>
-                                                                    <div class="progress" style="height: 30px; position:relative;">
-                                                                        <div class="progress-bar @color" role="progressbar" style="width: @(cass.PercentFull)%"></div>
-                                                                        <span style="position:absolute; width:100%; color: black; font-weight:bold; line-height:30px;">@cass.CurrentCount</span>
+                                                                 }
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            // Horizontal Battery View (Original)
+                                                            <div class="d-flex gap-1">
+                                                                @foreach (var cass in recycler.Cassettes.OrderBy(c => c.CassetteIndex))
+                                                                {
+                                                                    var color = cass.PercentFull > 90 ? "bg-danger" : (cass.PercentFull < 10 ? "bg-warning" : "bg-primary");
+                                                                    if (cass.Type == "Reject") color = "bg-dark";
+
+                                                                    <div class="flex-fill text-center p-1 border rounded" style="font-size: 0.7em;">
+                                                                        <div class="fw-bold">
+                                                                            @(cass.Denomination == 0 ? "Rej" : $"${cass.Denomination:0}")
+                                                                        </div>
+                                                                        <div class="progress" style="height: 30px; position:relative;">
+                                                                            <div class="progress-bar @color" role="progressbar" style="width: @(cass.PercentFull)%"></div>
+                                                                            <span style="position:absolute; width:100%; color: black; font-weight:bold; line-height:30px;">@cass.CurrentCount</span>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            }
-                                                        </div>
+                                                                }
+                                                            </div>
+                                                        }
                                                     </div>
                                                 }
                                             </div>
@@ -95,6 +126,21 @@
     private List<RegionDto>? Regions;
     private decimal GlobalCash => Regions?.Sum(r => r.TotalCash) ?? 0;
     private HubConnection? hubConnection;
+
+    // Track expanded state manually (Default: All Collapsed)
+    private HashSet<int> ExpandedRegions = new HashSet<int>();
+
+    // View State
+    private bool IsVerticalView = true;
+    private void ToggleView() => IsVerticalView = !IsVerticalView;
+
+    private void ToggleRegion(int regionId)
+    {
+        if (ExpandedRegions.Contains(regionId))
+            ExpandedRegions.Remove(regionId);
+        else
+            ExpandedRegions.Add(regionId);
+    }
 
     protected override async Task OnInitializedAsync()
     {
