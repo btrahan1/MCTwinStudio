@@ -1,0 +1,63 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<PageTitle>Sales POS</PageTitle>
+
+<div class="container text-center mt-5">
+    <h1>Create New Order</h1>
+    <p class="lead">Select a product to sell.</p>
+
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-3">
+             <button class="btn btn-lg btn-success w-100 p-5" @onclick='() => Sell("WIDGET-A")'>
+                 Widget A<br/>(Slow)
+             </button>
+        </div>
+        <div class="col-md-3">
+             <button class="btn btn-lg btn-primary w-100 p-5" @onclick='() => Sell("WIDGET-B")'>
+                 Widget B<br/>(Fast)
+             </button>
+        </div>
+    </div>
+    <div class="row justify-content-center mt-3">
+        <div class="col-md-3">
+             <button class="btn btn-lg btn-warning w-100 p-5" @onclick='() => Sell("GADGET-X")'>
+                 Gadget X<br/>(Heavy)
+             </button>
+        </div>
+        <div class="col-md-3">
+             <button class="btn btn-lg btn-danger w-100 p-5" @onclick='() => Sell("GADGET-Y")'>
+                 Gadget Y<br/>(Fragile)
+             </button>
+        </div>
+    </div>
+
+    @if (lastMessage != "")
+    {
+        <div class="alert alert-info mt-4">@lastMessage</div>
+    }
+</div>
+
+@code {
+    private string lastMessage = "";
+
+    private async Task Sell(string sku)
+    {
+        try 
+        {
+            var response = await Http.PostAsJsonAsync("https://localhost:7001/api/sales", new { Sku = sku, Quantity = 1 });
+            if (response.IsSuccessStatusCode)
+            {
+                lastMessage = $"Sold {sku} at {DateTime.Now.ToLongTimeString()}";
+            }
+            else 
+            {
+                lastMessage = "Error: " + response.ReasonPhrase;
+            }
+        }
+        catch (Exception ex)
+        {
+            lastMessage = "Exception: " + ex.Message;
+        }
+    }
+}

@@ -30,6 +30,18 @@
     <Compile Remove="DungeonCrawler\**" />
     <EmbeddedResource Remove="DungeonCrawler\**" />
     <None Remove="DungeonCrawler\**" />
+    <Compile Remove="CityBuilder\**" />
+    <EmbeddedResource Remove="CityBuilder\**" />
+    <None Remove="CityBuilder\**" />
+    <Compile Remove="InventoryTwin\**" />
+    <EmbeddedResource Remove="InventoryTwin\**" />
+    <None Remove="InventoryTwin\**" />
+    <Compile Remove="SalesProcessingTwin\**" />
+    <EmbeddedResource Remove="SalesProcessingTwin\**" />
+    <None Remove="SalesProcessingTwin\**" />
+    <Compile Remove="SalesProcessingTwin\**" />
+    <EmbeddedResource Remove="SalesProcessingTwin\**" />
+    <None Remove="SalesProcessingTwin\**" />
   </ItemGroup>
 
   <ItemGroup>

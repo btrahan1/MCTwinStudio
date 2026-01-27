@@ -1,0 +1,79 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<PageTitle>Sales Processing Twin</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-9">
+            <div id="three-container" style="width: 100%; height: 600px; border: 1px solid #ccc;"></div>
+        </div>
+        <div class="col-3">
+            <h3>Event Log</h3>
+            <button class="btn btn-primary mb-2" @onclick="SimulateSale">Simulate Sale (Fake)</button>
+            <ul class="list-group" style="height: 500px; overflow-y: auto;">
+                @foreach (var msg in messages)
+                {
+                    <li class="list-group-item small">@msg</li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+
+@code {
+    private HubConnection? hubConnection;
+    private List<string> messages = new List<string>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("SalesTwin.init", "three-container");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Point to the SalesServer URL (Need to confirm port, usually 5xxx)
+        // Check launchSettings.json in SalesServer for exact port
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7001/warehouseHub") // Guessing port, will verify
+            .Build();
+
+        hubConnection.On<string, int>("NewSale", async (sku, qty) =>
+        {
+            var msg = $"{DateTime.Now.ToLongTimeString()}: SOLD {qty}x {sku}";
+            messages.Insert(0, msg);
+            
+            // Push to JS Robot
+            await JS.InvokeVoidAsync("SalesTwin.enqueueTask", sku, qty);
+            
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task SimulateSale()
+    {
+        // For testing client-side logic only
+        var skus = new[] { "WIDGET-A", "WIDGET-B", "GADGET-X", "GADGET-Y" };
+        var sku = skus[new Random().Next(skus.Length)];
+        var qty = new Random().Next(1, 4);
+
+        await JS.InvokeVoidAsync("SalesTwin.enqueueTask", sku, qty);
+        messages.Insert(0, $"[SIMULATED] SOLD {qty}x {sku}");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}
