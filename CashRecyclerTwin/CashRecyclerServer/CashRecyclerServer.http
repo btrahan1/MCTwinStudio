@@ -1,0 +1,6 @@
+@CashRecyclerServer_HostAddress = http://localhost:5276
+
+GET {{CashRecyclerServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

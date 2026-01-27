@@ -1,0 +1,49 @@
+﻿@inherits LayoutComponentBase
+@inject CashRecyclerClient.Services.LayoutState LayoutState
+@implements IDisposable
+
+<div class="page @(LayoutState.IsFullScreen ? "fullscreen" : "")">
+    @if (!LayoutState.IsFullScreen)
+    {
+        <div class="sidebar @(SidebarCollapsed ? "collapsed" : "")">
+            <NavMenu />
+        </div>
+    }
+
+    <main>
+        @if (!LayoutState.IsFullScreen)
+        {
+            <div class="top-row px-4">
+                <!-- Sidebar Toggle -->
+                <button class="btn btn-link text-dark me-auto" @onclick="ToggleSidebar">
+                    <i class="bi @(SidebarCollapsed ? "bi-list" : "bi-x-lg")"></i>
+                </button>
+                
+                <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            </div>
+        }
+
+        <article class="content @(LayoutState.IsFullScreen ? "p-0" : "px-4")">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private bool SidebarCollapsed = false;
+
+    protected override void OnInitialized()
+    {
+        LayoutState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        LayoutState.OnChange -= StateHasChanged;
+    }
+
+    private void ToggleSidebar()
+    {
+        SidebarCollapsed = !SidebarCollapsed;
+    }
+}

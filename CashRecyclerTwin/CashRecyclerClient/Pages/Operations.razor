@@ -1,0 +1,116 @@
+@page "/operations"
+@using CashRecyclerClient.Models
+@inject HttpClient Http
+
+<PageTitle>Cash App</PageTitle>
+
+<div class="container mt-4">
+    <h1>Recycler Operations</h1>
+    <p>Simulate transactions to audit the flow of cash.</p>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header">1. Select Recycler</div>
+                <div class="card-body">
+                   @if (Recyclers == null)
+                   {
+                       <p>Loading...</p>
+                   }
+                   else
+                   {
+                       <select class="form-select" @bind="SelectedRecyclerId">
+                           <option value="0">-- Select Device --</option>
+                           @foreach(var r in Recyclers)
+                           {
+                               <option value="@r.RecyclerId">@r.LocationName - @r.Name (@r.Model)</option>
+                           }
+                       </select>
+                   }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header">2. Select Operation</div>
+                <div class="card-body d-grid gap-2">
+                    <button class="btn btn-primary" @onclick='() => ProcessTransaction("Deposit", 500)'>Deposit $500 (Mixed)</button>
+                    <button class="btn btn-warning" @onclick='() => ProcessTransaction("Withdrawal", 200)'>Withdraw $200</button>
+                    <hr/>
+                    <button class="btn btn-dark" @onclick='() => ProcessTransaction("CIT_Pickup", 0)'>CIT Pickup (Empty)</button>
+                    <button class="btn btn-success" @onclick='() => ProcessTransaction("CIT_Delivery", 0)'>CIT Delivery (Fill)</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">Status Details</div>
+                <div class="card-body">
+                   <pre>@StatusMessage</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<RecyclerDto>? Recyclers;
+    private int SelectedRecyclerId = 0;
+    private string StatusMessage = "Ready.";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try 
+        {
+            Recyclers = await Http.GetFromJsonAsync<List<RecyclerDto>>("https://localhost:7020/api/dashboard/all-recyclers");
+            StatusMessage = $"Loaded {Recyclers?.Count} devices.";
+        }
+        catch(Exception ex)
+        {
+            StatusMessage = $"Error loading devices: {ex.Message}";
+        }
+    }
+
+    private async Task ProcessTransaction(string type, decimal amount)
+    {
+        if (SelectedRecyclerId == 0)
+        {
+            StatusMessage = "Please select a recycler first.";
+            return;
+        }
+
+        StatusMessage = $"Processing {type}...";
+        
+        var payload = new 
+        {
+            RecyclerId = SelectedRecyclerId,
+            Type = type,
+            Amount = amount,
+            DenomCounts = new Dictionary<decimal, int>()
+        };
+
+        // Logic to simulate "Mixed" cash for the deposit
+        if (type == "Deposit") {
+            // $500 split: 2x100, 4x50, 5x20
+            payload.DenomCounts.Add(100, 2);
+            payload.DenomCounts.Add(50, 4);
+            payload.DenomCounts.Add(20, 5);
+        }
+        else if (type == "Withdrawal") {
+            // $200 split: 10x20
+            payload.DenomCounts.Add(20, 10);
+        }
+
+        var response = await Http.PostAsJsonAsync("https://localhost:7020/api/transactions", payload);
+        if (response.IsSuccessStatusCode)
+        {
+            StatusMessage = "Success! Dashboard Updated.";
+        }
+        else
+        {
+            StatusMessage = "Error: " + response.ReasonPhrase;
+        }
+    }
+}

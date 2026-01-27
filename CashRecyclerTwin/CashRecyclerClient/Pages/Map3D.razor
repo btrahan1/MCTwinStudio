@@ -1,0 +1,125 @@
+@page "/map3d"
+@using CashRecyclerClient.Models
+@inject IJSRuntime JSRuntime
+@inject HttpClient Http
+@inject CashRecyclerClient.Services.LayoutState LayoutState
+@implements IDisposable
+
+<!-- Main Container: Adjust height based on mode -->
+<div class="container-fluid p-0" style="height: @(LayoutState.IsFullScreen ? "100vh" : "90vh"); background-color: #000; color: white;">
+    <div class="row h-100 m-0">
+        
+        <!-- Left Panel (Collapsible) - Hidden in Full Screen unless we want it there? User said "No Menus" -->
+        @if (!LayoutState.IsFullScreen)
+        {
+            <div class="@(IsPanelCollapsed ? "d-none" : "col-md-3") p-3 bg-dark border-end border-secondary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3>Geospatial Twin</h3>
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => IsPanelCollapsed = !IsPanelCollapsed" title="Collapse Panel">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                </div>
+                
+                <p>Real-time visualization of Cash Recycler network.</p>
+                <hr />
+                <h5>Network Status</h5>
+                <div class="alert alert-success">
+                    <strong>9 Nodes Online</strong><br/>
+                    0 Warnings<br/>
+                    Lat/Long Sync Active
+                </div>
+                <hr />
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-light">Reset Camera</button>
+                    <button class="btn btn-outline-info">Toggle Labels</button>
+                    <button class="btn btn-primary" @onclick="ToggleFullScreen">
+                        <i class="bi bi-arrows-fullscreen"></i> Full Screen
+                    </button>
+                </div>
+            </div>
+        }
+        
+        <!-- Map Area -->
+        <div class="@(IsPanelCollapsed || LayoutState.IsFullScreen ? "col-12" : "col-md-9") p-0 bg-black position-relative">
+            
+            <!-- Expand Button (Visible only when collapsed AND NOT FullScreen) -->
+            @if (IsPanelCollapsed && !LayoutState.IsFullScreen)
+            {
+                <button class="btn btn-dark position-absolute top-0 start-0 m-2" style="z-index: 1000; opacity: 0.8;" @onclick="() => IsPanelCollapsed = !IsPanelCollapsed" title="Expand Panel">
+                    <i class="bi bi-list"></i> Menu
+                </button>
+            }
+
+            <!-- Exit Full Screen Button -->
+            @if (LayoutState.IsFullScreen)
+            {
+                <button class="btn btn-dark position-absolute top-0 end-0 m-3" style="z-index: 1000; opacity: 0.8;" @onclick="ToggleFullScreen">
+                    <i class="bi bi-fullscreen-exit"></i> Exit Full Screen
+                </button>
+            }
+
+            <canvas id="map3d-canvas" style="width: 100%; height: 100%; outline: none;" tabindex="1"></canvas>
+            
+            <!-- Loading Overlay -->
+            @if (IsLoading)
+            {
+                <div class="position-absolute top-50 start-50 translate-middle text-center">
+                    <div class="spinner-border text-info" role="status"></div>
+                    <p class="mt-2">Initializing 3D Environment...</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool IsLoading = true;
+    private bool IsPanelCollapsed = false;
+    private List<LocationDto> Locations = new();
+
+    protected override void OnInitialized()
+    {
+        LayoutState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        LayoutState.OnChange -= StateHasChanged;
+        // Ensure we exit full screen when leaving the page (optional, but good UX)
+        if(LayoutState.IsFullScreen) LayoutState.SetFullScreen(false);
+    }
+
+    private async Task ToggleFullScreen()
+    {
+        LayoutState.SetFullScreen(!LayoutState.IsFullScreen);
+        // Force resize of engine after layout change (Give DOM 50ms to reflow)
+        await Task.Delay(50);
+        await JSRuntime.InvokeVoidAsync("triggerMapResize");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Fetch Data: Hierarchy -> Flatten Locations
+                var regions = await Http.GetFromJsonAsync<List<RegionDto>>("https://localhost:7020/api/dashboard/hierarchy");
+                if (regions != null)
+                {
+                    Locations = regions.SelectMany(r => r.Locations).ToList();
+                }
+
+                // Initialize 3D Map
+                await JSRuntime.InvokeVoidAsync("initMap", DotNetObjectReference.Create(this), "map3d-canvas", Locations);
+                
+                IsLoading = false;
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Map Error: {ex.Message}");
+            }
+        }
+    }
+}

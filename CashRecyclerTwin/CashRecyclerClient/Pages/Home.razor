@@ -1,0 +1,145 @@
+﻿@page "/"
+@using CashRecyclerClient.Models
+@inject HttpClient Http
+
+<PageTitle>Cash Dashboard</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-6">Cash Fleet Dashboard</h1>
+            <button class="btn btn-primary" @onclick="LoadData">Refresh Data</button>
+        </div>
+        <div class="col text-end">
+            <h3>Global Cash: @GlobalCash.ToString("C0")</h3>
+        </div>
+    </div>
+
+    @if (Regions == null)
+    {
+        <p><em>Loading hierarchy...</em></p>
+    }
+    else
+    {
+        <div class="accordion" id="accordionRegions">
+            @foreach (var region in Regions)
+            {
+                <div class="accordion-item mb-3 border-0 shadow-sm">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@region.RegionId">
+                            <span class="fs-4 fw-bold me-3">@region.Name</span>
+                            <span class="badge bg-success fs-6">@region.TotalCash.ToString("C0") On Hand</span>
+                            <span class="ms-auto badge bg-secondary">@region.Locations.Count Locations</span>
+                        </button>
+                    </h2>
+                    <div id="collapse-@region.RegionId" class="accordion-collapse collapse show">
+                        <div class="accordion-body bg-light">
+                            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                                @foreach (var loc in region.Locations)
+                                {
+                                    <div class="col">
+                                        <div class="card h-100 @(loc.Status == "Red" ? "border-danger" : "border-success")">
+                                            <div class="card-header d-flex justify-content-between align-items-center @(loc.Status == "Red" ? "bg-danger text-white" : "")">
+                                                <strong>@loc.Name</strong>
+                                                <small>@loc.Address</small>
+                                            </div>
+                                            <div class="card-body">
+                                                @foreach (var recycler in loc.Recyclers)
+                                                {
+                                                    <div class="mb-3">
+                                                        <div class="d-flex justify-content-between">
+                                                            <span>@recycler.Model</span>
+                                                            <span class="fw-bold">@recycler.TotalCash.ToString("C0")</span>
+                                                        </div>
+                                                        <div class="progress mb-2" style="height: 5px;">
+                                                            <!-- Simplified total capacity bar could go here -->
+                                                            <div class="progress-bar bg-info" role="progressbar" style="width: 50%"></div>
+                                                        </div>
+                                                        
+                                                        <!-- Cassettes (Mini View) -->
+                                                        <div class="d-flex gap-1 mt-2">
+                                                            @foreach (var cass in recycler.Cassettes.OrderBy(c => c.CassetteIndex))
+                                                            {
+                                                                var color = cass.PercentFull > 90 ? "bg-danger" : (cass.PercentFull < 10 ? "bg-warning" : "bg-primary");
+                                                                if (cass.Type == "Reject") color = "bg-dark";
+
+                                                                <div class="flex-fill text-center p-1 border rounded" style="font-size: 0.7em;">
+                                                                    <div class="fw-bold">
+                                                                        @(cass.Denomination == 0 ? "Rej" : $"${cass.Denomination}")
+                                                                    </div>
+                                                                    <div class="progress" style="height: 30px; position:relative;">
+                                                                        <div class="progress-bar @color" role="progressbar" style="width: @(cass.PercentFull)%"></div>
+                                                                        <span style="position:absolute; width:100%; color: black; font-weight:bold; line-height:30px;">@cass.CurrentCount</span>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@using Microsoft.AspNetCore.SignalR.Client
+@implements IAsyncDisposable
+@code {
+    private List<RegionDto>? Regions;
+    private decimal GlobalCash => Regions?.Sum(r => r.TotalCash) ?? 0;
+    private HubConnection? hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+
+        // Connect to SignalR
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7020/cashHub")
+            .Build();
+
+        hubConnection.On("DashboardUpdate", async () =>
+        {
+            await LoadData();
+            StateHasChanged();
+        });
+
+        try 
+        {
+            await hubConnection.StartAsync();
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine($"Error connecting to SignalR: {ex.Message}");
+        }
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            // Direct call to Server API (Port 7020)
+            Regions = await Http.GetFromJsonAsync<List<RegionDto>>("https://localhost:7020/api/dashboard/hierarchy");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching dashboard: {ex.Message}");
+        }
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

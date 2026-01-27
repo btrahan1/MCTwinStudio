@@ -1,0 +1,44 @@
+/* Collapsible Sidebar Styles */
+.sidebar {
+    transition: width 0.3s ease;
+    width: 250px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.sidebar.collapsed {
+    width: 60px; /* Width of icon only */
+}
+
+/* Hide text when collapsed */
+.sidebar.collapsed .nav-item .nav-link {
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.sidebar.collapsed .nav-item .nav-link span:not(.bi) {
+    display: none;
+}
+
+.sidebar.collapsed .navbar-brand {
+    display: none;
+}
+
+/* Adjust main content margin */
+@media (min-width: 641px) {
+    .page {
+        flex-direction: row;
+    }
+
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+    }
+
+    .sidebar.collapsed {
+        width: 60px;
+    }
+}

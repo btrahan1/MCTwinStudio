@@ -42,6 +42,9 @@
     <Compile Remove="DaytonaSimulator\**" />
     <EmbeddedResource Remove="DaytonaSimulator\**" />
     <None Remove="DaytonaSimulator\**" />
+    <Compile Remove="CashRecyclerTwin\**" />
+    <EmbeddedResource Remove="CashRecyclerTwin\**" />
+    <None Remove="CashRecyclerTwin\**" />
   </ItemGroup>
 
   <ItemGroup>
