@@ -1,0 +1,140 @@
+{
+"Name": "Command_Strategist",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "torso",
+"Shape": "Box",
+"Position": [0, 1.1, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.5, 0.7, 0.3],
+"ColorHex": "#1A1A1C",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "chest_plate",
+"ParentId": "torso",
+"Shape": "Box",
+"Position": [0, 0.1, 0.12],
+"Rotation": [0, 0, 0],
+"Scale": [0.45, 0.4, 0.15],
+"ColorHex": "#0A0A0B",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "rank_insignia",
+"ParentId": "chest_plate",
+"Shape": "Box",
+"Position": [0.1, 0.1, 0.08],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 0.05, 0.02],
+"ColorHex": "#FFBF00",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "head",
+"Shape": "Sphere",
+"Position": [0, 1.6, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 0.32, 0.3],
+"ColorHex": "#0A0A0B",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "visor",
+"ParentId": "head",
+"Shape": "Box",
+"Position": [0, 0.05, 0.12],
+"Rotation": [0, 0, 0],
+"Scale": [0.25, 0.1, 0.1],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "arm_l",
+"Shape": "Capsule",
+"Position": [0.35, 1.1, 0],
+"Rotation": [15, 0, -10],
+"Scale": [0.12, 0.7, 0.12],
+"ColorHex": "#1A1A1C",
+"Material": "Leather",
+"Operation": "Union"
+},
+{
+"Id": "arm_r",
+"Shape": "Capsule",
+"Position": [-0.35, 1.1, 0],
+"Rotation": [-30, 0, 10],
+"Scale": [0.12, 0.7, 0.12],
+"ColorHex": "#1A1A1C",
+"Material": "Leather",
+"Operation": "Union"
+},
+{
+"Id": "leg_l",
+"Shape": "Capsule",
+"Position": [0.15, 0.45, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.18, 0.9, 0.18],
+"ColorHex": "#111111",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "leg_r",
+"Shape": "Capsule",
+"Position": [-0.15, 0.45, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.18, 0.9, 0.18],
+"ColorHex": "#111111",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "hand_data_pad",
+"ParentId": "arm_r",
+"Shape": "Box",
+"Position": [0, -0.35, 0.1],
+"Rotation": [90, 0, 0],
+"Scale": [0.15, 0.02, 0.25],
+"ColorHex": "#00FFFF",
+"Material": "Glass",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Rotate",
+"TargetId": "head",
+"Value": [0, 15, 0],
+"Duration": 2.0
+},
+{
+"Time": 2.0,
+"Action": "Rotate",
+"TargetId": "head",
+"Value": [0, -15, 0],
+"Duration": 2.0
+},
+{
+"Time": 0.0,
+"Action": "Scale",
+"TargetId": "torso",
+"Value": [0.51, 0.71, 0.31],
+"Duration": 1.5
+},
+{
+"Time": 1.5,
+"Action": "Scale",
+"TargetId": "torso",
+"Value": [0.5, 0.7, 0.3],
+"Duration": 1.5
+}
+]
+}

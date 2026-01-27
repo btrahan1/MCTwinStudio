@@ -1,0 +1,162 @@
+{
+"Name": "Flying Saucer",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "main_disk",
+"Shape": "Sphere",
+"Position": [0, 2.0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [5.0, 0.6, 5.0],
+"ColorHex": "#C0C0C0",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "top_cockpit",
+"Shape": "Sphere",
+"Position": [0, 2.3, 0],
+"Rotation": [0, 0, 0],
+"Scale": [1.8, 1.2, 1.8],
+"ColorHex": "#88CCFF",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "bottom_reactor",
+"Shape": "Sphere",
+"Position": [0, 1.7, 0],
+"Rotation": [0, 0, 0],
+"Scale": [2.2, 0.8, 2.2],
+"ColorHex": "#444444",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "engine_glow",
+"Shape": "Cylinder",
+"Position": [0, 1.5, 0],
+"Rotation": [0, 0, 0],
+"Scale": [1.2, 0.1, 1.2],
+"ColorHex": "#00FFCC",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "leg_front",
+"Shape": "Cylinder",
+"Position": [0, 1.0, 1.5],
+"Rotation": [25, 0, 0],
+"Scale": [0.15, 2.0, 0.15],
+"ColorHex": "#666666",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "foot_front",
+"Shape": "Box",
+"Position": [0, 0.1, 1.9],
+"Rotation": [0, 0, 0],
+"Scale": [0.4, 0.1, 0.4],
+"ColorHex": "#333333",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "leg_back_left",
+"Shape": "Cylinder",
+"Position": [1.3, 1.0, -0.75],
+"Rotation": [-25, 120, 0],
+"Scale": [0.15, 2.0, 0.15],
+"ColorHex": "#666666",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "foot_back_left",
+"Shape": "Box",
+"Position": [1.65, 0.1, -0.95],
+"Rotation": [0, 120, 0],
+"Scale": [0.4, 0.1, 0.4],
+"ColorHex": "#333333",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "leg_back_right",
+"Shape": "Cylinder",
+"Position": [-1.3, 1.0, -0.75],
+"Rotation": [-25, -120, 0],
+"Scale": [0.15, 2.0, 0.15],
+"ColorHex": "#666666",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "foot_back_right",
+"Shape": "Box",
+"Position": [-1.65, 0.1, -0.95],
+"Rotation": [0, -120, 0],
+"Scale": [0.4, 0.1, 0.4],
+"ColorHex": "#333333",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "rim_light_1",
+"Shape": "Sphere",
+"Position": [2.4, 2.0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 0.15, 0.15],
+"ColorHex": "#FFCC00",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "rim_light_2",
+"Shape": "Sphere",
+"Position": [-2.4, 2.0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 0.15, 0.15],
+"ColorHex": "#FFCC00",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "rim_light_3",
+"Shape": "Sphere",
+"Position": [0, 2.0, 2.4],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 0.15, 0.15],
+"ColorHex": "#FFCC00",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "rim_light_4",
+"Shape": "Sphere",
+"Position": [0, 2.0, -2.4],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 0.15, 0.15],
+"ColorHex": "#FFCC00",
+"Material": "Glow",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Rotate",
+"TargetId": "main_disk",
+"Value": [0, 360, 0],
+"Duration": 10.0
+},
+{
+"Time": 0.0,
+"Action": "Color",
+"TargetId": "engine_glow",
+"Value": [0.5, 1.0, 0.9],
+"Duration": 1.0
+}
+]
+}

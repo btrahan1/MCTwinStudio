@@ -1,0 +1,105 @@
+{
+  "Name": "Hardwood_Floor_Planks",
+  "Type": "Procedural",
+  "Parts": [
+    {
+      "Id": "base_support",
+      "Shape": "Box",
+      "Position": [0, -0.05, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [1.0, 0.1, 1.0],
+      "ColorHex": "#3E2723",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "plank_row_1",
+      "ParentId": "base_support",
+      "Shape": "Box",
+      "Position": [0.4, 0.06, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.18, 0.02, 1.0],
+      "ColorHex": "#5D4037",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "plank_row_2",
+      "ParentId": "base_support",
+      "Shape": "Box",
+      "Position": [0.2, 0.06, 0.1],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.18, 0.02, 0.8],
+      "ColorHex": "#6D4C41",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "plank_row_2_cap",
+      "ParentId": "base_support",
+      "Shape": "Box",
+      "Position": [0.2, 0.06, -0.45],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.18, 0.02, 0.1],
+      "ColorHex": "#4E342E",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "plank_row_3",
+      "ParentId": "base_support",
+      "Shape": "Box",
+      "Position": [0, 0.06, -0.1],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.18, 0.02, 1.0],
+      "ColorHex": "#5D4037",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "plank_row_4",
+      "ParentId": "base_support",
+      "Shape": "Box",
+      "Position": [-0.2, 0.06, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.18, 0.02, 1.0],
+      "ColorHex": "#4E342E",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "plank_row_5",
+      "ParentId": "base_support",
+      "Shape": "Box",
+      "Position": [-0.4, 0.06, 0.2],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.18, 0.02, 0.6],
+      "ColorHex": "#6D4C41",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "plank_row_5_cap",
+      "ParentId": "base_support",
+      "Shape": "Box",
+      "Position": [-0.4, 0.06, -0.3],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.18, 0.02, 0.4],
+      "ColorHex": "#5D4037",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "wear_detail_1",
+      "ParentId": "base_support",
+      "Shape": "Box",
+      "Position": [0, 0.07, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [1.02, 0.01, 0.005],
+      "ColorHex": "#2D1B18",
+      "Material": "Plastic",
+      "Operation": "Subtract"
+    }
+  ],
+  "Timeline": []
+}

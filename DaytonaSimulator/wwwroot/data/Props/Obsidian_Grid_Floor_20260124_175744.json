@@ -1,0 +1,109 @@
+{
+"Name": "Obsidian_Grid_Floor",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "base_plate",
+"Shape": "Box",
+"Position": [0, -0.05, 0],
+"Rotation": [0, 0, 0],
+"Scale": [20, 0.1, 20],
+"ColorHex": "#0A0A0B",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "cyan_border_north",
+"ParentId": "base_plate",
+"Shape": "Box",
+"Position": [0, 0.06, 9.9],
+"Rotation": [0, 0, 0],
+"Scale": [20, 0.02, 0.1],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "cyan_border_south",
+"ParentId": "base_plate",
+"Shape": "Box",
+"Position": [0, 0.06, -9.9],
+"Rotation": [0, 0, 0],
+"Scale": [20, 0.02, 0.1],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "cyan_border_east",
+"ParentId": "base_plate",
+"Shape": "Box",
+"Position": [9.9, 0.06, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 0.02, 20],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "cyan_border_west",
+"ParentId": "base_plate",
+"Shape": "Box",
+"Position": [-9.9, 0.06, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 0.02, 20],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "amber_grid_x",
+"ParentId": "base_plate",
+"Shape": "Box",
+"Position": [0, 0.01, 0],
+"Rotation": [0, 0, 0],
+"Scale": [20, 0.01, 0.05],
+"ColorHex": "#FFBF00",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "amber_grid_z",
+"ParentId": "base_plate",
+"Shape": "Box",
+"Position": [0, 0.01, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.05, 0.01, 20],
+"ColorHex": "#FFBF00",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "center_hub_plate",
+"ParentId": "base_plate",
+"Shape": "Cylinder",
+"Position": [0, 0.02, 0],
+"Rotation": [0, 0, 0],
+"Scale": [2, 0.02, 2],
+"ColorHex": "#1A1A1C",
+"Material": "Metal",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Color",
+"TargetId": "cyan_border_north",
+"Value": [0, 255, 255],
+"Duration": 2.0
+},
+{
+"Time": 2.0,
+"Action": "Color",
+"TargetId": "cyan_border_north",
+"Value": [0, 100, 100],
+"Duration": 2.0
+}
+]
+}

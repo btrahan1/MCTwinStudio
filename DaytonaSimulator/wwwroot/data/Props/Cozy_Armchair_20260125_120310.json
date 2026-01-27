@@ -1,0 +1,124 @@
+{
+  "Name": "Cozy_Armchair",
+  "Type": "Procedural",
+  "Parts": [
+    {
+      "Id": "leg_fl",
+      "Shape": "Cylinder",
+      "Position": [0.35, 0.1, 0.35],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.1, 0.2, 0.1],
+      "ColorHex": "#3E2723",
+      "Material": "Metal"
+    },
+    {
+      "Id": "leg_fr",
+      "Shape": "Cylinder",
+      "Position": [-0.35, 0.1, 0.35],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.1, 0.2, 0.1],
+      "ColorHex": "#3E2723",
+      "Material": "Metal"
+    },
+    {
+      "Id": "leg_bl",
+      "Shape": "Cylinder",
+      "Position": [0.35, 0.1, -0.35],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.1, 0.2, 0.1],
+      "ColorHex": "#3E2723",
+      "Material": "Metal"
+    },
+    {
+      "Id": "leg_br",
+      "Shape": "Cylinder",
+      "Position": [-0.35, 0.1, -0.35],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.1, 0.2, 0.1],
+      "ColorHex": "#3E2723",
+      "Material": "Metal"
+    },
+    {
+      "Id": "seat_base",
+      "Shape": "Box",
+      "Position": [0, 0.35, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [1.0, 0.3, 0.9],
+      "ColorHex": "#2E7D32",
+      "Material": "Leather"
+    },
+    {
+      "Id": "seat_cushion",
+      "Shape": "Box",
+      "Position": [0, 0.5, 0.05],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.85, 0.15, 0.8],
+      "ColorHex": "#1B5E20",
+      "Material": "Leather"
+    },
+    {
+      "Id": "backrest",
+      "Shape": "Box",
+      "Position": [0, 0.9, -0.35],
+      "Rotation": [-12, 0, 0],
+      "Scale": [1.0, 1.0, 0.25],
+      "ColorHex": "#2E7D32",
+      "Material": "Leather"
+    },
+    {
+      "Id": "arm_left",
+      "Shape": "Box",
+      "Position": [0.45, 0.65, 0.1],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.2, 0.4, 0.8],
+      "ColorHex": "#2E7D32",
+      "Material": "Leather"
+    },
+    {
+      "Id": "arm_right",
+      "Shape": "Box",
+      "Position": [-0.45, 0.65, 0.1],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.2, 0.4, 0.8],
+      "ColorHex": "#2E7D32",
+      "Material": "Leather"
+    },
+    {
+      "Id": "arm_cap_left",
+      "Shape": "Capsule",
+      "Position": [0.45, 0.85, 0.1],
+      "Rotation": [90, 0, 0],
+      "Scale": [0.22, 0.85, 0.22],
+      "ColorHex": "#1B5E20",
+      "Material": "Leather"
+    },
+    {
+      "Id": "arm_cap_right",
+      "Shape": "Capsule",
+      "Position": [-0.45, 0.85, 0.1],
+      "Rotation": [90, 0, 0],
+      "Scale": [0.22, 0.85, 0.22],
+      "ColorHex": "#1B5E20",
+      "Material": "Leather"
+    },
+    {
+      "Id": "wing_left",
+      "Shape": "Box",
+      "Position": [0.4, 1.2, -0.3],
+      "Rotation": [0, -30, 0],
+      "Scale": [0.2, 0.4, 0.3],
+      "ColorHex": "#2E7D32",
+      "Material": "Leather"
+    },
+    {
+      "Id": "wing_right",
+      "Shape": "Box",
+      "Position": [-0.4, 1.2, -0.3],
+      "Rotation": [0, 30, 0],
+      "Scale": [0.2, 0.4, 0.3],
+      "ColorHex": "#2E7D32",
+      "Material": "Leather"
+    }
+  ],
+  "Timeline": []
+}

@@ -1,0 +1,150 @@
+{
+"Name": "Pulse Pylon Heavy Duty",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "pylon_base",
+"ParentId": null,
+"Shape": "Cylinder",
+"Position": [0.0, 0.25, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [2.0, 0.5, 2.0],
+"ColorHex": "#2A2A2A",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "glass_housing",
+"ParentId": "pylon_base",
+"Shape": "Cylinder",
+"Position": [0.0, 3.0, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [1.0, 5.5, 1.0],
+"ColorHex": "#AADDFF33",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "energy_core",
+"ParentId": "glass_housing",
+"Shape": "Cylinder",
+"Position": [0.0, 0.0, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.2, 1.0, 0.2],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "antenna_cap",
+"ParentId": "pylon_base",
+"Shape": "Torus",
+"Position": [0.0, 6.0, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [1.2, 0.2, 1.2],
+"ColorHex": "#444444",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "strut_01",
+"ParentId": "pylon_base",
+"Shape": "Box",
+"Position": [0.55, 3.0, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 5.5, 0.1],
+"ColorHex": "#333333",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "strut_02",
+"ParentId": "pylon_base",
+"Shape": "Box",
+"Position": [-0.55, 3.0, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 5.5, 0.1],
+"ColorHex": "#333333",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "strut_03",
+"ParentId": "pylon_base",
+"Shape": "Box",
+"Position": [0.0, 3.0, 0.55],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 5.5, 0.1],
+"ColorHex": "#333333",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "strut_04",
+"ParentId": "pylon_base",
+"Shape": "Box",
+"Position": [0.0, 3.0, -0.55],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 5.5, 0.1],
+"ColorHex": "#333333",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "cable_port_01",
+"ParentId": "pylon_base",
+"Shape": "Box",
+"Position": [1.0, 0.0, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 0.3, 0.3],
+"ColorHex": "#111111",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "cable_port_02",
+"ParentId": "pylon_base",
+"Shape": "Box",
+"Position": [-0.5, 0.0, 0.866],
+"Rotation": [0, 120, 0],
+"Scale": [0.3, 0.3, 0.3],
+"ColorHex": "#111111",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "cable_port_03",
+"ParentId": "pylon_base",
+"Shape": "Box",
+"Position": [-0.5, 0.0, -0.866],
+"Rotation": [0, 240, 0],
+"Scale": [0.3, 0.3, 0.3],
+"ColorHex": "#111111",
+"Material": "Rubber",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Scale",
+"TargetId": "energy_core",
+"Value": [0.2, 1.0, 0.2],
+"Duration": 0.0
+},
+{
+"Time": 0.25,
+"Action": "Scale",
+"TargetId": "energy_core",
+"Value": [0.6, 1.0, 0.6],
+"Duration": 0.25
+},
+{
+"Time": 0.5,
+"Action": "Scale",
+"TargetId": "energy_core",
+"Value": [0.2, 1.0, 0.2],
+"Duration": 0.25
+}
+]
+}

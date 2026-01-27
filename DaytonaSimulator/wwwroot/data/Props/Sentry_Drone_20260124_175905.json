@@ -1,0 +1,159 @@
+{
+"Name": "Sentry_Drone",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "drone_chassis",
+"Shape": "Box",
+"Position": [0, 0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.6, 0.25, 0.5],
+"ColorHex": "#1A1A1C",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "sensor_eye",
+"ParentId": "drone_chassis",
+"Shape": "Sphere",
+"Position": [0, 0, 0.25],
+"Rotation": [0, 0, 0],
+"Scale": [0.25, 0.25, 0.15],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "repulsor_fl",
+"ParentId": "drone_chassis",
+"Shape": "Cylinder",
+"Position": [0.35, -0.1, 0.2],
+"Rotation": [0, 0, 0],
+"Scale": [0.2, 0.05, 0.2],
+"ColorHex": "#2A2A2E",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "repulsor_fr",
+"ParentId": "drone_chassis",
+"Shape": "Cylinder",
+"Position": [-0.35, -0.1, 0.2],
+"Rotation": [0, 0, 0],
+"Scale": [0.2, 0.05, 0.2],
+"ColorHex": "#2A2A2E",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "repulsor_bl",
+"ParentId": "drone_chassis",
+"Shape": "Cylinder",
+"Position": [0.35, -0.1, -0.2],
+"Rotation": [0, 0, 0],
+"Scale": [0.2, 0.05, 0.2],
+"ColorHex": "#2A2A2E",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "repulsor_br",
+"ParentId": "drone_chassis",
+"Shape": "Cylinder",
+"Position": [-0.35, -0.1, -0.2],
+"Rotation": [0, 0, 0],
+"Scale": [0.2, 0.05, 0.2],
+"ColorHex": "#2A2A2E",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "engine_glow",
+"ParentId": "repulsor_fl",
+"Shape": "Cylinder",
+"Position": [0, -0.05, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.8, 0.2, 0.8],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "stabilizer_fin_l",
+"ParentId": "drone_chassis",
+"Shape": "Box",
+"Position": [0.35, 0.1, -0.1],
+"Rotation": [0, 20, 0],
+"Scale": [0.4, 0.02, 0.2],
+"ColorHex": "#0A0A0B",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "stabilizer_fin_r",
+"ParentId": "drone_chassis",
+"Shape": "Box",
+"Position": [-0.35, 0.1, -0.1],
+"Rotation": [0, -20, 0],
+"Scale": [0.4, 0.02, 0.2],
+"ColorHex": "#0A0A0B",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "status_beacon",
+"ParentId": "drone_chassis",
+"Shape": "Sphere",
+"Position": [0, 0.15, -0.15],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 0.1, 0.1],
+"ColorHex": "#FFBF00",
+"Material": "Glow",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Move",
+"TargetId": "drone_chassis",
+"Value": [0, 0.1, 0],
+"Duration": 2.0
+},
+{
+"Time": 2.0,
+"Action": "Move",
+"TargetId": "drone_chassis",
+"Value": [0, -0.1, 0],
+"Duration": 2.0
+},
+{
+"Time": 0.0,
+"Action": "Color",
+"TargetId": "status_beacon",
+"Value": [255, 191, 0],
+"Duration": 0.5
+},
+{
+"Time": 0.5,
+"Action": "Color",
+"TargetId": "status_beacon",
+"Value": [50, 40, 0],
+"Duration": 0.5
+},
+{
+"Time": 0.0,
+"Action": "Rotate",
+"TargetId": "drone_chassis",
+"Value": [0, 10, 0],
+"Duration": 3.0
+},
+{
+"Time": 3.0,
+"Action": "Rotate",
+"TargetId": "drone_chassis",
+"Value": [0, -10, 0],
+"Duration": 3.0
+}
+]
+}

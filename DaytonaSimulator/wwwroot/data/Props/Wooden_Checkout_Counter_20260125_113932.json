@@ -1,0 +1,116 @@
+{
+  "Name": "Wooden_Checkout_Counter",
+  "Type": "Procedural",
+  "Parts": [
+    {
+      "Id": "counter_base",
+      "Shape": "Box",
+      "Position": [0, 0.5, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [1.4, 1.0, 0.7],
+      "ColorHex": "#3E2723",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "counter_top",
+      "ParentId": "counter_base",
+      "Shape": "Box",
+      "Position": [0, 0.55, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [1.1, 0.1, 1.2],
+      "ColorHex": "#5D4037",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "front_panel_trim_left",
+      "ParentId": "counter_base",
+      "Shape": "Box",
+      "Position": [0.4, 0, 0.52],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.05, 0.9, 0.05],
+      "ColorHex": "#2D1B18",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "front_panel_trim_right",
+      "ParentId": "counter_base",
+      "Shape": "Box",
+      "Position": [-0.4, 0, 0.52],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.05, 0.9, 0.05],
+      "ColorHex": "#2D1B18",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "clerk_side_cutout",
+      "ParentId": "counter_base",
+      "Shape": "Box",
+      "Position": [0, 0, -0.2],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.8, 0.8, 0.7],
+      "ColorHex": "#000000",
+      "Material": "Plastic",
+      "Operation": "Subtract"
+    },
+    {
+      "Id": "interior_shelf",
+      "ParentId": "counter_base",
+      "Shape": "Box",
+      "Position": [0, -0.1, -0.1],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.8, 0.05, 0.5],
+      "ColorHex": "#4E342E",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "scattered_paper_pile",
+      "ParentId": "counter_top",
+      "Shape": "Box",
+      "Position": [-0.3, 0.6, 0.1],
+      "Rotation": [0, 15, 0],
+      "Scale": [0.2, 0.1, 0.25],
+      "ColorHex": "#F5F5DC",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "pen_cup",
+      "ParentId": "counter_top",
+      "Shape": "Cylinder",
+      "Position": [0.35, 0.8, 0.2],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.08, 0.3, 0.08],
+      "ColorHex": "#212121",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "pen_stick_1",
+      "ParentId": "pen_cup",
+      "Shape": "Cylinder",
+      "Position": [0.2, 0.6, 0],
+      "Rotation": [10, 0, 5],
+      "Scale": [0.1, 1.2, 0.1],
+      "ColorHex": "#1B4F72",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "kick_plate",
+      "ParentId": "counter_base",
+      "Shape": "Box",
+      "Position": [0, -0.45, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [1.02, 0.1, 1.02],
+      "ColorHex": "#1A0F0D",
+      "Material": "Metal",
+      "Operation": "Union"
+    }
+  ],
+  "Timeline": []
+}

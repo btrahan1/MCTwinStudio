@@ -1,0 +1,117 @@
+{
+  "Name": "Catch_Fence_Barrier",
+  "Type": "Procedural",
+  "Parts": [
+    {
+      "Id": "jersey_barrier_base",
+      "Shape": "Box",
+      "Position": [0, 0.4, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [10, 0.8, 1.2],
+      "ColorHex": "#A9A9A9",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "pole_1",
+      "Shape": "Cylinder",
+      "Position": [4.5, 3.0, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.15, 6.0, 0.15],
+      "ColorHex": "#707070",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "pole_2",
+      "Shape": "Cylinder",
+      "Position": [2.25, 3.0, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.15, 6.0, 0.15],
+      "ColorHex": "#707070",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "pole_3",
+      "Shape": "Cylinder",
+      "Position": [0, 3.0, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.15, 6.0, 0.15],
+      "ColorHex": "#707070",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "pole_4",
+      "Shape": "Cylinder",
+      "Position": [-2.25, 3.0, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.15, 6.0, 0.15],
+      "ColorHex": "#707070",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "pole_5",
+      "Shape": "Cylinder",
+      "Position": [-4.5, 3.0, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.15, 6.0, 0.15],
+      "ColorHex": "#707070",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "mesh_panel",
+      "Shape": "Box",
+      "Position": [0, 3.5, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [10, 5, 0.05],
+      "ColorHex": "#CCCCCC",
+      "Material": "Glass",
+      "Operation": "Union"
+    },
+    {
+      "Id": "top_cable",
+      "Shape": "Box",
+      "Position": [0, 5.9, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [10, 0.05, 0.1],
+      "ColorHex": "#404040",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "mid_cable",
+      "Shape": "Box",
+      "Position": [0, 3.5, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [10, 0.05, 0.1],
+      "ColorHex": "#404040",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "low_cable",
+      "Shape": "Box",
+      "Position": [0, 1.2, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [10, 0.05, 0.1],
+      "ColorHex": "#404040",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "pole_overhang_tip",
+      "Shape": "Box",
+      "Position": [0, 6.0, 0.2],
+      "Rotation": [20, 0, 0],
+      "Scale": [10, 0.1, 0.5],
+      "ColorHex": "#707070",
+      "Material": "Metal",
+      "Operation": "Union"
+    }
+  ],
+  "Timeline": []
+}

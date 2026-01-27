@@ -1,0 +1,65 @@
+{
+"Name": "Void-Tech Mechanic",
+"Type": "Voxel",
+"ProceduralColors": {
+"Skin": "#A0A0A0",
+"Shirt": "#2A2A2A",
+"Pants": "#2A2A2A",
+"Eyes": "#00FFFF"
+},
+"Textures": {
+"Face": [
+"#A0A0A0", "#A0A0A0", "#A0A0A0", "#A0A0A0", "#A0A0A0", "#A0A0A0", "#A0A0A0", "#A0A0A0",
+"#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF",
+"#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF",
+"#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#A0A0A0", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#A0A0A0", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A"
+],
+"Chest": [
+"#E6C300", "#E6C300", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#E6C300", "#E6C300", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#E6C300", "#E6C300", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#E6C300", "#E6C300", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#E6C300", "#E6C300", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#E6C300", "#E6C300", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#E6C300", "#E6C300",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A"
+],
+"Arms": [
+"#E6C300", "#E6C300", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#E6C300", "#E6C300", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#E6C300", "#E6C300",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A",
+"#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF",
+"#00FFFF", "#00FFFF", "#00FFFF", "#00FFFF",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#2A2A2A"
+],
+"Legs": [
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#00FFFF",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#00FFFF",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#00FFFF",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#00FFFF",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#00FFFF",
+"#606060", "#606060", "#606060", "#00FFFF",
+"#606060", "#606060", "#606060", "#00FFFF",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#00FFFF",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#00FFFF",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#00FFFF",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#00FFFF",
+"#2A2A2A", "#2A2A2A", "#2A2A2A", "#00FFFF"
+]
+},
+"Description": "A high-tech maintenance worker for deep-space industrial facilities, equipped with a cyan HUD visor and hazard-ready survival suit."
+}

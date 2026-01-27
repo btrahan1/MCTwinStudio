@@ -1,0 +1,97 @@
+{
+  "Name": "Daytona_500_Speedway",
+  "Type": "Scene",
+  "Items": [
+    {
+      "RecipeName": "Asphalt_Track_Section",
+      "ArtType": "Procedural",
+      "Position": [0, 0, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [20, 1, 40]
+    },
+    {
+      "RecipeName": "NASCAR_Racecar_Red",
+      "ArtType": "Procedural",
+      "Position": [3, 0, 5],
+      "Rotation": [0, 0, 0],
+      "Scale": [1, 1, 1]
+    },
+    {
+      "RecipeName": "NASCAR_Racecar_Blue",
+      "ArtType": "Procedural",
+      "Position": [-3, 0, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [1, 1, 1]
+    },
+    {
+      "RecipeName": "NASCAR_Racecar_Yellow",
+      "ArtType": "Procedural",
+      "Position": [3, 0, -5],
+      "Rotation": [0, 0, 0],
+      "Scale": [1, 1, 1]
+    },
+    {
+      "RecipeName": "Grandstand_Bleachers",
+      "ArtType": "Procedural",
+      "Position": [15, 0, 0],
+      "Rotation": [0, -90, 0],
+      "Scale": [1, 1, 1]
+    },
+    {
+      "RecipeName": "Catch_Fence_Barrier",
+      "ArtType": "Procedural",
+      "Position": [10, 0, 0],
+      "Rotation": [0, -90, 0],
+      "Scale": [1, 1, 1]
+    },
+    {
+      "RecipeName": "Pit_Stop_Wall",
+      "ArtType": "Procedural",
+      "Position": [-10, 0, 0],
+      "Rotation": [0, 90, 0],
+      "Scale": [1, 1, 1]
+    },
+    {
+      "RecipeName": "Pit_Crew_Mechanic",
+      "ArtType": "Voxel",
+      "Position": [-12, 0, 2],
+      "Rotation": [0, 90, 0],
+      "Scale": [1, 1, 1]
+    },
+    {
+      "RecipeName": "Pit_Crew_Mechanic",
+      "ArtType": "Voxel",
+      "Position": [-12, 0, -2],
+      "Rotation": [0, 90, 0],
+      "Scale": [1, 1, 1]
+    },
+    {
+      "RecipeName": "Race_Official_Flagman",
+      "ArtType": "Voxel",
+      "Position": [0, 5, 20],
+      "Rotation": [0, 180, 0],
+      "Scale": [1, 1, 1]
+    },
+    {
+      "RecipeName": "Searchlight_Beam",
+      "ArtType": "Procedural",
+      "Position": [18, 0, 15],
+      "Rotation": [-45, 0, 0],
+      "Scale": [1, 1, 1]
+    },
+    {
+      "RecipeName": "Searchlight_Beam",
+      "ArtType": "Procedural",
+      "Position": [18, 0, -15],
+      "Rotation": [-45, 0, 0],
+      "Scale": [1, 1, 1]
+    },
+    {
+      "RecipeName": "Policeman",
+      "ArtType": "Voxel",
+      "Position": [12, 0, 10],
+      "Rotation": [0, 270, 0],
+      "Scale": [1, 1, 1]
+    }
+  ]
+}

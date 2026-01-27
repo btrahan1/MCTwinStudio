@@ -1,0 +1,152 @@
+{
+"Name": "Space Shuttle",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "fuselage_main",
+"Shape": "Box",
+"Position": [0, 2.0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [2.2, 1.8, 8.0],
+"ColorHex": "#FFFFFF",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "nose_cone",
+"Shape": "Sphere",
+"Position": [0, 2.0, 4.2],
+"Rotation": [0, 0, 0],
+"Scale": [2.2, 1.8, 2.0],
+"ColorHex": "#FFFFFF",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "cockpit_glass",
+"Shape": "Box",
+"Position": [0, 2.65, 4.0],
+"Rotation": [35, 0, 0],
+"Scale": [1.6, 0.4, 0.1],
+"ColorHex": "#111111",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "wing_left",
+"Shape": "Box",
+"Position": [2.2, 1.4, -1.0],
+"Rotation": [0, 25, 0],
+"Scale": [3.5, 0.15, 5.0],
+"ColorHex": "#FFFFFF",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "wing_right",
+"Shape": "Box",
+"Position": [-2.2, 1.4, -1.0],
+"Rotation": [0, -25, 0],
+"Scale": [3.5, 0.15, 5.0],
+"ColorHex": "#FFFFFF",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "tail_fin",
+"Shape": "Box",
+"Position": [0, 3.6, -3.2],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 2.0, 2.5],
+"ColorHex": "#FFFFFF",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "heat_shield_bottom",
+"Shape": "Box",
+"Position": [0, 1.05, 0.5],
+"Rotation": [0, 0, 0],
+"Scale": [2.3, 0.1, 8.5],
+"ColorHex": "#1A1A1A",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "engine_top",
+"Shape": "Cylinder",
+"Position": [0, 2.5, -4.1],
+"Rotation": [90, 0, 0],
+"Scale": [0.8, 0.8, 0.8],
+"ColorHex": "#333333",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "engine_left",
+"Shape": "Cylinder",
+"Position": [0.65, 1.7, -4.1],
+"Rotation": [90, 0, 0],
+"Scale": [0.8, 0.8, 0.8],
+"ColorHex": "#333333",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "engine_right",
+"Shape": "Cylinder",
+"Position": [-0.65, 1.7, -4.1],
+"Rotation": [90, 0, 0],
+"Scale": [0.8, 0.8, 0.8],
+"ColorHex": "#333333",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "thruster_glow_1",
+"Shape": "Sphere",
+"Position": [0.65, 1.7, -4.5],
+"Rotation": [0, 0, 0],
+"Scale": [0.5, 0.5, 0.6],
+"ColorHex": "#44AAFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "thruster_glow_2",
+"Shape": "Sphere",
+"Position": [-0.65, 1.7, -4.5],
+"Rotation": [0, 0, 0],
+"Scale": [0.5, 0.5, 0.6],
+"ColorHex": "#44AAFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "flag_decal",
+"Shape": "Box",
+"Position": [1.11, 2.0, 1.5],
+"Rotation": [0, 0, 0],
+"Scale": [0.01, 0.4, 0.6],
+"ColorHex": "#AA0000",
+"Material": "Plastic",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Move",
+"TargetId": "fuselage_main",
+"Value": [0, 20.0, 50.0],
+"Duration": 5.0
+},
+{
+"Time": 0.0,
+"Action": "Scale",
+"TargetId": "thruster_glow_1",
+"Value": [0.7, 0.7, 1.2],
+"Duration": 0.5
+}
+]
+}

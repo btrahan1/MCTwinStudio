@@ -1,0 +1,65 @@
+{
+  "Name": "Casino Pit Boss",
+  "Type": "Voxel",
+  "ProceduralColors": {
+    "Skin": "#EBC8AF",
+    "Shirt": "#FFFFFF",
+    "Pants": "#1A1A1A",
+    "Eyes": "#3E2723"
+  },
+  "Textures": {
+    "Face": [
+      "#2B1B17", "#2B1B17", "#2B1B17", "#2B1B17", "#2B1B17", "#2B1B17", "#2B1B17", "#2B1B17",
+      "#2B1B17", "#2B1B17", "#2B1B17", "#2B1B17", "#2B1B17", "#2B1B17", "#2B1B17", "#2B1B17",
+      "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF",
+      "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF",
+      "#EBC8AF", "#3E2723", "#3E2723", "#EBC8AF", "#EBC8AF", "#3E2723", "#3E2723", "#EBC8AF",
+      "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF",
+      "#EBC8AF", "#EBC8AF", "#D19C84", "#D19C84", "#D19C84", "#D19C84", "#EBC8AF", "#EBC8AF",
+      "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF"
+    ],
+    "Chest": [
+      "#EBC8AF", "#EBC8AF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#EBC8AF", "#EBC8AF",
+      "#1A1A1A", "#1A1A1A", "#FFFFFF", "#9B111E", "#9B111E", "#FFFFFF", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#FFFFFF", "#9B111E", "#9B111E", "#FFFFFF", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#FFFFFF", "#9B111E", "#9B111E", "#FFFFFF", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#FFD700", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A"
+    ],
+    "Arms": [
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#EBC8AF", "#EBC8AF", "#EBC8AF", "#EBC8AF"
+    ],
+    "Legs": [
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#000000", "#000000", "#000000", "#000000",
+      "#000000", "#000000", "#000000", "#000000"
+    ],
+    "Description": "An authoritative Casino Pit Boss wearing a sharp black suit, a white dress shirt, and a signature red silk tie. Includes a gold lapel pin and polished black dress shoes."
+  }
+}

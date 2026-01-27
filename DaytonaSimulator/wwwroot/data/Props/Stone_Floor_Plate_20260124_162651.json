@@ -1,0 +1,83 @@
+{
+"Name": "Stone_Floor_Plate",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "base_slab",
+"Shape": "Box",
+"Position": [0, 0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [1, 0.1, 1],
+"ColorHex": "#3A3A3A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "tile_1",
+"ParentId": "base_slab",
+"Shape": "Box",
+"Position": [0.24, 0.02, 0.24],
+"Rotation": [0, 0, 0],
+"Scale": [0.48, 0.08, 0.48],
+"ColorHex": "#4A4A4A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "tile_2",
+"ParentId": "base_slab",
+"Shape": "Box",
+"Position": [-0.24, 0.02, 0.24],
+"Rotation": [0, 0, 0],
+"Scale": [0.48, 0.08, 0.48],
+"ColorHex": "#444444",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "tile_3",
+"ParentId": "base_slab",
+"Shape": "Box",
+"Position": [0.24, 0.02, -0.24],
+"Rotation": [0, 0, 0],
+"Scale": [0.48, 0.08, 0.48],
+"ColorHex": "#414141",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "tile_4",
+"ParentId": "base_slab",
+"Shape": "Box",
+"Position": [-0.24, 0.02, -0.24],
+"Rotation": [0, 0, 0],
+"Scale": [0.48, 0.08, 0.48],
+"ColorHex": "#4D4D4D",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "crack_1",
+"ParentId": "tile_1",
+"Shape": "Box",
+"Position": [0.1, 0.05, 0.1],
+"Rotation": [0, 35, 0],
+"Scale": [0.3, 0.1, 0.02],
+"ColorHex": "#1A1A1A",
+"Material": "Plastic",
+"Operation": "Subtract"
+},
+{
+"Id": "dirt_mound",
+"ParentId": "base_slab",
+"Shape": "Sphere",
+"Position": [0, 0.05, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 0.05, 0.15],
+"ColorHex": "#2B1D14",
+"Material": "Plastic",
+"Operation": "Union"
+}
+],
+"Timeline": []
+}

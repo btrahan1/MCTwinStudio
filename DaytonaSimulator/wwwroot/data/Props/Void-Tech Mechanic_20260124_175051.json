@@ -1,0 +1,216 @@
+{
+"Name": "Void-Tech Mechanic",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "torso",
+"ParentId": null,
+"Shape": "Box",
+"Position": [0.0, 2.1, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.8, 1.2, 0.4],
+"ColorHex": "#2A2A2A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "head",
+"ParentId": "torso",
+"Shape": "Box",
+"Position": [0.0, 0.9, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.6, 0.6, 0.6],
+"ColorHex": "#A0A0A0",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "visor",
+"ParentId": "head",
+"Shape": "Box",
+"Position": [0.0, 0.1, 0.3],
+"Rotation": [0, 0, 0],
+"Scale": [0.65, 0.2, 0.1],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "breathing_mask",
+"ParentId": "head",
+"Shape": "Box",
+"Position": [0.0, -0.15, 0.3],
+"Rotation": [0, 0, 0],
+"Scale": [0.4, 0.3, 0.15],
+"ColorHex": "#2A2A2A",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "power_core",
+"ParentId": "torso",
+"Shape": "Sphere",
+"Position": [0.0, 0.2, 0.21],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 0.15, 0.1],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "hazard_sash",
+"ParentId": "torso",
+"Shape": "Box",
+"Position": [0.0, 0.0, 0.205],
+"Rotation": [0, 0, 45],
+"Scale": [0.1, 1.4, 0.01],
+"ColorHex": "#E6C300",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "arm_l",
+"ParentId": "torso",
+"Shape": "Capsule",
+"Position": [0.55, 0.2, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 1.2, 0.3],
+"ColorHex": "#2A2A2A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "shoulder_hazard_l",
+"ParentId": "arm_l",
+"Shape": "Box",
+"Position": [0.0, 0.4, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.35, 0.3, 0.35],
+"ColorHex": "#E6C300",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "wrist_comm_l",
+"ParentId": "arm_l",
+"Shape": "Box",
+"Position": [0.0, -0.3, 0.15],
+"Rotation": [0, 0, 0],
+"Scale": [0.2, 0.15, 0.1],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "arm_r",
+"ParentId": "torso",
+"Shape": "Capsule",
+"Position": [-0.55, 0.2, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 1.2, 0.3],
+"ColorHex": "#2A2A2A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "shoulder_hazard_r",
+"ParentId": "arm_r",
+"Shape": "Box",
+"Position": [0.0, 0.4, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.35, 0.3, 0.35],
+"ColorHex": "#E6C300",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "leg_l",
+"ParentId": null,
+"Shape": "Capsule",
+"Position": [0.2, 0.75, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.35, 1.5, 0.35],
+"ColorHex": "#2A2A2A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "knee_pad_l",
+"ParentId": "leg_l",
+"Shape": "Box",
+"Position": [0.0, 0.05, 0.18],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 0.25, 0.1],
+"ColorHex": "#606060",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "side_strip_l",
+"ParentId": "leg_l",
+"Shape": "Box",
+"Position": [0.18, 0.0, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.05, 1.4, 0.1],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "leg_r",
+"ParentId": null,
+"Shape": "Capsule",
+"Position": [-0.2, 0.75, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.35, 1.5, 0.35],
+"ColorHex": "#2A2A2A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "knee_pad_r",
+"ParentId": "leg_r",
+"Shape": "Box",
+"Position": [0.0, 0.05, 0.18],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 0.25, 0.1],
+"ColorHex": "#606060",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "side_strip_r",
+"ParentId": "leg_r",
+"Shape": "Box",
+"Position": [-0.18, 0.0, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.05, 1.4, 0.1],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Scale",
+"TargetId": "power_core",
+"Value": [0.15, 0.15, 0.1],
+"Duration": 0.0
+},
+{
+"Time": 0.5,
+"Action": "Scale",
+"TargetId": "power_core",
+"Value": [0.18, 0.18, 0.1],
+"Duration": 0.5
+},
+{
+"Time": 1.0,
+"Action": "Scale",
+"TargetId": "power_core",
+"Value": [0.15, 0.15, 0.1],
+"Duration": 0.5
+}
+]
+}

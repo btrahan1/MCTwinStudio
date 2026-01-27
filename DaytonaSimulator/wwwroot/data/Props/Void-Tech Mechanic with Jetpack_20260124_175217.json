@@ -1,0 +1,215 @@
+{
+"Name": "Void-Tech Mechanic with Jetpack",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "torso",
+"ParentId": null,
+"Shape": "Box",
+"Position": [0.0, 2.1, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.8, 1.2, 0.4],
+"ColorHex": "#2A2A2A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "head",
+"ParentId": "torso",
+"Shape": "Box",
+"Position": [0.0, 0.9, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.6, 0.6, 0.6],
+"ColorHex": "#A0A0A0",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "visor",
+"ParentId": "head",
+"Shape": "Box",
+"Position": [0.0, 0.1, 0.3],
+"Rotation": [0, 0, 0],
+"Scale": [0.65, 0.2, 0.1],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "breathing_mask",
+"ParentId": "head",
+"Shape": "Box",
+"Position": [0.0, -0.15, 0.3],
+"Rotation": [0, 0, 0],
+"Scale": [0.4, 0.3, 0.15],
+"ColorHex": "#2A2A2A",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "jetpack_main",
+"ParentId": "torso",
+"Shape": "Box",
+"Position": [0.0, 0.0, -0.3],
+"Rotation": [0, 0, 0],
+"Scale": [0.7, 0.9, 0.3],
+"ColorHex": "#2A2A2A",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "jetpack_core",
+"ParentId": "jetpack_main",
+"Shape": "Cylinder",
+"Position": [0.0, 0.0, -0.1],
+"Rotation": [90, 0, 0],
+"Scale": [0.3, 0.1, 0.3],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "thruster_l",
+"ParentId": "jetpack_main",
+"Shape": "Cylinder",
+"Position": [0.3, -0.5, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.2, 0.4, 0.2],
+"ColorHex": "#444444",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "thruster_r",
+"ParentId": "jetpack_main",
+"Shape": "Cylinder",
+"Position": [-0.3, -0.5, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.2, 0.4, 0.2],
+"ColorHex": "#444444",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "flame_l",
+"ParentId": "thruster_l",
+"Shape": "Cone",
+"Position": [0.0, -0.4, 0.0],
+"Rotation": [180, 0, 0],
+"Scale": [0.15, 0.3, 0.15],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "flame_r",
+"ParentId": "thruster_r",
+"Shape": "Cone",
+"Position": [0.0, -0.4, 0.0],
+"Rotation": [180, 0, 0],
+"Scale": [0.15, 0.3, 0.15],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "power_core",
+"ParentId": "torso",
+"Shape": "Sphere",
+"Position": [0.0, 0.2, 0.21],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 0.15, 0.1],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "arm_l",
+"ParentId": "torso",
+"Shape": "Capsule",
+"Position": [0.55, 0.2, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 1.2, 0.3],
+"ColorHex": "#2A2A2A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "arm_r",
+"ParentId": "torso",
+"Shape": "Capsule",
+"Position": [-0.55, 0.2, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 1.2, 0.3],
+"ColorHex": "#2A2A2A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "leg_l",
+"ParentId": null,
+"Shape": "Capsule",
+"Position": [0.2, 0.75, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.35, 1.5, 0.35],
+"ColorHex": "#2A2A2A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "leg_r",
+"ParentId": null,
+"Shape": "Capsule",
+"Position": [-0.2, 0.75, 0.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.35, 1.5, 0.35],
+"ColorHex": "#2A2A2A",
+"Material": "Plastic",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Scale",
+"TargetId": "flame_l",
+"Value": [0.15, 0.3, 0.15],
+"Duration": 0.0
+},
+{
+"Time": 0.1,
+"Action": "Scale",
+"TargetId": "flame_l",
+"Value": [0.18, 0.5, 0.18],
+"Duration": 0.1
+},
+{
+"Time": 0.2,
+"Action": "Scale",
+"TargetId": "flame_l",
+"Value": [0.15, 0.3, 0.15],
+"Duration": 0.1
+},
+{
+"Time": 0.0,
+"Action": "Scale",
+"TargetId": "flame_r",
+"Value": [0.15, 0.3, 0.15],
+"Duration": 0.0
+},
+{
+"Time": 0.1,
+"Action": "Scale",
+"TargetId": "flame_r",
+"Value": [0.18, 0.5, 0.18],
+"Duration": 0.1
+},
+{
+"Time": 0.2,
+"Action": "Scale",
+"TargetId": "flame_r",
+"Value": [0.15, 0.3, 0.15],
+"Duration": 0.1
+}
+]
+}

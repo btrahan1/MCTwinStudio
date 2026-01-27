@@ -1,0 +1,83 @@
+@page "/"
+@inject IJSRuntime JS
+
+<div style="position: relative; width: 100vw; height: 100vh; overflow: hidden; background-color: #000;">
+    
+    <!-- 3D Viewport -->
+    <div id="race-container" style="width: 100%; height: 100%;"></div>
+
+    <!-- UI Overlay -->
+    <div style="position: absolute; top: 20px; left: 20px; z-index: 10; display: flex; gap: 10px;">
+        <button class="btn btn-success btn-lg" @onclick="StartRace">START RACE</button>
+        <button class="btn btn-danger btn-lg" @onclick="StopRace">STOP</button>
+        <div style="color: white; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 5px; font-family: monospace; font-size: 20px;">
+            STATUS: @RaceState
+        </div>
+    </div>
+
+    <!-- Traffic Light Overlay -->
+    @if (IsCountingDown)
+    {
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 20px; background: #333; padding: 20px; border-radius: 20px;">
+            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: @(LightState == "RED" ? "#FF0000" : "#550000"); box-shadow: @(LightState == "RED" ? "0 0 20px #FF0000" : "none")"></div>
+            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: @(LightState == "YELLOW" ? "#FFFF00" : "#555500"); box-shadow: @(LightState == "YELLOW" ? "0 0 20px #FFFF00" : "none")"></div>
+            <div style="width: 80px; height: 80px; border-radius: 50%; background-color: @(LightState == "GREEN" ? "#00FF00" : "#005500"); box-shadow: @(LightState == "GREEN" ? "0 0 20px #00FF00" : "none")"></div>
+        </div>
+    }
+</div>
+
+@code {
+    private string RaceState = "IDLE";
+    private string LightState = "OFF";
+    private bool IsCountingDown = false;
+    private System.Threading.Timer? _timer;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("RaceEngine.init", "race-container");
+            _timer = new System.Threading.Timer(SyncState, null, 0, 100);
+        }
+    }
+
+    private void SyncState(object? state)
+    {
+        InvokeAsync(async () =>
+        {
+            var newState = await JS.InvokeAsync<string>("RaceEngine.getRaceState");
+            if (newState != RaceState)
+            {
+                RaceState = newState;
+                UpdateLights(newState);
+                StateHasChanged();
+            }
+        });
+    }
+
+    private void UpdateLights(string state)
+    {
+        if (state.StartsWith("COUNTDOWN")) IsCountingDown = true;
+        else IsCountingDown = false;
+
+        if (state == "COUNTDOWN_RED") LightState = "RED";
+        else if (state == "COUNTDOWN_YELLOW") LightState = "YELLOW";
+        else if (state == "COUNTDOWN_GREEN") LightState = "GREEN";
+        else LightState = "OFF";
+    }
+
+    private async Task StartRace()
+    {
+        await JS.InvokeVoidAsync("RaceEngine.startRaceSequence");
+    }
+
+    private async Task StopRace()
+    {
+        await JS.InvokeVoidAsync("RaceEngine.stopRace");
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+}

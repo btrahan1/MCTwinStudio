@@ -1,0 +1,116 @@
+{
+  "Name": "Area_Rug_Vintage_Pattern",
+  "Type": "Procedural",
+  "Parts": [
+    {
+      "Id": "rug_base",
+      "Shape": "Box",
+      "Position": [0, 0.01, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [1.0, 0.02, 1.6],
+      "ColorHex": "#5D231E",
+      "Material": "Leather",
+      "Operation": "Union"
+    },
+    {
+      "Id": "fringe_front",
+      "ParentId": "rug_base",
+      "Shape": "Box",
+      "Position": [0, 0, 0.82],
+      "Rotation": [0, 0, 0],
+      "Scale": [1.0, 0.6, 0.05],
+      "ColorHex": "#EADDCA",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "fringe_back",
+      "ParentId": "rug_base",
+      "Shape": "Box",
+      "Position": [0, 0, -0.82],
+      "Rotation": [0, 0, 0],
+      "Scale": [1.0, 0.6, 0.05],
+      "ColorHex": "#EADDCA",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "inner_field",
+      "ParentId": "rug_base",
+      "Shape": "Box",
+      "Position": [0, 0.2, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.85, 0.5, 1.45],
+      "ColorHex": "#2E4053",
+      "Material": "Leather",
+      "Operation": "Union"
+    },
+    {
+      "Id": "central_medallion",
+      "ParentId": "inner_field",
+      "Shape": "Torus",
+      "Position": [0, 0.6, 0],
+      "Rotation": [90, 0, 0],
+      "Scale": [0.3, 0.3, 0.1],
+      "ColorHex": "#D4AC0D",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "corner_pattern_tl",
+      "ParentId": "inner_field",
+      "Shape": "Box",
+      "Position": [0.35, 0.6, 0.6],
+      "Rotation": [0, 45, 0],
+      "Scale": [0.1, 0.1, 0.1],
+      "ColorHex": "#D4AC0D",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "corner_pattern_tr",
+      "ParentId": "inner_field",
+      "Shape": "Box",
+      "Position": [-0.35, 0.6, 0.6],
+      "Rotation": [0, 45, 0],
+      "Scale": [0.1, 0.1, 0.1],
+      "ColorHex": "#D4AC0D",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "corner_pattern_bl",
+      "ParentId": "inner_field",
+      "Shape": "Box",
+      "Position": [0.35, 0.6, -0.6],
+      "Rotation": [0, 45, 0],
+      "Scale": [0.1, 0.1, 0.1],
+      "ColorHex": "#D4AC0D",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "corner_pattern_br",
+      "ParentId": "inner_field",
+      "Shape": "Box",
+      "Position": [-0.35, 0.6, -0.6],
+      "Rotation": [0, 45, 0],
+      "Scale": [0.1, 0.1, 0.1],
+      "ColorHex": "#D4AC0D",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "worn_spot",
+      "ParentId": "rug_base",
+      "Shape": "Sphere",
+      "Position": [0.1, 0.3, 0.2],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.4, 0.5, 0.4],
+      "ColorHex": "#000000",
+      "Material": "Plastic",
+      "Operation": "Subtract"
+    }
+  ],
+  "Timeline": []
+}

@@ -1,0 +1,82 @@
+{
+  "Name": "Snow_Mound_Large",
+  "Type": "Procedural",
+  "Parts": [
+    {
+      "Id": "base_layer",
+      "Shape": "Sphere",
+      "Position": [0, 0, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [10, 2, 10],
+      "ColorHex": "#FFFFFF",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "middle_drift",
+      "Shape": "Sphere",
+      "Position": [1, 0.8, -1],
+      "Rotation": [0, 35, 0],
+      "Scale": [6, 3.5, 5],
+      "ColorHex": "#FCFDFF",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "peak_drift",
+      "Shape": "Sphere",
+      "Position": [-1.5, 1.5, 0.5],
+      "Rotation": [10, -10, 0],
+      "Scale": [4, 3, 4],
+      "ColorHex": "#F5F9FF",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "side_mound_01",
+      "Shape": "Capsule",
+      "Position": [3.5, 0.2, 2.5],
+      "Rotation": [0, 45, 85],
+      "Scale": [1.5, 5, 1.5],
+      "ColorHex": "#FFFFFF",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "side_mound_02",
+      "Shape": "Capsule",
+      "Position": [-4, 0.3, -3],
+      "Rotation": [0, -20, 95],
+      "Scale": [1.2, 4.5, 1.2],
+      "ColorHex": "#FDFDFF",
+      "Material": "Plastic",
+      "Operation": "Union"
+    },
+    {
+      "Id": "ice_patch",
+      "Shape": "Box",
+      "Position": [0, 0.1, 4],
+      "Rotation": [2, 0, 0],
+      "Scale": [2, 0.1, 2],
+      "ColorHex": "#D0EFFF",
+      "Material": "Glass",
+      "Operation": "Union"
+    }
+  ],
+  "Timeline": [
+    {
+      "Time": 0.0,
+      "Action": "Color",
+      "TargetId": "ice_patch",
+      "Value": [0.81, 0.93, 1.0],
+      "Duration": 3.0
+    },
+    {
+      "Time": 3.0,
+      "Action": "Color",
+      "TargetId": "ice_patch",
+      "Value": [0.9, 0.95, 1.0],
+      "Duration": 3.0
+    }
+  ]
+}

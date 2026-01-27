@@ -1,0 +1,251 @@
+{
+    "Name": "Pit_Stop_Wall",
+    "Type": "Procedural",
+    "Parts": [
+        {
+            "Id": "main_concrete_barrier",
+            "Shape": "Box",
+            "Position": [
+                0,
+                0.5,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                6.0,
+                1.0,
+                1.0
+            ],
+            "ColorHex": "#9A9A9A",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "top_counter_surface",
+            "ParentId": "main_concrete_barrier",
+            "Shape": "Box",
+            "Position": [
+                0,
+                0.55,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                1.02,
+                0.1,
+                1.2
+            ],
+            "ColorHex": "#1A1A1A",
+            "Material": "Plastic",
+            "Operation": "Union"
+        },
+        {
+            "Id": "crew_side_tool_cabinet",
+            "Shape": "Box",
+            "Position": [
+                -1.0,
+                0.5,
+                0.6
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                1.8,
+                0.9,
+                0.6
+            ],
+            "ColorHex": "#D32F2F",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "telemetry_monitor_left",
+            "Shape": "Box",
+            "Position": [
+                1.5,
+                1.4,
+                0.1
+            ],
+            "Rotation": [
+                -15,
+                0,
+                0
+            ],
+            "Scale": [
+                0.8,
+                0.5,
+                0.05
+            ],
+            "ColorHex": "#00FF41",
+            "Material": "Glow",
+            "Operation": "Union"
+        },
+        {
+            "Id": "telemetry_monitor_right",
+            "Shape": "Box",
+            "Position": [
+                -1.5,
+                1.4,
+                0.1
+            ],
+            "Rotation": [
+                -15,
+                0,
+                0
+            ],
+            "Scale": [
+                0.8,
+                0.5,
+                0.05
+            ],
+            "ColorHex": "#00FF41",
+            "Material": "Glow",
+            "Operation": "Union"
+        },
+        {
+            "Id": "compressed_air_tank",
+            "Shape": "Cylinder",
+            "Position": [
+                2.4,
+                0.75,
+                0.7
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                0.3,
+                1.5,
+                0.3
+            ],
+            "ColorHex": "#E0E0E0",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "tank_cap",
+            "ParentId": "compressed_air_tank",
+            "Shape": "Sphere",
+            "Position": [
+                0,
+                0.5,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                1.0,
+                0.2,
+                1.0
+            ],
+            "ColorHex": "#333333",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "safety_railing_back",
+            "Shape": "Box",
+            "Position": [
+                0,
+                1.8,
+                0.5
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                6.0,
+                0.05,
+                0.05
+            ],
+            "ColorHex": "#FFD700",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "railing_post_l",
+            "Shape": "Cylinder",
+            "Position": [
+                2.9,
+                1.45,
+                0.5
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                0.05,
+                0.7,
+                0.05
+            ],
+            "ColorHex": "#FFD700",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "railing_post_r",
+            "Shape": "Cylinder",
+            "Position": [
+                -2.9,
+                1.45,
+                0.5
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                0.05,
+                0.7,
+                0.05
+            ],
+            "ColorHex": "#FFD700",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "track_side_advertisement",
+            "Shape": "Box",
+            "Position": [
+                0,
+                0.5,
+                -0.51
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                5.0,
+                0.6,
+                0.02
+            ],
+            "ColorHex": "#FFFFFF",
+            "Material": "Plastic",
+            "Operation": "Union"
+        }
+    ],
+    "Timeline": []
+}

@@ -1,0 +1,65 @@
+{
+  "Name": "Race_Official_Flagman",
+  "Type": "Voxel",
+  "ProceduralColors": {
+    "Skin": "#F5D0B1",
+    "Shirt": "#FFFFFF",
+    "Pants": "#C2B280",
+    "Eyes": "#222222"
+  },
+  "Textures": {
+    "Face": [
+      "#FFFFFF", "#222222", "#FFFFFF", "#222222", "#FFFFFF", "#222222", "#FFFFFF", "#222222",
+      "#222222", "#FFFFFF", "#222222", "#FFFFFF", "#222222", "#FFFFFF", "#222222", "#FFFFFF",
+      "#222222", "#222222", "#222222", "#222222", "#222222", "#222222", "#222222", "#222222",
+      "#F5D0B1", "#333333", "#333333", "#F5D0B1", "#F5D0B1", "#333333", "#333333", "#F5D0B1",
+      "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1",
+      "#F5D0B1", "#222222", "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1", "#222222", "#F5D0B1",
+      "#F5D0B1", "#F5D0B1", "#F5D0B1", "#E5B091", "#E5B091", "#F5D0B1", "#F5D0B1", "#F5D0B1",
+      "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1"
+    ],
+    "Chest": [
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#222222", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#222222", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#222222", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#222222", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#222222", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+    ],
+    "Arms": [
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#222222", "#FFFFFF", "#222222", "#FFFFFF",
+      "#FFFFFF", "#222222", "#FFFFFF", "#222222",
+      "#222222", "#FFFFFF", "#222222", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1",
+      "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1",
+      "#F5D0B1", "#F5D0B1", "#F5D0B1", "#F5D0B1"
+    ],
+    "Legs": [
+      "#111111", "#111111", "#111111", "#111111",
+      "#C2B280", "#C2B280", "#C2B280", "#C2B280",
+      "#C2B280", "#C2B280", "#C2B280", "#C2B280",
+      "#C2B280", "#C2B280", "#C2B280", "#C2B280",
+      "#C2B280", "#C2B280", "#C2B280", "#C2B280",
+      "#C2B280", "#C2B280", "#C2B280", "#C2B280",
+      "#C2B280", "#C2B280", "#C2B280", "#C2B280",
+      "#C2B280", "#C2B280", "#C2B280", "#C2B280",
+      "#C2B280", "#C2B280", "#C2B280", "#C2B280",
+      "#C2B280", "#C2B280", "#C2B280", "#C2B280",
+      "#111111", "#111111", "#111111", "#111111",
+      "#111111", "#111111", "#111111", "#111111"
+    ]
+  },
+  "Description": "A race official dressed in a white uniform with a checkered cap, wearing a communication headset and holding a rolled checkered flag."
+}

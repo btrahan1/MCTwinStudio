@@ -1,0 +1,145 @@
+{
+"Name": "Passenger Van",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "chassis_main",
+"Shape": "Box",
+"Position": [0, 1.2, -0.5],
+"Rotation": [0, 0, 0],
+"Scale": [2.2, 1.8, 5.0],
+"ColorHex": "#E0E0E0",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "hood_front",
+"Shape": "Box",
+"Position": [0, 0.8, 2.5],
+"Rotation": [-5, 0, 0],
+"Scale": [2.2, 1.0, 1.2],
+"ColorHex": "#E0E0E0",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "windshield",
+"Shape": "Box",
+"Position": [0, 1.9, 2.0],
+"Rotation": [25, 0, 0],
+"Scale": [2.1, 1.2, 0.1],
+"ColorHex": "#222222",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "window_side_left",
+"Shape": "Box",
+"Position": [1.11, 1.8, -0.5],
+"Rotation": [0, 0, 0],
+"Scale": [0.05, 0.8, 4.5],
+"ColorHex": "#222222",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "window_side_right",
+"Shape": "Box",
+"Position": [-1.11, 1.8, -0.5],
+"Rotation": [0, 0, 0],
+"Scale": [0.05, 0.8, 4.5],
+"ColorHex": "#222222",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "wheel_fl",
+"Shape": "Cylinder",
+"Position": [1.1, 0.5, 1.8],
+"Rotation": [0, 0, 90],
+"Scale": [0.8, 0.4, 0.8],
+"ColorHex": "#1A1A1A",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "wheel_fr",
+"Shape": "Cylinder",
+"Position": [-1.1, 0.5, 1.8],
+"Rotation": [0, 0, 90],
+"Scale": [0.8, 0.4, 0.8],
+"ColorHex": "#1A1A1A",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "wheel_rl",
+"Shape": "Cylinder",
+"Position": [1.1, 0.5, -2.0],
+"Rotation": [0, 0, 90],
+"Scale": [0.8, 0.4, 0.8],
+"ColorHex": "#1A1A1A",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "wheel_rr",
+"Shape": "Cylinder",
+"Position": [-1.1, 0.5, -2.0],
+"Rotation": [0, 0, 90],
+"Scale": [0.8, 0.4, 0.8],
+"ColorHex": "#1A1A1A",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "headlight_l",
+"Shape": "Sphere",
+"Position": [0.8, 0.9, 3.1],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 0.2, 0.1],
+"ColorHex": "#FFFFEE",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "headlight_r",
+"Shape": "Sphere",
+"Position": [-0.8, 0.9, 3.1],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 0.2, 0.1],
+"ColorHex": "#FFFFEE",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "taillight_l",
+"Shape": "Box",
+"Position": [0.9, 1.0, -3.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.2, 0.5, 0.1],
+"ColorHex": "#AA0000",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "taillight_r",
+"Shape": "Box",
+"Position": [-0.9, 1.0, -3.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.2, 0.5, 0.1],
+"ColorHex": "#AA0000",
+"Material": "Glow",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Move",
+"TargetId": "chassis_main",
+"Value": [0, 1.2, 10.0],
+"Duration": 5.0
+}
+]
+}

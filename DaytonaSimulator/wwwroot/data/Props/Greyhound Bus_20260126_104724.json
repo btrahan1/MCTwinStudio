@@ -1,0 +1,175 @@
+{
+"Name": "Greyhound Bus",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "chassis_lower",
+"Shape": "Box",
+"Position": [0, 0.8, 0],
+"Rotation": [0, 0, 0],
+"Scale": [2.6, 1.2, 12.0],
+"ColorHex": "#B0B0B0",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "chassis_upper",
+"Shape": "Box",
+"Position": [0, 2.0, -0.5],
+"Rotation": [0, 0, 0],
+"Scale": [2.6, 1.5, 11.0],
+"ColorHex": "#E0E0E0",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "windshield",
+"Shape": "Box",
+"Position": [0, 2.3, 5.0],
+"Rotation": [20, 0, 0],
+"Scale": [2.5, 1.4, 0.1],
+"ColorHex": "#1A1A1A",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "windows_left",
+"Shape": "Box",
+"Position": [1.31, 2.2, -0.5],
+"Rotation": [0, 0, 0],
+"Scale": [0.05, 1.0, 10.5],
+"ColorHex": "#1A1A1A",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "windows_right",
+"Shape": "Box",
+"Position": [-1.31, 2.2, -0.5],
+"Rotation": [0, 0, 0],
+"Scale": [0.05, 1.0, 10.5],
+"ColorHex": "#1A1A1A",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "wheel_fl",
+"Shape": "Cylinder",
+"Position": [1.2, 0.5, 4.0],
+"Rotation": [0, 0, 90],
+"Scale": [1.0, 0.5, 1.0],
+"ColorHex": "#111111",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "wheel_fr",
+"Shape": "Cylinder",
+"Position": [-1.2, 0.5, 4.0],
+"Rotation": [0, 0, 90],
+"Scale": [1.0, 0.5, 1.0],
+"ColorHex": "#111111",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "wheel_rl1",
+"Shape": "Cylinder",
+"Position": [1.2, 0.5, -3.8],
+"Rotation": [0, 0, 90],
+"Scale": [1.0, 0.5, 1.0],
+"ColorHex": "#111111",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "wheel_rr1",
+"Shape": "Cylinder",
+"Position": [-1.2, 0.5, -3.8],
+"Rotation": [0, 0, 90],
+"Scale": [1.0, 0.5, 1.0],
+"ColorHex": "#111111",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "wheel_rl2",
+"Shape": "Cylinder",
+"Position": [1.2, 0.5, -5.0],
+"Rotation": [0, 0, 90],
+"Scale": [1.0, 0.5, 1.0],
+"ColorHex": "#111111",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "wheel_rr2",
+"Shape": "Cylinder",
+"Position": [-1.2, 0.5, -5.0],
+"Rotation": [0, 0, 90],
+"Scale": [1.0, 0.5, 1.0],
+"ColorHex": "#111111",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "stripe_blue",
+"Shape": "Box",
+"Position": [0, 1.2, 0],
+"Rotation": [0, 0, 0],
+"Scale": [2.62, 0.2, 12.0],
+"ColorHex": "#0033A0",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "logo_dog_left",
+"Shape": "Capsule",
+"Position": [1.32, 1.2, 2.0],
+"Rotation": [0, 0, 110],
+"Scale": [0.1, 0.8, 0.1],
+"ColorHex": "#FFFFFF",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "ac_unit",
+"Shape": "Box",
+"Position": [0, 2.8, -1.0],
+"Rotation": [0, 0, 0],
+"Scale": [1.8, 0.3, 2.5],
+"ColorHex": "#FFFFFF",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "headlight_l",
+"Shape": "Sphere",
+"Position": [1.0, 0.7, 6.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 0.3, 0.1],
+"ColorHex": "#FFFFEE",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "headlight_r",
+"Shape": "Sphere",
+"Position": [-1.0, 0.7, 6.0],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 0.3, 0.1],
+"ColorHex": "#FFFFEE",
+"Material": "Glow",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Move",
+"TargetId": "chassis_lower",
+"Value": [0, 0.8, 20.0],
+"Duration": 4.0
+}
+]
+}

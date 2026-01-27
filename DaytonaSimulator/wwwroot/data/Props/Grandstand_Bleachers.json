@@ -1,0 +1,310 @@
+{
+    "Name": "Grandstand_Bleachers",
+    "Type": "Procedural",
+    "Parts": [
+        {
+            "Id": "tier_1",
+            "Shape": "Box",
+            "Position": [
+                0,
+                0.5,
+                2
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                10,
+                1,
+                1
+            ],
+            "ColorHex": "#808080",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "tier_2",
+            "Shape": "Box",
+            "Position": [
+                0,
+                1.0,
+                1
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                10,
+                2,
+                1
+            ],
+            "ColorHex": "#707070",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "tier_3",
+            "Shape": "Box",
+            "Position": [
+                0,
+                1.5,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                10,
+                3,
+                1
+            ],
+            "ColorHex": "#808080",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "tier_4",
+            "Shape": "Box",
+            "Position": [
+                0,
+                2.0,
+                -1
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                10,
+                4,
+                1
+            ],
+            "ColorHex": "#707070",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "tier_5",
+            "Shape": "Box",
+            "Position": [
+                0,
+                2.5,
+                -2
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                10,
+                5,
+                1
+            ],
+            "ColorHex": "#808080",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "seat_row_1",
+            "ParentId": "tier_1",
+            "Shape": "Box",
+            "Position": [
+                0,
+                0.55,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                1.0,
+                0.1,
+                0.6
+            ],
+            "ColorHex": "#CC0000",
+            "Material": "Plastic",
+            "Operation": "Union"
+        },
+        {
+            "Id": "seat_row_2",
+            "ParentId": "tier_2",
+            "Shape": "Box",
+            "Position": [
+                0,
+                0.55,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                1.0,
+                0.05,
+                0.6
+            ],
+            "ColorHex": "#0000CC",
+            "Material": "Plastic",
+            "Operation": "Union"
+        },
+        {
+            "Id": "seat_row_3",
+            "ParentId": "tier_3",
+            "Shape": "Box",
+            "Position": [
+                0,
+                0.55,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                1.0,
+                0.035,
+                0.6
+            ],
+            "ColorHex": "#CC0000",
+            "Material": "Plastic",
+            "Operation": "Union"
+        },
+        {
+            "Id": "seat_row_4",
+            "ParentId": "tier_4",
+            "Shape": "Box",
+            "Position": [
+                0,
+                0.55,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                1.0,
+                0.025,
+                0.6
+            ],
+            "ColorHex": "#0000CC",
+            "Material": "Plastic",
+            "Operation": "Union"
+        },
+        {
+            "Id": "seat_row_5",
+            "ParentId": "tier_5",
+            "Shape": "Box",
+            "Position": [
+                0,
+                0.55,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                1.0,
+                0.02,
+                0.6
+            ],
+            "ColorHex": "#CC0000",
+            "Material": "Plastic",
+            "Operation": "Union"
+        },
+        {
+            "Id": "guard_rail_back",
+            "Shape": "Box",
+            "Position": [
+                0,
+                5.8,
+                -2.45
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                10,
+                1.6,
+                0.1
+            ],
+            "ColorHex": "#E0E0E0",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "guard_rail_left",
+            "Shape": "Box",
+            "Position": [
+                4.95,
+                3.2,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                0.1,
+                6.4,
+                5
+            ],
+            "ColorHex": "#E0E0E0",
+            "Material": "Metal",
+            "Operation": "Union"
+        },
+        {
+            "Id": "guard_rail_right",
+            "Shape": "Box",
+            "Position": [
+                -4.95,
+                3.2,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                0.1,
+                6.4,
+                5
+            ],
+            "ColorHex": "#E0E0E0",
+            "Material": "Metal",
+            "Operation": "Union"
+        }
+    ],
+    "Timeline": [
+        {
+            "Time": 0.0,
+            "Action": "Color",
+            "TargetId": "seat_row_1",
+            "Value": [
+                0.8,
+                0,
+                0
+            ],
+            "Duration": 0.0
+        }
+    ]
+}

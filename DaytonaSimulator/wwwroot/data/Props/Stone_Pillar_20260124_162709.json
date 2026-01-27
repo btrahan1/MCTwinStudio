@@ -1,0 +1,87 @@
+{
+"Name": "Stone_Pillar",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "pillar_base",
+"Shape": "Box",
+"Position": [0, 0.05, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.9, 0.1, 0.9],
+"ColorHex": "#3E3E3E",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "main_shaft",
+"Shape": "Cylinder",
+"Position": [0, 0.5, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.7, 0.8, 0.7],
+"ColorHex": "#555555",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "pillar_top",
+"Shape": "Box",
+"Position": [0, 0.95, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.9, 0.1, 0.9],
+"ColorHex": "#3E3E3E",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "mid_ring_lower",
+"Shape": "Cylinder",
+"Position": [0, 0.2, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.75, 0.05, 0.75],
+"ColorHex": "#2A2A2A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "mid_ring_upper",
+"Shape": "Cylinder",
+"Position": [0, 0.8, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.75, 0.05, 0.75],
+"ColorHex": "#2A2A2A",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "damage_chip_1",
+"Shape": "Sphere",
+"Position": [0.35, 0.6, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.2, 0.2, 0.2],
+"ColorHex": "#000000",
+"Material": "Plastic",
+"Operation": "Subtract"
+},
+{
+"Id": "damage_chip_2",
+"Shape": "Box",
+"Position": [-0.3, 0.3, 0.2],
+"Rotation": [15, 45, 10],
+"Scale": [0.15, 0.3, 0.1],
+"ColorHex": "#000000",
+"Material": "Plastic",
+"Operation": "Subtract"
+},
+{
+"Id": "moss_patch",
+"Shape": "Box",
+"Position": [0, 0.1, 0.4],
+"Rotation": [0, 0, 0],
+"Scale": [0.4, 0.15, 0.1],
+"ColorHex": "#2D3B1E",
+"Material": "Plastic",
+"Operation": "Union"
+}
+],
+"Timeline": []
+}

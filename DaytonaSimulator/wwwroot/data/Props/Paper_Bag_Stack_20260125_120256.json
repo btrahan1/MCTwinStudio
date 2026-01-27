@@ -1,0 +1,79 @@
+{
+  "Name": "Paper_Bag_Stack",
+  "Type": "Procedural",
+  "Parts": [
+    {
+      "Id": "bag_base_01",
+      "Shape": "Box",
+      "Position": [0, 0.025, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.4, 0.05, 0.5],
+      "ColorHex": "#BC9E82",
+      "Material": "Leather"
+    },
+    {
+      "Id": "bag_02",
+      "Shape": "Box",
+      "Position": [0.01, 0.075, 0.01],
+      "Rotation": [0, 4, 0],
+      "Scale": [0.4, 0.05, 0.5],
+      "ColorHex": "#B09277",
+      "Material": "Leather"
+    },
+    {
+      "Id": "bag_03",
+      "Shape": "Box",
+      "Position": [-0.01, 0.125, -0.01],
+      "Rotation": [0, -3, 0],
+      "Scale": [0.4, 0.05, 0.5],
+      "ColorHex": "#BC9E82",
+      "Material": "Leather"
+    },
+    {
+      "Id": "bag_04",
+      "Shape": "Box",
+      "Position": [0.005, 0.175, 0.005],
+      "Rotation": [0, 2, 0],
+      "Scale": [0.4, 0.05, 0.5],
+      "ColorHex": "#B09277",
+      "Material": "Leather"
+    },
+    {
+      "Id": "bag_top_05",
+      "Shape": "Box",
+      "Position": [-0.005, 0.225, -0.005],
+      "Rotation": [0, -5, 0],
+      "Scale": [0.4, 0.05, 0.5],
+      "ColorHex": "#BC9E82",
+      "Material": "Leather"
+    },
+    {
+      "Id": "bag_top_fold",
+      "Shape": "Box",
+      "Position": [-0.005, 0.251, 0.15],
+      "Rotation": [0, -5, 0],
+      "Scale": [0.41, 0.01, 0.1],
+      "ColorHex": "#A68966",
+      "Material": "Leather"
+    },
+    {
+      "Id": "handle_loop_front",
+      "Shape": "Torus",
+      "Position": [-0.005, 0.27, 0.05],
+      "Rotation": [90, -5, 0],
+      "Scale": [0.15, 0.15, 0.02],
+      "ColorHex": "#8D735B",
+      "Material": "Leather"
+    },
+    {
+      "Id": "handle_loop_back",
+      "Shape": "Torus",
+      "Position": [-0.005, 0.27, -0.05],
+      "Rotation": [90, -5, 0],
+      "Scale": [0.15, 0.15, 0.02],
+      "ColorHex": "#8D735B",
+      "Material": "Leather"
+    }
+  ],
+  "Timeline": []
+}

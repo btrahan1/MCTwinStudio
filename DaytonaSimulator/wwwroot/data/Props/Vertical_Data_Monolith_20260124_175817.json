@@ -1,0 +1,123 @@
+{
+"Name": "Vertical_Data_Monolith",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "monolith_base",
+"Shape": "Box",
+"Position": [0, 0.1, 0],
+"Rotation": [0, 0, 0],
+"Scale": [1.2, 0.2, 0.8],
+"ColorHex": "#1A1A1C",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "main_pillar",
+"ParentId": "monolith_base",
+"Shape": "Box",
+"Position": [0, 1.5, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.9, 3.0, 0.5],
+"ColorHex": "#0A0A0B",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "recessed_display",
+"ParentId": "main_pillar",
+"Shape": "Box",
+"Position": [0, 0, 0.21],
+"Rotation": [0, 0, 0],
+"Scale": [0.75, 2.6, 0.1],
+"ColorHex": "#001A1A",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "cyan_data_stream_top",
+"ParentId": "recessed_display",
+"Shape": "Box",
+"Position": [0, 0.4, 0.01],
+"Rotation": [0, 0, 0],
+"Scale": [0.9, 0.02, 0.1],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "amber_data_stream_mid",
+"ParentId": "recessed_display",
+"Shape": "Box",
+"Position": [0, 0, 0.01],
+"Rotation": [0, 0, 0],
+"Scale": [0.9, 0.05, 0.1],
+"ColorHex": "#FFBF00",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "cyan_data_stream_bottom",
+"ParentId": "recessed_display",
+"Shape": "Box",
+"Position": [0, -0.4, 0.01],
+"Rotation": [0, 0, 0],
+"Scale": [0.9, 0.02, 0.1],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "side_accent_l",
+"ParentId": "main_pillar",
+"Shape": "Box",
+"Position": [-0.46, 0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.05, 2.8, 0.3],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "side_accent_r",
+"ParentId": "main_pillar",
+"Shape": "Box",
+"Position": [0.46, 0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.05, 2.8, 0.3],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Move",
+"TargetId": "cyan_data_stream_top",
+"Value": [0, 0.45, 0.01],
+"Duration": 2.0
+},
+{
+"Time": 2.0,
+"Action": "Move",
+"TargetId": "cyan_data_stream_top",
+"Value": [0, 0.35, 0.01],
+"Duration": 2.0
+},
+{
+"Time": 0.0,
+"Action": "Color",
+"TargetId": "amber_data_stream_mid",
+"Value": [255, 191, 0],
+"Duration": 0.5
+},
+{
+"Time": 0.5,
+"Action": "Color",
+"TargetId": "amber_data_stream_mid",
+"Value": [100, 75, 0],
+"Duration": 0.5
+}
+]
+}

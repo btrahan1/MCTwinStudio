@@ -1,0 +1,65 @@
+{
+  "Name": "Snowspeeder_Pilot",
+  "Type": "Voxel",
+  "ProceduralColors": {
+    "Skin": "#FFDBAC",
+    "Shirt": "#D35400",
+    "Pants": "#D35400",
+    "Eyes": "#333333"
+  },
+  "Textures": {
+    "Face": [
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#F1C40F", "#F1C40F", "#F1C40F", "#F1C40F", "#F1C40F", "#F1C40F", "#FFFFFF",
+      "#FFFFFF", "#F1C40F", "#F1C40F", "#F1C40F", "#F1C40F", "#F1C40F", "#F1C40F", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFDBAC", "#FFDBAC", "#FFDBAC", "#FFDBAC", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFDBAC", "#333333", "#333333", "#FFDBAC", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFDBAC", "#FFDBAC", "#FFDBAC", "#FFDBAC", "#FFFFFF", "#FFFFFF",
+      "#7F8C8D", "#7F8C8D", "#7F8C8D", "#7F8C8D", "#7F8C8D", "#7F8C8D", "#7F8C8D", "#7F8C8D"
+    ],
+    "Chest": [
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#BDC3C7", "#BDC3C7", "#BDC3C7", "#BDC3C7", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#7F8C8D", "#2C3E50", "#2C3E50", "#7F8C8D", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#7F8C8D", "#E74C3C", "#E74C3C", "#7F8C8D", "#FFFFFF", "#FFFFFF",
+      "#D35400", "#D35400", "#D35400", "#D35400", "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400", "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400", "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400", "#D35400", "#D35400", "#D35400", "#D35400",
+      "#7F8C8D", "#7F8C8D", "#7F8C8D", "#7F8C8D", "#7F8C8D", "#7F8C8D", "#7F8C8D", "#7F8C8D",
+      "#2C3E50", "#2C3E50", "#2C3E50", "#2C3E50", "#2C3E50", "#2C3E50", "#2C3E50", "#2C3E50"
+    ],
+    "Arms": [
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#FFFFFF", "#FFFFFF", "#D35400",
+      "#D35400", "#FFFFFF", "#FFFFFF", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#7F8C8D", "#7F8C8D", "#7F8C8D", "#7F8C8D",
+      "#2C3E50", "#2C3E50", "#2C3E50", "#2C3E50"
+    ],
+    "Legs": [
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#7F8C8D", "#7F8C8D", "#D35400",
+      "#D35400", "#7F8C8D", "#7F8C8D", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#FFFFFF", "#FFFFFF", "#D35400",
+      "#D35400", "#FFFFFF", "#FFFFFF", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#D35400", "#D35400", "#D35400", "#D35400",
+      "#2C3E50", "#2C3E50", "#2C3E50", "#2C3E50",
+      "#2C3E50", "#2C3E50", "#2C3E50", "#2C3E50"
+    ]
+  },
+  "Description": "An Alliance pilot in a signature orange flight suit, equipped with a white flak vest and a reinforced flight helmet with a yellow blast shield."
+}

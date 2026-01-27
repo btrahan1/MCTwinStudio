@@ -1,0 +1,65 @@
+{
+  "Name": "Backup Casino Dealer",
+  "Type": "Voxel",
+  "ProceduralColors": {
+    "Skin": "#E8BEAC",
+    "Shirt": "#F2F2F2",
+    "Pants": "#121212",
+    "Eyes": "#403020"
+  },
+  "Textures": {
+    "Face": [
+      "#4B3621", "#4B3621", "#4B3621", "#4B3621", "#4B3621", "#4B3621", "#4B3621", "#4B3621",
+      "#4B3621", "#4B3621", "#4B3621", "#4B3621", "#4B3621", "#4B3621", "#4B3621", "#4B3621",
+      "#4B3621", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#4B3621",
+      "#E8BEAC", "#FFFFFF", "#403020", "#E8BEAC", "#E8BEAC", "#403020", "#FFFFFF", "#E8BEAC",
+      "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC",
+      "#E8BEAC", "#E8BEAC", "#A0522D", "#A0522D", "#A0522D", "#A0522D", "#E8BEAC", "#E8BEAC",
+      "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC",
+      "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC"
+    ],
+    "Chest": [
+      "#1A1A1A", "#FFFFFF", "#8B0000", "#8B0000", "#8B0000", "#8B0000", "#FFFFFF", "#1A1A1A",
+      "#1A1A1A", "#FFFFFF", "#FFFFFF", "#8B0000", "#8B0000", "#FFFFFF", "#FFFFFF", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#F2F2F2", "#F2F2F2", "#F2F2F2", "#F2F2F2", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#F2F2F2", "#F2F2F2", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#F2F2F2", "#F2F2F2", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#F2F2F2", "#F2F2F2", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#F2F2F2", "#F2F2F2", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#F2F2F2", "#F2F2F2", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#F2F2F2", "#F2F2F2", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#F2F2F2", "#F2F2F2", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A"
+    ],
+    "Arms": [
+      "#F2F2F2", "#F2F2F2", "#F2F2F2", "#F2F2F2",
+      "#F2F2F2", "#F2F2F2", "#F2F2F2", "#F2F2F2",
+      "#F2F2F2", "#F2F2F2", "#F2F2F2", "#F2F2F2",
+      "#F2F2F2", "#F2F2F2", "#F2F2F2", "#F2F2F2",
+      "#F2F2F2", "#F2F2F2", "#F2F2F2", "#F2F2F2",
+      "#F2F2F2", "#F2F2F2", "#F2F2F2", "#F2F2F2",
+      "#F2F2F2", "#F2F2F2", "#F2F2F2", "#F2F2F2",
+      "#F2F2F2", "#F2F2F2", "#F2F2F2", "#F2F2F2",
+      "#F2F2F2", "#F2F2F2", "#F2F2F2", "#F2F2F2",
+      "#F2F2F2", "#F2F2F2", "#F2F2F2", "#F2F2F2",
+      "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC",
+      "#E8BEAC", "#E8BEAC", "#E8BEAC", "#E8BEAC"
+    ],
+    "Legs": [
+      "#121212", "#121212", "#121212", "#121212",
+      "#121212", "#121212", "#121212", "#121212",
+      "#121212", "#121212", "#121212", "#121212",
+      "#121212", "#121212", "#121212", "#121212",
+      "#121212", "#121212", "#121212", "#121212",
+      "#121212", "#121212", "#121212", "#121212",
+      "#121212", "#121212", "#121212", "#121212",
+      "#121212", "#121212", "#121212", "#121212",
+      "#121212", "#121212", "#121212", "#121212",
+      "#121212", "#121212", "#121212", "#121212",
+      "#121212", "#121212", "#121212", "#121212",
+      "#000000", "#000000", "#000000", "#000000"
+    ]
+  },
+  "Description": "A professional standby casino dealer featuring a black waistcoat over a crisp white dress shirt and a formal red bowtie."
+}

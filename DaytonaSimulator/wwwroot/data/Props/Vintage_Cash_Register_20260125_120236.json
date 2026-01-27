@@ -1,0 +1,133 @@
+{
+  "Name": "Vintage_Cash_Register",
+  "Type": "Procedural",
+  "Parts": [
+    {
+      "Id": "base_chassis",
+      "Shape": "Box",
+      "Position": [0, 0.15, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.6, 0.3, 0.6],
+      "ColorHex": "#4E342E",
+      "Material": "Metal"
+    },
+    {
+      "Id": "drawer_front",
+      "Shape": "Box",
+      "Position": [0, 0.1, 0.28],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.55, 0.15, 0.05],
+      "ColorHex": "#C5A059",
+      "Material": "Metal"
+    },
+    {
+      "Id": "main_body_sloped",
+      "Shape": "Box",
+      "Position": [0, 0.45, -0.05],
+      "Rotation": [-25, 0, 0],
+      "Scale": [0.5, 0.5, 0.4],
+      "ColorHex": "#C5A059",
+      "Material": "Metal"
+    },
+    {
+      "Id": "key_r1_1",
+      "Shape": "Cylinder",
+      "Position": [0.15, 0.5, 0.1],
+      "Rotation": [-25, 0, 0],
+      "Scale": [0.04, 0.08, 0.04],
+      "ColorHex": "#F5F5F5",
+      "Material": "Plastic"
+    },
+    {
+      "Id": "key_r1_2",
+      "Shape": "Cylinder",
+      "Position": [0.05, 0.5, 0.1],
+      "Rotation": [-25, 0, 0],
+      "Scale": [0.04, 0.08, 0.04],
+      "ColorHex": "#F5F5F5",
+      "Material": "Plastic"
+    },
+    {
+      "Id": "key_r1_3",
+      "Shape": "Cylinder",
+      "Position": [-0.05, 0.5, 0.1],
+      "Rotation": [-25, 0, 0],
+      "Scale": [0.04, 0.08, 0.04],
+      "ColorHex": "#F5F5F5",
+      "Material": "Plastic"
+    },
+    {
+      "Id": "key_r1_4",
+      "Shape": "Cylinder",
+      "Position": [-0.15, 0.5, 0.1],
+      "Rotation": [-25, 0, 0],
+      "Scale": [0.04, 0.08, 0.04],
+      "ColorHex": "#F5F5F5",
+      "Material": "Plastic"
+    },
+    {
+      "Id": "key_r2_1",
+      "Shape": "Cylinder",
+      "Position": [0.15, 0.58, -0.05],
+      "Rotation": [-25, 0, 0],
+      "Scale": [0.04, 0.08, 0.04],
+      "ColorHex": "#F5F5F5",
+      "Material": "Plastic"
+    },
+    {
+      "Id": "key_r2_2",
+      "Shape": "Cylinder",
+      "Position": [-0.15, 0.58, -0.05],
+      "Rotation": [-25, 0, 0],
+      "Scale": [0.04, 0.08, 0.04],
+      "ColorHex": "#F5F5F5",
+      "Material": "Plastic"
+    },
+    {
+      "Id": "price_display_box",
+      "Shape": "Box",
+      "Position": [0, 0.8, -0.15],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.4, 0.2, 0.1],
+      "ColorHex": "#3E2723",
+      "Material": "Metal"
+    },
+    {
+      "Id": "price_glass",
+      "Shape": "Box",
+      "Position": [0, 0.8, -0.1],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.35, 0.12, 0.02],
+      "ColorHex": "#A9D0F5",
+      "Material": "Glass"
+    },
+    {
+      "Id": "side_crank_arm",
+      "Shape": "Cylinder",
+      "Position": [0.28, 0.45, -0.05],
+      "Rotation": [0, 0, 90],
+      "Scale": [0.02, 0.1, 0.02],
+      "ColorHex": "#C5A059",
+      "Material": "Metal"
+    },
+    {
+      "Id": "side_crank_handle",
+      "Shape": "Capsule",
+      "Position": [0.33, 0.55, -0.05],
+      "Rotation": [0, 0, 0],
+      "Scale": [0.03, 0.15, 0.03],
+      "ColorHex": "#2D1B18",
+      "Material": "Wood"
+    },
+    {
+      "Id": "paper_roll_holder",
+      "Shape": "Cylinder",
+      "Position": [-0.2, 0.4, 0.2],
+      "Rotation": [0, 0, 90],
+      "Scale": [0.1, 0.15, 0.1],
+      "ColorHex": "#FFFFFF",
+      "Material": "Plastic"
+    }
+  ],
+  "Timeline": []
+}

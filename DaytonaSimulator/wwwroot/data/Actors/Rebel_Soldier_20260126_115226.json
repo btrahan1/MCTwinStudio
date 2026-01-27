@@ -1,0 +1,65 @@
+{
+  "Name": "Rebel_Soldier",
+  "Type": "Voxel",
+  "ProceduralColors": {
+    "Skin": "#D2B48C",
+    "Shirt": "#A9A9A9",
+    "Pants": "#C19A6B",
+    "Eyes": "#333333"
+  },
+  "Textures": {
+    "Face": [
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#8B7355", "#8B7355", "#8B7355", "#8B7355", "#8B7355", "#8B7355", "#8B7355", "#8B7355",
+      "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C",
+      "#D2B48C", "#333333", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#333333", "#D2B48C",
+      "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C",
+      "#D2B48C", "#D2B48C", "#8B4513", "#8B4513", "#8B4513", "#8B4513", "#D2B48C", "#D2B48C",
+      "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C"
+    ],
+    "Chest": [
+      "#A9A9A9", "#C19A6B", "#C19A6B", "#A9A9A9", "#A9A9A9", "#C19A6B", "#C19A6B", "#A9A9A9",
+      "#A9A9A9", "#C19A6B", "#C19A6B", "#A9A9A9", "#A9A9A9", "#C19A6B", "#C19A6B", "#A9A9A9",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#8B7355", "#8B7355", "#C19A6B", "#C19A6B", "#8B7355", "#8B7355", "#C19A6B",
+      "#C19A6B", "#8B7355", "#8B7355", "#C19A6B", "#C19A6B", "#8B7355", "#8B7355", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#8B7355", "#8B7355", "#8B7355", "#8B7355", "#8B7355", "#8B7355", "#8B7355", "#8B7355",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B"
+    ],
+    "Arms": [
+      "#A9A9A9", "#A9A9A9", "#A9A9A9", "#A9A9A9",
+      "#A9A9A9", "#A9A9A9", "#A9A9A9", "#A9A9A9",
+      "#A9A9A9", "#A9A9A9", "#A9A9A9", "#A9A9A9",
+      "#A9A9A9", "#A9A9A9", "#A9A9A9", "#A9A9A9",
+      "#A9A9A9", "#A9A9A9", "#A9A9A9", "#A9A9A9",
+      "#A9A9A9", "#A9A9A9", "#A9A9A9", "#A9A9A9",
+      "#A9A9A9", "#A9A9A9", "#A9A9A9", "#A9A9A9",
+      "#A9A9A9", "#A9A9A9", "#A9A9A9", "#A9A9A9",
+      "#A9A9A9", "#A9A9A9", "#A9A9A9", "#A9A9A9",
+      "#A9A9A9", "#A9A9A9", "#A9A9A9", "#A9A9A9",
+      "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C",
+      "#D2B48C", "#D2B48C", "#D2B48C", "#D2B48C"
+    ],
+    "Legs": [
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#C19A6B", "#C19A6B", "#C19A6B", "#C19A6B",
+      "#222222", "#222222", "#222222", "#222222",
+      "#222222", "#222222", "#222222", "#222222"
+    ]
+  },
+  "Description": "A Rebel Alliance infantryman from Hoth, featuring a tan insulated donut helmet, tactical quilted vest over a grey flight suit, and rugged black boots."
+}

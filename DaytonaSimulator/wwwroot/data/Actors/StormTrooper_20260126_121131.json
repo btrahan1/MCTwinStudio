@@ -1,0 +1,65 @@
+{
+  "Name": "StormTrooper",
+  "Type": "Voxel",
+  "ProceduralColors": {
+    "Skin": "#FFFFFF",
+    "Shirt": "#FFFFFF",
+    "Pants": "#FFFFFF",
+    "Eyes": "#1A1A1A"
+  },
+  "Textures": {
+    "Face": [
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#FFFFFF", "#1A1A1A", "#1A1A1A", "#FFFFFF", "#FFFFFF", "#1A1A1A", "#1A1A1A", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#808080", "#FFFFFF", "#808080", "#808080", "#FFFFFF", "#808080", "#FFFFFF",
+      "#FFFFFF", "#808080", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#808080", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+    ],
+    "Chest": [
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#1A1A1A", "#1A1A1A", "#FFFFFF", "#FFFFFF", "#1A1A1A", "#1A1A1A", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#808080", "#808080", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#808080", "#808080",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#1A1A1A", "#1A1A1A", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+    ],
+    "Arms": [
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A"
+    ],
+    "Legs": [
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A",
+      "#1A1A1A", "#1A1A1A", "#1A1A1A", "#1A1A1A"
+    ]
+  },
+  "Description": "Imperial Stormtrooper in standard-issue white plastoid armor over a black pressurized body glove. Features iconic bucket helmet design and utility belt detailing."
+}

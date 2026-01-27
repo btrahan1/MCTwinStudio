@@ -1,0 +1,194 @@
+{
+  "Name": "AT_AT_Walker",
+  "Type": "Procedural",
+  "Parts": [
+    {
+      "Id": "main_hull",
+      "Shape": "Box",
+      "Position": [0, 13, 0],
+      "Rotation": [0, 0, 0],
+      "Scale": [5, 6, 12],
+      "ColorHex": "#A9A9A9",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "neck_connector",
+      "Shape": "Cylinder",
+      "Position": [0, 14, 6.5],
+      "Rotation": [90, 0, 0],
+      "Scale": [2, 2, 2],
+      "ColorHex": "#808080",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "head_cockpit",
+      "Shape": "Box",
+      "Position": [0, 14.5, 9.5],
+      "Rotation": [0, 0, 0],
+      "Scale": [4, 3, 5],
+      "ColorHex": "#A9A9A9",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "chin_gun_left",
+      "Shape": "Cylinder",
+      "ParentId": "head_cockpit",
+      "Position": [1, -1.8, 2],
+      "Rotation": [90, 0, 0],
+      "Scale": [0.4, 3, 0.4],
+      "ColorHex": "#333333",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "chin_gun_right",
+      "Shape": "Cylinder",
+      "ParentId": "head_cockpit",
+      "Position": [-1, -1.8, 2],
+      "Rotation": [90, 0, 0],
+      "Scale": [0.4, 3, 0.4],
+      "ColorHex": "#333333",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "leg_fl_upper",
+      "Shape": "Box",
+      "Position": [2, 8.5, 4],
+      "Rotation": [10, 0, 0],
+      "Scale": [1.2, 7, 1.2],
+      "ColorHex": "#8E8E8E",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "leg_fl_lower",
+      "Shape": "Box",
+      "Position": [2, 2.5, 5],
+      "Rotation": [-5, 0, 0],
+      "Scale": [1, 7, 1],
+      "ColorHex": "#8E8E8E",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "foot_fl",
+      "Shape": "Cylinder",
+      "Position": [2, 0.25, 5.2],
+      "Rotation": [0, 0, 0],
+      "Scale": [3, 0.5, 3],
+      "ColorHex": "#696969",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "leg_fr_upper",
+      "Shape": "Box",
+      "Position": [-2, 8.5, 4],
+      "Rotation": [-5, 0, 0],
+      "Scale": [1.2, 7, 1.2],
+      "ColorHex": "#8E8E8E",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "leg_fr_lower",
+      "Shape": "Box",
+      "Position": [-2, 2.5, 3.5],
+      "Rotation": [5, 0, 0],
+      "Scale": [1, 7, 1],
+      "ColorHex": "#8E8E8E",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "foot_fr",
+      "Shape": "Cylinder",
+      "Position": [-2, 0.25, 3.3],
+      "Rotation": [0, 0, 0],
+      "Scale": [3, 0.5, 3],
+      "ColorHex": "#696969",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "leg_bl_upper",
+      "Shape": "Box",
+      "Position": [2, 8.5, -4],
+      "Rotation": [-10, 0, 0],
+      "Scale": [1.2, 7, 1.2],
+      "ColorHex": "#8E8E8E",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "leg_bl_lower",
+      "Shape": "Box",
+      "Position": [2, 2.5, -5],
+      "Rotation": [10, 0, 0],
+      "Scale": [1, 7, 1],
+      "ColorHex": "#8E8E8E",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "foot_bl",
+      "Shape": "Cylinder",
+      "Position": [2, 0.25, -5.5],
+      "Rotation": [0, 0, 0],
+      "Scale": [3, 0.5, 3],
+      "ColorHex": "#696969",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "leg_br_upper",
+      "Shape": "Box",
+      "Position": [-2, 8.5, -4],
+      "Rotation": [5, 0, 0],
+      "Scale": [1.2, 7, 1.2],
+      "ColorHex": "#8E8E8E",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "leg_br_lower",
+      "Shape": "Box",
+      "Position": [-2, 2.5, -3.5],
+      "Rotation": [-5, 0, 0],
+      "Scale": [1, 7, 1],
+      "ColorHex": "#8E8E8E",
+      "Material": "Metal",
+      "Operation": "Union"
+    },
+    {
+      "Id": "foot_br",
+      "Shape": "Cylinder",
+      "Position": [-2, 0.25, -3.2],
+      "Rotation": [0, 0, 0],
+      "Scale": [3, 0.5, 3],
+      "ColorHex": "#696969",
+      "Material": "Metal",
+      "Operation": "Union"
+    }
+  ],
+  "Timeline": [
+    {
+      "Time": 0.0,
+      "Action": "Rotate",
+      "TargetId": "head_cockpit",
+      "Value": [0, 10, 0],
+      "Duration": 2.0
+    },
+    {
+      "Time": 2.0,
+      "Action": "Rotate",
+      "TargetId": "head_cockpit",
+      "Value": [0, -10, 0],
+      "Duration": 4.0
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+"Name": "Status_Monitor_Wall",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "glass_surface",
+"Shape": "Box",
+"Position": [0, 0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [15, 6, 0.05],
+"ColorHex": "#0A1A1A",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "top_frame",
+"ParentId": "glass_surface",
+"Shape": "Box",
+"Position": [0, 3.05, 0],
+"Rotation": [0, 0, 0],
+"Scale": [15.2, 0.1, 0.15],
+"ColorHex": "#1A1A1C",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "bottom_frame",
+"ParentId": "glass_surface",
+"Shape": "Box",
+"Position": [0, -3.05, 0],
+"Rotation": [0, 0, 0],
+"Scale": [15.2, 0.1, 0.15],
+"ColorHex": "#1A1A1C",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "main_data_grid",
+"ParentId": "glass_surface",
+"Shape": "Box",
+"Position": [0, 0, 0.03],
+"Rotation": [0, 0, 0],
+"Scale": [14, 5, 0.01],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "alert_sector_alpha",
+"ParentId": "glass_surface",
+"Shape": "Box",
+"Position": [-5, 1.5, 0.04],
+"Rotation": [0, 0, 0],
+"Scale": [3, 2, 0.01],
+"ColorHex": "#FFBF00",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "unit_count_readout",
+"ParentId": "glass_surface",
+"Shape": "Box",
+"Position": [5, 2, 0.04],
+"Rotation": [0, 0, 0],
+"Scale": [2.5, 0.8, 0.01],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "scanning_line",
+"ParentId": "glass_surface",
+"Shape": "Box",
+"Position": [0, 2.5, 0.05],
+"Rotation": [0, 0, 0],
+"Scale": [14.5, 0.05, 0.01],
+"ColorHex": "#FFFFFF",
+"Material": "Glow",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Move",
+"TargetId": "scanning_line",
+"Value": [0, -2.5, 0.05],
+"Duration": 4.0
+},
+{
+"Time": 4.0,
+"Action": "Move",
+"TargetId": "scanning_line",
+"Value": [0, 2.5, 0.05],
+"Duration": 0.1
+},
+{
+"Time": 0.0,
+"Action": "Color",
+"TargetId": "alert_sector_alpha",
+"Value": [255, 191, 0],
+"Duration": 1.0
+},
+{
+"Time": 1.0,
+"Action": "Color",
+"TargetId": "alert_sector_alpha",
+"Value": [100, 20, 0],
+"Duration": 1.0
+}
+]
+}

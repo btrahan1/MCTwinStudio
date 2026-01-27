@@ -1,0 +1,132 @@
+{
+"Name": "TIE Fighter",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "cockpit_sphere",
+"Shape": "Sphere",
+"Position": [0, 2.0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [1.2, 1.2, 1.2],
+"ColorHex": "#A9A9A9",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "view_port",
+"Shape": "Sphere",
+"Position": [0, 2.0, 0.55],
+"Rotation": [0, 0, 0],
+"Scale": [0.8, 0.8, 0.2],
+"ColorHex": "#111111",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "arm_left",
+"Shape": "Cylinder",
+"Position": [0.9, 2.0, 0],
+"Rotation": [0, 0, 90],
+"Scale": [0.3, 1.2, 0.3],
+"ColorHex": "#888888",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "arm_right",
+"Shape": "Cylinder",
+"Position": [-0.9, 2.0, 0],
+"Rotation": [0, 0, 90],
+"Scale": [0.3, 1.2, 0.3],
+"ColorHex": "#888888",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "wing_panel_left",
+"Shape": "Box",
+"Position": [1.5, 2.0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.05, 4.0, 3.5],
+"ColorHex": "#1A1A1A",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "wing_panel_right",
+"Shape": "Box",
+"Position": [-1.5, 2.0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.05, 4.0, 3.5],
+"ColorHex": "#1A1A1A",
+"Material": "Rubber",
+"Operation": "Union"
+},
+{
+"Id": "wing_brace_left",
+"Shape": "Box",
+"Position": [1.5, 2.0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 0.2, 3.6],
+"ColorHex": "#A9A9A9",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "wing_brace_right",
+"Shape": "Box",
+"Position": [-1.5, 2.0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 0.2, 3.6],
+"ColorHex": "#A9A9A9",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "ion_engine_glow",
+"Shape": "Sphere",
+"Position": [0, 2.0, -0.55],
+"Rotation": [0, 0, 0],
+"Scale": [0.4, 0.4, 0.1],
+"ColorHex": "#FF0000",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "laser_l",
+"Shape": "Cylinder",
+"Position": [0.2, 1.4, 0.5],
+"Rotation": [90, 0, 0],
+"Scale": [0.05, 0.4, 0.05],
+"ColorHex": "#555555",
+"Material": "Metal",
+"Operation": "Union"
+},
+{
+"Id": "laser_r",
+"Shape": "Cylinder",
+"Position": [-0.2, 1.4, 0.5],
+"Rotation": [90, 0, 0],
+"Scale": [0.05, 0.4, 0.05],
+"ColorHex": "#555555",
+"Material": "Metal",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Move",
+"TargetId": "cockpit_sphere",
+"Value": [0, 2.0, 30.0],
+"Duration": 6.0
+},
+{
+"Time": 0.0,
+"Action": "Rotate",
+"TargetId": "cockpit_sphere",
+"Value": [10, 0, 15],
+"Duration": 2.0
+}
+]
+}

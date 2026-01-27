@@ -39,9 +39,9 @@
     <Compile Remove="SalesProcessingTwin\**" />
     <EmbeddedResource Remove="SalesProcessingTwin\**" />
     <None Remove="SalesProcessingTwin\**" />
-    <Compile Remove="SalesProcessingTwin\**" />
-    <EmbeddedResource Remove="SalesProcessingTwin\**" />
-    <None Remove="SalesProcessingTwin\**" />
+    <Compile Remove="DaytonaSimulator\**" />
+    <EmbeddedResource Remove="DaytonaSimulator\**" />
+    <None Remove="DaytonaSimulator\**" />
   </ItemGroup>
 
   <ItemGroup>

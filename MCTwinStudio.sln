@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesClient", "SalesProcess
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SalesPOS", "SalesProcessingTwin\SalesPOS\SalesPOS.csproj", "{A5E2EF26-8C96-4FF9-BCF6-93D4C4576368}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaytonaSimulator", "DaytonaSimulator\DaytonaSimulator.csproj", "{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -213,6 +215,18 @@ Global
 		{A5E2EF26-8C96-4FF9-BCF6-93D4C4576368}.Release|x64.Build.0 = Release|Any CPU
 		{A5E2EF26-8C96-4FF9-BCF6-93D4C4576368}.Release|x86.ActiveCfg = Release|Any CPU
 		{A5E2EF26-8C96-4FF9-BCF6-93D4C4576368}.Release|x86.Build.0 = Release|Any CPU
+		{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}.Debug|x64.Build.0 = Debug|Any CPU
+		{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}.Debug|x86.Build.0 = Debug|Any CPU
+		{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}.Release|x64.ActiveCfg = Release|Any CPU
+		{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}.Release|x64.Build.0 = Release|Any CPU
+		{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}.Release|x86.ActiveCfg = Release|Any CPU
+		{CCE87BC4-8E91-46D1-ADDE-7167E8A91602}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

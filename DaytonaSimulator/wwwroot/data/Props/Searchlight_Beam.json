@@ -1,0 +1,83 @@
+{
+"Name": "Searchlight_Beam",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "light_source_flare",
+"Shape": "Sphere",
+"Position": [0, 0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.4, 0.4, 0.4],
+"ColorHex": "#FFFFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "main_cone",
+"Shape": "Cone",
+"Position": [0, 2.5, 0],
+"Rotation": [180, 0, 0],
+"Scale": [1.5, 5.0, 1.5],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "inner_shaft",
+"Shape": "Cylinder",
+"Position": [0, 2.5, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.1, 5.0, 0.1],
+"ColorHex": "#FFFFFF",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "volumetric_ring",
+"Shape": "Torus",
+"Position": [0, 1.0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.6, 0.1, 0.6],
+"ColorHex": "#00FFFF",
+"Material": "Glow",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Scale",
+"TargetId": "main_cone",
+"Value": [1.55, 5.0, 1.55],
+"Duration": 0.05
+},
+{
+"Time": 0.05,
+"Action": "Scale",
+"TargetId": "main_cone",
+"Value": [1.5, 5.0, 1.5],
+"Duration": 0.05
+},
+{
+"Time": 0.0,
+"Action": "Move",
+"TargetId": "volumetric_ring",
+"Value": [0, 4.5, 0],
+"Duration": 2.0
+},
+{
+"Time": 0.0,
+"Action": "Color",
+"TargetId": "light_source_flare",
+"Value": [255, 255, 255],
+"Duration": 0.1
+},
+{
+"Time": 0.1,
+"Action": "Color",
+"TargetId": "light_source_flare",
+"Value": [180, 255, 255],
+"Duration": 0.1
+}
+]
+}

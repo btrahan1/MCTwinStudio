@@ -1,0 +1,179 @@
+{
+    "Name": "Asphalt_Track_Section",
+    "Type": "Procedural",
+    "Parts": [
+        {
+            "Id": "asphalt_base",
+            "Shape": "Box",
+            "Position": [
+                0,
+                0,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                20,
+                0.2,
+                40
+            ],
+            "ColorHex": "#1C1C1C",
+            "Material": "Rubber",
+            "Operation": "Union"
+        },
+        {
+            "Id": "double_yellow_line_in",
+            "ParentId": "asphalt_base",
+            "Shape": "Box",
+            "Position": [
+                8.5,
+                0.11,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                0.2,
+                0.05,
+                40
+            ],
+            "ColorHex": "#FFD700",
+            "Material": "Plastic",
+            "Operation": "Union"
+        },
+        {
+            "Id": "double_yellow_line_out",
+            "ParentId": "asphalt_base",
+            "Shape": "Box",
+            "Position": [
+                8.1,
+                0.11,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                0.2,
+                0.05,
+                40
+            ],
+            "ColorHex": "#FFD700",
+            "Material": "Plastic",
+            "Operation": "Union"
+        },
+        {
+            "Id": "outer_white_line",
+            "ParentId": "asphalt_base",
+            "Shape": "Box",
+            "Position": [
+                -9.5,
+                0.11,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                0.4,
+                0.05,
+                40
+            ],
+            "ColorHex": "#FFFFFF",
+            "Material": "Plastic",
+            "Operation": "Union"
+        },
+        {
+            "Id": "skid_mark_1",
+            "ParentId": "asphalt_base",
+            "Shape": "Box",
+            "Position": [
+                -2,
+                0.12,
+                5
+            ],
+            "Rotation": [
+                0,
+                2,
+                0
+            ],
+            "Scale": [
+                0.3,
+                0.01,
+                8
+            ],
+            "ColorHex": "#000000",
+            "Material": "Rubber",
+            "Operation": "Union"
+        },
+        {
+            "Id": "skid_mark_2",
+            "ParentId": "asphalt_base",
+            "Shape": "Box",
+            "Position": [
+                3,
+                0.12,
+                -10
+            ],
+            "Rotation": [
+                0,
+                -1,
+                0
+            ],
+            "Scale": [
+                0.3,
+                0.01,
+                12
+            ],
+            "ColorHex": "#000000",
+            "Material": "Rubber",
+            "Operation": "Union"
+        },
+        {
+            "Id": "concrete_apron",
+            "ParentId": "asphalt_base",
+            "Shape": "Box",
+            "Position": [
+                11,
+                -0.05,
+                0
+            ],
+            "Rotation": [
+                0,
+                0,
+                0
+            ],
+            "Scale": [
+                4,
+                0.1,
+                40
+            ],
+            "ColorHex": "#555555",
+            "Material": "Metal",
+            "Operation": "Union"
+        }
+    ],
+    "Timeline": [
+        {
+            "Time": 0.0,
+            "Action": "Color",
+            "TargetId": "asphalt_base",
+            "Value": [
+                0.11,
+                0.11,
+                0.11
+            ],
+            "Duration": 0.0
+        }
+    ]
+}

@@ -1,0 +1,82 @@
+{
+"Name": "Dungeon_Slime",
+"Type": "Procedural",
+"Parts": [
+{
+"Id": "slime_body",
+"Shape": "Sphere",
+"Position": [0, 0.35, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.8, 0.7, 0.8],
+"ColorHex": "#32CD32",
+"Material": "Glass",
+"Operation": "Union"
+},
+{
+"Id": "slime_core",
+"ParentId": "slime_body",
+"Shape": "Sphere",
+"Position": [0, 0, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.3, 0.3, 0.3],
+"ColorHex": "#ADFF2F",
+"Material": "Glow",
+"Operation": "Union"
+},
+{
+"Id": "eye_l",
+"ParentId": "slime_body",
+"Shape": "Sphere",
+"Position": [0.2, 0.15, 0.35],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 0.15, 0.15],
+"ColorHex": "#000000",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "eye_r",
+"ParentId": "slime_body",
+"Shape": "Sphere",
+"Position": [-0.2, 0.15, 0.35],
+"Rotation": [0, 0, 0],
+"Scale": [0.15, 0.15, 0.15],
+"ColorHex": "#000000",
+"Material": "Plastic",
+"Operation": "Union"
+},
+{
+"Id": "slime_bottom",
+"Shape": "Cylinder",
+"Position": [0, 0.1, 0],
+"Rotation": [0, 0, 0],
+"Scale": [0.7, 0.2, 0.7],
+"ColorHex": "#32CD32",
+"Material": "Glass",
+"Operation": "Union"
+}
+],
+"Timeline": [
+{
+"Time": 0.0,
+"Action": "Scale",
+"TargetId": "slime_body",
+"Value": [0.8, 0.7, 0.8],
+"Duration": 1.0
+},
+{
+"Time": 1.0,
+"Action": "Scale",
+"TargetId": "slime_body",
+"Value": [0.9, 0.6, 0.9],
+"Duration": 1.0
+},
+{
+"Time": 2.0,
+"Action": "Scale",
+"TargetId": "slime_body",
+"Value": [0.8, 0.7, 0.8],
+"Duration": 1.0
+}
+]
+}
