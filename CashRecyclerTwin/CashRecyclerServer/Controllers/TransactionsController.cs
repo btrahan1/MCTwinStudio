@@ -94,5 +94,34 @@ namespace CashRecyclerServer.Controllers
 
             return Ok(new { Message = "Transaction Processed", NewState = recycler });
         }
+        [HttpPost("seed")]
+        public async Task<IActionResult> SeedTransactions()
+        {
+            var recyclers = await _context.Recyclers.ToListAsync();
+            var random = new Random();
+            var transactions = new List<Transaction>();
+            var types = new[] { "Deposit", "Withdrawal" };
+
+            foreach (var r in recyclers)
+            {
+                // Generate 5-10 transactions per recycler
+                int count = random.Next(5, 11);
+                for (int i = 0; i < count; i++)
+                {
+                    transactions.Add(new Transaction
+                    {
+                        RecyclerId = r.RecyclerId,
+                        Timestamp = DateTime.Now.AddMinutes(-random.Next(1, 10000)), // Past 1 week approx
+                        Type = types[random.Next(types.Length)],
+                        TotalAmount = (decimal)(random.Next(10, 500) * 1.0)
+                    });
+                }
+            }
+
+            _context.Transactions.AddRange(transactions);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = $"Generated {transactions.Count} transactions across {recyclers.Count} devices." });
+        }
     }
 }

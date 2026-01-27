@@ -45,6 +45,14 @@
         </div>
 
         <div class="col-md-4">
+             <div class="card mb-3">
+                <div class="card-header">3. Simulation</div>
+                <div class="card-body">
+                    <p>Generate random history for all devices.</p>
+                    <button class="btn btn-info w-100" @onclick="SeedTransactions">Populate History</button>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-header">Status Details</div>
                 <div class="card-body">
@@ -111,6 +119,20 @@
         else
         {
             StatusMessage = "Error: " + response.ReasonPhrase;
+        }
+    }
+
+    private async Task SeedTransactions()
+    {
+        StatusMessage = "Seeding transactions... please wait.";
+        var response = await Http.PostAsync("https://localhost:7020/api/transactions/seed", null);
+        if (response.IsSuccessStatusCode)
+        {
+            StatusMessage = "Success! Transaction history populated.";
+        }
+        else
+        {
+            StatusMessage = "Error seeding: " + response.ReasonPhrase;
         }
     }
 }
