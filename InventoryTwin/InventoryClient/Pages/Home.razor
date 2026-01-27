@@ -1,0 +1,153 @@
+﻿@page "/"
+@using InventoryClient.Models
+@inject HttpClient Http
+@inject IJSRuntime JS
+@using System.Timers
+@using System.Linq
+
+<PageTitle>Inventory Twin</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- 3D Viewport -->
+        <div class="col-8">
+            <div id="three-container" style="width: 100%; height: 500px; border: 1px solid #ccc;"></div>
+        </div>
+
+        <!-- Data Grid -->
+        <div class="col-4" style="height: 500px; overflow-y: auto;">
+            <h3>Locations</h3>
+            @if (inventory == null)
+            {
+                <p><em>Loading...</em></p>
+            }
+            else
+            {
+                <table class="table table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th>Loc</th>
+                            <th>SKU</th>
+                            <th>Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in inventory)
+                        {
+                            <tr>
+                                <td>@item.RackIndex-@item.ShelfLevel-@item.BinIndex</td>
+                                <td>@item.ProductSku</td>
+                                <td>@item.Quantity</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <p class="text-muted small">Updated: @lastUpdated.ToString("HH:mm:ss")</p>
+            }
+        </div>
+    </div>
+    
+    <!-- Inventory Levels Graph -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3>Inventory Levels (Total per SKU)</h3>
+            <div class="card p-3">
+                @if (inventorySummary == null)
+                {
+                    <p class="text-muted">Waiting for data...</p>
+                }
+                else
+                {
+                    <div class="row">
+                        @foreach (var item in inventorySummary)
+                        {
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <strong>@item.Sku</strong>
+                                    <span>@item.TotalQty / 1000</span>
+                                </div>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: @(Math.Min(100, (double)item.TotalQty / 10.0))%;" 
+                                         aria-valuenow="@item.TotalQty" aria-valuemin="0" aria-valuemax="1000">
+                                        @item.TotalQty
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private InventoryItem[]? inventory;
+    private List<SkuSummary>? inventorySummary;
+    private Timer? timer;
+    private DateTime lastUpdated;
+    private bool is3DInitialized = false;
+
+    private class SkuSummary
+    {
+        public string Sku { get; set; } = "";
+        public int TotalQty { get; set; }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("Warehouse.init", "three-container");
+            is3DInitialized = true;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        
+        timer = new Timer(2000); // Poll every 2 seconds
+        timer.Elapsed += async (sender, e) => await InvokeAsync(LoadData);
+        timer.AutoReset = true;
+        timer.Enabled = true;
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            // Pointing to the fixed server port (HTTPS)
+            inventory = await Http.GetFromJsonAsync<InventoryItem[]>("https://localhost:5001/api/inventory");
+            lastUpdated = DateTime.Now;
+            
+            if (inventory != null)
+            {
+                // Calculate Summary
+                inventorySummary = inventory
+                    .GroupBy(i => i.ProductSku)
+                    .Select(g => new SkuSummary { Sku = g.Key, TotalQty = g.Sum(i => i.Quantity) })
+                    .OrderBy(s => s.Sku)
+                    .ToList();
+            }
+
+            if (is3DInitialized && inventory != null)
+            {
+                // Must wrap in object array to prevent params expansion
+                await JS.InvokeVoidAsync("Warehouse.updateInventory", new object[] { inventory });
+            }
+            
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching data: {ex.Message}");
+        }
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}
