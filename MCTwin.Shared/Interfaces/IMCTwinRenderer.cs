@@ -15,6 +15,7 @@ namespace MCTwinStudio.Core.Interfaces
         Task PlayAnimation(string name);
         Task<string> GetSceneData();
         Task UpdateNodeTags(string id, Dictionary<string, string> tags);
+        Task RenderCustomMesh(MCTwin.Shared.Meshing.MeshResult mesh);
         Task ClearAll();
     }
 }

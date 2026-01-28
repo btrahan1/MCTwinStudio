@@ -94,14 +94,27 @@ namespace MCTwinStudio
 
             var btnGen = CreateTabBtn("FORGE", tabContainer, true);
             var btnAnim = CreateTabBtn("ACT", tabContainer, false);
+            var btnPoly = CreateTabBtn("POLY", tabContainer, false);
             
+            var polyControl = new PolygonControl { Dock = DockStyle.Fill, Visible = false };
+            contentContainer.Controls.Add(polyControl);
+            
+            polyControl.OnMeshGenerated += async (s, mesh) => {
+                await _viewport.RenderCustomMesh(mesh);
+                AddLog($"Generated Polygon Humanoid: {mesh.Vertices.Count/3} vertices");
+            };
+
             btnGen.Click += (s, e) => { 
-                _options.Visible = true; _animPane.Visible = false; 
-                HighlightTab(btnGen, true); HighlightTab(btnAnim, false); 
+                _options.Visible = true; _animPane.Visible = false; polyControl.Visible = false;
+                HighlightTab(btnGen, true); HighlightTab(btnAnim, false); HighlightTab(btnPoly, false);
             };
             btnAnim.Click += (s, e) => { 
-                _options.Visible = false; _animPane.Visible = true; 
-                HighlightTab(btnGen, false); HighlightTab(btnAnim, true); 
+                _options.Visible = false; _animPane.Visible = true; polyControl.Visible = false;
+                HighlightTab(btnGen, false); HighlightTab(btnAnim, true); HighlightTab(btnPoly, false);
+            };
+            btnPoly.Click += (s, e) => {
+                 _options.Visible = false; _animPane.Visible = false; polyControl.Visible = true;
+                HighlightTab(btnGen, false); HighlightTab(btnAnim, false); HighlightTab(btnPoly, true);
             };
 
             _sidebarSplit.SplitterDistance = this.ClientSize.Width - 320; 
@@ -386,11 +399,11 @@ namespace MCTwinStudio
         private void AddLog(string msg) { if (this.InvokeRequired) { this.Invoke(new Action(() => AddLog(msg))); return; } _lstConsole.Items.Add($"[{DateTime.Now:HH:mm:ss}] {msg}"); _lstConsole.SelectedIndex = _lstConsole.Items.Count - 1; }
 
         private Button CreateTabBtn(string text, Panel parent, bool active) {
-            var btn = new Button { Text = text, Dock = DockStyle.Left, Width = parent.Width / 2, FlatStyle = FlatStyle.Flat, Font = NexusStyles.HeaderFont };
+            var btn = new Button { Text = text, Dock = DockStyle.Left, Width = parent.Width / 3, FlatStyle = FlatStyle.Flat, Font = NexusStyles.HeaderFont };
             btn.FlatAppearance.BorderSize = 0;
             HighlightTab(btn, active);
             parent.Controls.Add(btn);
-            parent.SizeChanged += (s,e) => btn.Width = parent.Width / 2;
+            parent.SizeChanged += (s,e) => btn.Width = parent.Width / 3;
             return btn;
         }
 

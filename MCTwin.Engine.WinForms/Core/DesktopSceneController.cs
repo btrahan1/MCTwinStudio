@@ -115,5 +115,15 @@ namespace MCTwinStudio.Core
             string tagsJson = JsonSerializer.Serialize(tags);
             await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.updateNodeTags) window.MCTwin.updateNodeTags('{id}', {tagsJson});");
         }
+
+        public async Task RenderCustomMesh(MCTwin.Shared.Meshing.MeshResult mesh)
+        {
+             if (_webView?.CoreWebView2 == null) return;
+             string vertJson = JsonSerializer.Serialize(mesh.Vertices);
+             string indJson = JsonSerializer.Serialize(mesh.Indices);
+             string normJson = JsonSerializer.Serialize(mesh.Normals);
+             
+             await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.createCustomMesh) window.MCTwin.createCustomMesh({vertJson}, {indJson}, {normJson});");
+        }
     }
 }

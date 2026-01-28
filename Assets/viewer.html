@@ -12,7 +12,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            background-color: #87CEEB;
+            background-color: #222222;
         }
 
         #renderCanvas {
@@ -222,6 +222,7 @@
                     mesh.receiveShadows = true;
                 },
 
+
                 spawnRecipe: function (json, name = "Prop", isSelectable = true, transform = null) {
                     this.clear();
                     let data = (typeof json === 'string') ? JSON.parse(json) : json;
@@ -232,6 +233,41 @@
                     if (parts && Array.isArray(parts)) {
                         parts.forEach(p => this.spawnProp(p, container));
                     }
+                },
+
+                createCustomMesh: function (vertices, indices, normals) {
+                    this.clear();
+                    log("Viewer: Creating Custom Poly Mesh (" + (vertices.length / 3) + " verts)");
+
+                    const customMesh = new BABYLON.Mesh("custom_poly", scene);
+                    const vertexData = new BABYLON.VertexData();
+
+                    vertexData.positions = vertices;
+                    vertexData.indices = indices;
+                    // Auto-calc normals if not provided or empty
+                    if (!normals || normals.length === 0) {
+                        BABYLON.VertexData.ComputeNormals(vertices, indices, vertexData);
+                    } else {
+                        vertexData.normals = normals;
+                    }
+
+                    vertexData.applyToMesh(customMesh);
+
+                    const mat = new BABYLON.StandardMaterial("polyMat", scene);
+                    mat.diffuseColor = new BABYLON.Color3(0.8, 0.7, 0.6); // Clay color
+                    mat.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+                    mat.backFaceCulling = false; // Show inside for debug
+                    customMesh.material = mat;
+
+                    // Shadow
+                    shadowGenerator.addShadowCaster(customMesh);
+                    customMesh.receiveShadows = true;
+
+                    // Register for cleanup
+                    meshMap.set("custom_poly", customMesh);
+
+                    // Center camera
+                    scene.activeCamera.setTarget(customMesh);
                 },
 
                 setAnimation: function (name) { console.log("Anim: " + name); }

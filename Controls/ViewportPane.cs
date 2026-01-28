@@ -45,6 +45,7 @@ namespace MCTwinStudio.Controls
         public async void RenderModel(BaseModel model) => await Renderer.RenderModel(model);
         public async void RenderRecipe(string json) => await Renderer.SpawnRecipe(json, "Preview");
         public async void ClearScene() => await Renderer.ClearAll();
-        public async void PlayAnimation(string name) => await Renderer.PlayAnimation(name);
+        public async Task PlayAnimation(string name) => await Renderer.PlayAnimation(name);
+        public async Task RenderCustomMesh(MCTwin.Shared.Meshing.MeshResult mesh) => await Renderer.RenderCustomMesh(mesh);
     }
 }
