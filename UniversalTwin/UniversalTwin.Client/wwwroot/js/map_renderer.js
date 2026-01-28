@@ -10,6 +10,11 @@ window.universalMap = {
     },
 
     init: function (canvasId) {
+        if (this.engine) {
+            this.engine.dispose();
+            this.engine = null;
+        }
+
         const canvas = document.getElementById(canvasId);
         this.engine = new BABYLON.Engine(canvas, true);
 
@@ -164,5 +169,80 @@ window.universalMap = {
                 this.dotNetHelper.invokeMethodAsync("OnLocationClicked", text);
             }
         });
+    },
+    flyToLocation: function (lat, lon) {
+        if (!this.camera || !this.scene) return;
+
+        const x = (lon + 96) * 2;
+        const z = (lat - 37) * 2;
+
+        const targetPosition = new BABYLON.Vector3(x, 0, z);
+
+        // Animate Camera Target (Faster: 30 frames at 60fps = 0.5s)
+        BABYLON.Animation.CreateAndStartAnimation("camTarget", this.camera, "target", 60, 30, this.camera.target, targetPosition, 2);
+
+        // Animate Zoom (Radius) - Stop closer (30)
+        BABYLON.Animation.CreateAndStartAnimation("camRadius", this.camera, "radius", 60, 30, this.camera.radius, 30, 2);
+
+        // Animate Viewing Angle (Beta) - Lock to 45 degrees (approx 0.8 rad) for consistency
+        BABYLON.Animation.CreateAndStartAnimation("camBeta", this.camera, "beta", 60, 30, this.camera.beta, 0.8, 2);
+    },
+
+    resetCamera: function () {
+        if (!this.camera || !this.scene) return;
+
+        // Reset to initial values (Radius 50, Target 0,0,0, Alpha/Beta default)
+
+        BABYLON.Animation.CreateAndStartAnimation("resetTarget", this.camera, "target", 60, 30, this.camera.target, new BABYLON.Vector3(0, 0, 0), 2);
+        BABYLON.Animation.CreateAndStartAnimation("resetRadius", this.camera, "radius", 60, 30, this.camera.radius, 50, 2);
+        BABYLON.Animation.CreateAndStartAnimation("resetBeta", this.camera, "beta", 60, 30, this.camera.beta, Math.PI / 3, 2);
+    },
+
+    makeDraggable: function (elementId) {
+        const elm = document.getElementById(elementId);
+        if (!elm) return;
+
+        // Header is the handle
+        const header = elm.querySelector('.card-header');
+        if (!header) return;
+
+        header.style.cursor = 'move';
+
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+        header.onmousedown = dragMouseDown;
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // get the mouse cursor position at startup:
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            // call a function whenever the cursor moves:
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // calculate the new cursor position:
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            // set the element's new position:
+            elm.style.top = (elm.offsetTop - pos2) + "px";
+            elm.style.left = (elm.offsetLeft - pos1) + "px";
+            // Remove 'right' or 'transform' if they exist to allow free movement
+            elm.style.right = 'auto';
+            elm.style.transform = 'none';
+        }
+
+        function closeDragElement() {
+            // stop moving when mouse button is released:
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
     }
 };

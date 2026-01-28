@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject ISchemaService _schemaService
 @inject IDataService _dataService
+@inject StateService _stateService
 @using System.Text.Json.Nodes
 @using UniversalTwin.Client.Components
 
@@ -63,12 +64,16 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Init from State
+        CurrentIndustry = _stateService.CurrentIndustry;
         await LoadCurrentIndustry();
     }
 
     private async Task OnIndustryChanged(ChangeEventArgs e)
     {
         CurrentIndustry = e.Value?.ToString() ?? "recycler";
+        // Update State
+        _stateService.SetIndustry(CurrentIndustry);
         await LoadCurrentIndustry();
     }
 
