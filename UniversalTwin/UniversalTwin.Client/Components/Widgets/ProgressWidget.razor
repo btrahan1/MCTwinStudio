@@ -1,0 +1,30 @@
+@using System.Text.Json.Nodes
+@using UniversalTwin.Client.Models
+
+@if (Value != null)
+{
+    <div class="d-flex align-items-center gap-2">
+        <small class="text-muted" style="min-width: 30px;">@Definition.Label</small>
+        <div class="progress flex-grow-1" style="height: 10px;">
+            <div class="progress-bar @ColorClass" role="progressbar" style="width: @Percent%" aria-valuenow="@Percent" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <small>@Percent%</small>
+    </div>
+}
+
+@code {
+    [Parameter] public PropertyDefinition Definition { get; set; } = new();
+    [Parameter] public JsonNode? Value { get; set; }
+
+    private int Percent
+    {
+        get
+        {
+            if (Value == null) return 0;
+            if (int.TryParse(Value.ToString(), out int p)) return p;
+            return 0;
+        }
+    }
+    
+    private string ColorClass => Percent < 20 ? "bg-danger" : (Percent < 50 ? "bg-warning" : "bg-success");
+}

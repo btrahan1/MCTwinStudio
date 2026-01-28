@@ -1,0 +1,134 @@
+﻿@page "/"
+@inject ISchemaService _schemaService
+@inject IDataService _dataService
+@using System.Text.Json.Nodes
+@using UniversalTwin.Client.Components
+
+@if (true)
+{
+    <div class="container-fluid">
+        <!-- Persistent Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+            <div>
+                <h1 class="display-6">@(Schema?.Name ?? "Loading...")</h1>
+                <small class="text-muted">Powered by UniversalTwin Framework</small>
+            </div>
+            
+            <div class="d-flex align-items-center gap-2">
+                <label class="fw-bold">Industry:</label>
+                <select class="form-select w-auto" value="@CurrentIndustry" @onchange="OnIndustryChanged">
+                    <option value="recycler">Cash Recycler (Retail)</option>
+                    <option value="factory">Smart Factory (Manufacturing)</option>
+                    <option value="retail">Convenience Store (Retail)</option>
+                </select>
+                <button class="btn btn-outline-primary" @onclick="LoadCurrentIndustry" disabled="@IsLoading">
+                    <span class="bi bi-arrow-clockwise"></span> Refresh
+                </button>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        @if (!string.IsNullOrEmpty(Location))
+        {
+            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="bi bi-funnel-fill"></i> Viewing specific location: <strong>@Location</strong>
+                </span>
+                <a href="/" class="btn btn-sm btn-outline-dark">Clear Filter</a>
+            </div>
+        }
+
+        @if (IsLoading)
+        {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Fetching Schema & Data...</p>
+            </div>
+        }
+        else if (Schema != null && Schema.Entities.Count > 0)
+        {
+            <DynamicCollectionRenderer Definition="@Schema.Entities[0]" Items="@DataJson" />
+        }
+    </div>
+}
+
+@code {
+    private IndustrySchema? Schema;
+    private List<JsonObject>? Data;
+    private JsonArray? DataJson;
+    private string CurrentIndustry = "recycler";
+    private bool IsLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCurrentIndustry();
+    }
+
+    private async Task OnIndustryChanged(ChangeEventArgs e)
+    {
+        CurrentIndustry = e.Value?.ToString() ?? "recycler";
+        await LoadCurrentIndustry();
+    }
+
+    [SupplyParameterFromQuery]
+    public string? Location { get; set; }
+
+    [SupplyParameterFromQuery]
+    public string? Industry { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        bool stateChanged = false;
+
+        // 1. Handle Industry Switch
+        if (!string.IsNullOrEmpty(Industry) && Industry != CurrentIndustry)
+        {
+            CurrentIndustry = Industry;
+            stateChanged = true;
+        }
+
+        // 2. Handle Location Filter
+        if (!string.IsNullOrEmpty(Location))
+        {
+            stateChanged = true;
+        }
+
+        // Only reload if something changed or we need initial load (though initialized handles that)
+        // Actually ParametersSet is called after Initialized.
+        if (stateChanged)
+        {
+            await LoadCurrentIndustry();
+        }
+    }
+
+    private async Task LoadCurrentIndustry()
+    {
+        IsLoading = true;
+        StateHasChanged();
+
+        Schema = await _schemaService.GetSchemaAsync(CurrentIndustry);
+        
+        if (Schema != null)
+        {
+            Data = await _dataService.GetDataAsync(CurrentIndustry);
+            if (Data != null)
+            {
+                // Filter if Location is set
+                if (!string.IsNullOrEmpty(Location))
+                {
+                    var filtered = Data.Where(d => d["Name"]?.ToString() == Location);
+                    DataJson = new JsonArray(filtered.ToArray());
+                }
+                else 
+                {
+                    DataJson = new JsonArray(Data.ToArray());
+                }
+            }
+        }
+        
+        IsLoading = false;
+        StateHasChanged();
+    }
+}

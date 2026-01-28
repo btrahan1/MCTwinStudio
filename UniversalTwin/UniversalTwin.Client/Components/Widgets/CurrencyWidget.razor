@@ -1,0 +1,27 @@
+@using System.Text.Json.Nodes
+@using UniversalTwin.Client.Models
+
+@if (Definition != null)
+{
+    <div>
+        <small class="text-muted d-block">@Definition.Label</small>
+        <span class="fw-bold text-success">@FormattedValue</span>
+    </div>
+}
+
+@code {
+    [Parameter] public PropertyDefinition? Definition { get; set; }
+    [Parameter] public JsonNode? Value { get; set; }
+
+    private string FormattedValue
+    {
+        get
+        {
+            if (decimal.TryParse(Value?.ToString(), out var amount))
+            {
+                return amount.ToString("C0"); // No decimals by default as per previous learnings
+            }
+            return Value?.ToString() ?? "$0";
+        }
+    }
+}

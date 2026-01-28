@@ -1,0 +1,32 @@
+@using System.Text.Json.Nodes
+@using UniversalTwin.Client.Models
+@using UniversalTwin.Client.Components.Layouts
+
+@if (Definition != null && Items != null)
+{
+    @if (Definition.Layout == "Grid")
+    {
+        <GridLayout Definition="@Definition" Items="@Items" />
+    }
+    else if (Definition.Layout == "List")
+    {
+        <ListLayout Definition="@Definition" Items="@Items" />
+    }
+    else if (Definition.Layout == "BatteryPack")
+    {
+        <BatteryPackLayout Definition="@Definition" Items="@Items" />
+    }
+    else if (Definition.Layout == "CompactList")
+    {
+        <CompactListLayout Definition="@Definition" Items="@Items" />
+    }
+    else
+    {
+        <div class="alert alert-warning">Unknown Layout: @Definition.Layout</div>
+    }
+}
+
+@code {
+    [Parameter] public EntityDefinition? Definition { get; set; }
+    [Parameter] public JsonArray? Items { get; set; }
+}

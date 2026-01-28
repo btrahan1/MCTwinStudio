@@ -1,0 +1,28 @@
+@using System.Text.Json.Nodes
+@using UniversalTwin.Client.Models
+
+@if (Definition != null)
+{
+    <div>
+        <small class="text-muted d-block">@Definition.Label</small>
+        <span class="badge @BadgeClass">@Value</span>
+    </div>
+}
+
+@code {
+    [Parameter] public PropertyDefinition? Definition { get; set; }
+    [Parameter] public JsonNode? Value { get; set; }
+    
+    private string BadgeClass
+    {
+        get
+        {
+            var valStr = Value?.ToString() ?? "";
+            if (Definition?.Config != null && Definition.Config.TryGetValue(valStr, out var color))
+            {
+                return $"bg-{color}";
+            }
+            return "bg-secondary";
+        }
+    }
+}

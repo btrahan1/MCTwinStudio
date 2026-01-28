@@ -1,0 +1,19 @@
+@using System.Text.Json.Nodes
+@using UniversalTwin.Client.Models
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+    @foreach (var item in Items)
+    {
+        if (item is JsonObject obj)
+        {
+            <div class="col">
+                <GenericCard Definition="@Definition" Item="@obj" />
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public EntityDefinition Definition { get; set; } = new();
+    [Parameter] public JsonArray Items { get; set; } = new();
+}

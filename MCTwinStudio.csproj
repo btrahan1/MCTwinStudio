@@ -45,6 +45,9 @@
     <Compile Remove="CashRecyclerTwin\**" />
     <EmbeddedResource Remove="CashRecyclerTwin\**" />
     <None Remove="CashRecyclerTwin\**" />
+    <Compile Remove="UniversalTwin\**" />
+    <EmbeddedResource Remove="UniversalTwin\**" />
+    <None Remove="UniversalTwin\**" />
   </ItemGroup>
 
   <ItemGroup>

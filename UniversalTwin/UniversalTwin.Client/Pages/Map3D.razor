@@ -1,0 +1,144 @@
+@page "/map"
+@inject IJSRuntime JS
+@inject IDataService _dataService
+@inject NavigationManager Navigation
+@using System.Text.Json.Nodes
+
+<PageTitle>3D Map</PageTitle>
+
+<div class="d-flex flex-column h-100">
+    <!-- ... (UI Same as before) ... -->
+    <div class="d-flex justify-content-between align-items-center p-2 bg-dark text-white">
+        <h4 class="m-0">Global Operations Map</h4>
+        <div class="d-flex gap-2 align-items-center">
+            <span class="text-info fs-6">Click a pylon to drill down</span>
+            <span class="badge bg-primary">Live Connection</span>
+        </div>
+    </div>
+    
+    <div style="flex-grow: 1; position: relative;">
+        <!-- Canvas fills the remaining space -->
+        <canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none;"></canvas>
+        
+        <!-- Overlay Controls -->
+        <div style="position: absolute; top: 10px; left: 10px; display: flex; gap: 10px;">
+            <div class="btn-group shadow">
+                <button class="btn btn-sm @GetBtnClass("all")" @onclick='() => SetFilter("all")'>All</button>
+                <button class="btn btn-sm @GetBtnClass("recycler")" @onclick='() => SetFilter("recycler")'>Recycler</button>
+                <button class="btn btn-sm @GetBtnClass("factory")" @onclick='() => SetFilter("factory")'>Factory</button>
+                <button class="btn btn-sm @GetBtnClass("retail")" @onclick='() => SetFilter("retail")'>Retail</button>
+            </div>
+            
+            <button class="btn btn-sm btn-light shadow" @onclick="LoadPylons">
+                <span class="bi bi-geo-alt-fill"></span> Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private DotNetObjectReference<Map3D>? _objRef;
+    private string ActiveFilter = "recycler"; // Default to current industry (Recycler)
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("universalMap.setupClick", _objRef);
+            
+            // Initialize Babylon Engine
+            await JS.InvokeVoidAsync("universalMap.init", "renderCanvas");
+            // Load Data
+            await LoadPylons();
+        }
+    }
+
+    private async Task SetFilter(string filter)
+    {
+        ActiveFilter = filter;
+        await LoadPylons();
+    }
+
+    private string GetBtnClass(string filter) => ActiveFilter == filter ? "btn-primary" : "btn-light";
+
+    private async Task LoadPylons()
+    {
+        var allLocations = new List<object>();
+
+        // 1. Fetch Recycler Data
+        if (ActiveFilter == "all" || ActiveFilter == "recycler")
+        {
+            var recyclerData = await _dataService.GetDataAsync("recycler");
+            if (recyclerData != null) allLocations.AddRange(MapLocations(recyclerData, "recycler"));
+        }
+
+        // 2. Fetch Retail Data
+        if (ActiveFilter == "all" || ActiveFilter == "retail")
+        {
+            var retailData = await _dataService.GetDataAsync("retail");
+            if (retailData != null) allLocations.AddRange(MapLocations(retailData, "retail"));
+        }
+
+        // 3. Fetch Factory Data
+        if (ActiveFilter == "all" || ActiveFilter == "factory")
+        {
+            var factoryData = await _dataService.GetDataAsync("factory");
+            if (factoryData != null) allLocations.AddRange(MapLocations(factoryData, "factory"));
+        }
+
+        // 4. Send to JS (Always call this to clear/update)
+        await JS.InvokeVoidAsync("universalMap.renderPylons", allLocations);
+    }
+
+    // ... (MapLocations, GetStatusColor, OnLocationClicked unchanged) ...
+
+    private IEnumerable<object> MapLocations(List<JsonObject> data, string industry)
+    {
+        return data.Select(d => new 
+        {
+            latitude = (double?)d["Latitude"],
+            longitude = (double?)d["Longitude"],
+            name = d["Name"]?.ToString(),
+            industry = industry,
+            color = GetStatusColor(d["Status"]?.ToString() ?? "", industry)
+        })
+        .Where(l => l.latitude.HasValue && l.longitude.HasValue);
+    }
+
+    private string GetStatusColor(string status, string industry)
+    {
+        return status switch
+        {
+            "Green" => "#28a745", 
+            "Yellow" => "#ffc107", 
+            "Red" => "#dc3545", 
+            "Running" => "#28a745",
+            "Halted" => "#dc3545",
+            "Maintenance" => "#ffc107",
+            "High" => "#dc3545", 
+            "Medium" => "#ffc107",
+            "Low" => "#28a745", 
+            _ => "#00ffff" 
+        };
+    }
+
+    [JSInvokable]
+    public void OnLocationClicked(string locationName)
+    {
+        string industry = DetectIndustry(locationName);
+        Navigation.NavigateTo($"/?industry={industry}&location={Uri.EscapeDataString(locationName)}");
+    }
+
+    private string DetectIndustry(string name)
+    {
+        if (name.Contains("MegaMart") || name.Contains("QuickStop")) return "retail";
+        if (name.Contains("Plant") || name.Contains("Fab")) return "factory";
+        return "recycler"; 
+    }
+
+    public void Dispose()
+    {
+        _objRef?.Dispose();
+    }
+}

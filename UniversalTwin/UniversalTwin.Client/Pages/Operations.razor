@@ -1,0 +1,61 @@
+@page "/operations"
+@inject HttpClient Http
+
+<PageTitle>Operations</PageTitle>
+
+<h1>Operations</h1>
+<p class="text-muted">Simulate system events here.</p>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card p-4 shadow-sm">
+            <h5 class="card-title">Simulate Transaction</h5>
+            <p class="text-muted">Modify the cash levels for Recycler <strong>Glory-RB-200</strong> (New York).</p>
+            
+            <div class="input-group mb-3">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" @bind="Amount" />
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-success flex-grow-1" @onclick='() => ExecuteTransaction("Deposit")'>
+                    <span class="bi bi-arrow-down-circle"></span> Deposit
+                </button>
+                <button class="btn btn-danger flex-grow-1" @onclick='() => ExecuteTransaction("Withdraw")'>
+                    <span class="bi bi-arrow-up-circle"></span> Withdraw
+                </button>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(Message))
+            {
+                <div class="alert alert-info mt-3">@Message</div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private decimal Amount = 100;
+    private string Message = "";
+
+    private async Task ExecuteTransaction(string type)
+    {
+        Message = "Processing...";
+        try 
+        {
+            var response = await Http.PostAsJsonAsync("api/operations/transaction", new { Type = type, Amount = Amount });
+            if (response.IsSuccessStatusCode)
+            {
+                Message = $"Success! {type} of ${Amount} processed. Check Dashboard.";
+            }
+            else
+            {
+                Message = "Error processing transaction.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = "Error: " + ex.Message;
+        }
+    }
+}

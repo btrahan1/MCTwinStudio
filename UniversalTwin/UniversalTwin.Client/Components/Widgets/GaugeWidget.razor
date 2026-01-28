@@ -1,0 +1,67 @@
+@using System.Text.Json.Nodes
+@using UniversalTwin.Client.Models
+
+@if (Definition != null)
+{
+    <div>
+        <div class="d-flex justify-content-between align-items-end mb-1">
+            <small class="text-muted">@Definition.Label</small>
+            <span class="fw-bold" style="font-size: 0.9em;">@ValueDisplay</span>
+        </div>
+        <div class="progress" style="height: 10px;">
+            <div class="progress-bar @ColorClass" role="progressbar" style="width: @(Percent)%"></div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public PropertyDefinition? Definition { get; set; }
+    [Parameter] public JsonNode? Value { get; set; }
+
+    private double Percent
+    {
+        get
+        {
+            if (double.TryParse(Value?.ToString(), out var val))
+            {
+                // Default scale 0-100, can be overriden definition config
+                double min = 0;
+                double max = 100;
+
+                if (Definition?.Config != null)
+                {
+                    if (Definition.Config.TryGetValue("min", out var minStr)) double.TryParse(minStr, out min);
+                    if (Definition.Config.TryGetValue("max", out var maxStr)) double.TryParse(maxStr, out max);
+                }
+
+                return Math.Clamp(((val - min) / (max - min)) * 100, 0, 100);
+            }
+            return 0;
+        }
+    }
+
+    private string ValueDisplay
+    {
+        get
+        {
+            var val = Value?.ToString() ?? "";
+            if (Definition?.Config != null && Definition.Config.TryGetValue("unit", out var unit))
+            {
+                return $"{val}{unit}";
+            }
+            return val;
+        }
+    }
+
+    private string ColorClass
+    {
+        get
+        {
+            // Simple logic: High = Danger? Or High = Good?
+            // Let's assume High = Danger (Heat) if "dangerHigh" is true
+            if (Percent > 80) return "bg-danger";
+            if (Percent > 50) return "bg-warning";
+            return "bg-success";
+        }
+    }
+}

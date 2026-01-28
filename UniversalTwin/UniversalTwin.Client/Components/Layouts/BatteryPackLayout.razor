@@ -1,0 +1,33 @@
+@using System.Text.Json.Nodes
+@using UniversalTwin.Client.Models
+
+<!-- Battery Pack Layout: Horizontal bars for cassettes -->
+<div class="d-flex gap-1 mt-2">
+    @foreach (var item in Items)
+    {
+        if (item is JsonObject obj)
+        {
+            // Extract Values
+            var denom = Decimal.Parse(obj["Denomination"]?.ToString() ?? "0");
+            var count = int.Parse(obj["CurrentCount"]?.ToString() ?? "0");
+            var pct = int.Parse(obj["PercentFull"]?.ToString() ?? "0");
+            
+            var color = pct > 90 ? "bg-danger" : (pct < 10 ? "bg-warning" : "bg-primary");
+
+            <div class="flex-fill text-center p-1 border rounded" style="font-size: 0.7em;">
+                <div class="fw-bold">
+                    $@denom.ToString("0")
+                </div>
+                <div class="progress" style="height: 30px; position:relative;">
+                    <div class="progress-bar @color" role="progressbar" style="width: @(pct)%"></div>
+                    <span style="position:absolute; width:100%; color: black; font-weight:bold; line-height:30px;">@count</span>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public EntityDefinition Definition { get; set; } = new();
+    [Parameter] public JsonArray Items { get; set; } = new();
+}

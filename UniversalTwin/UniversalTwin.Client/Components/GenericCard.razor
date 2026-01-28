@@ -1,0 +1,48 @@
+@using System.Text.Json.Nodes
+@using UniversalTwin.Client.Models
+@using UniversalTwin.Client.Components.Widgets
+
+<div class="card h-100 shadow-sm @CardBorderClass">
+    <div class="card-header @CardHeaderClass">
+        <!-- Render Header Properties (First property usually) -->
+        <strong>@GetPropertyValue(Definition.Properties.FirstOrDefault()?.Key)</strong>
+    </div>
+    <div class="card-body">
+        <!-- Render Remaining Properties -->
+        @foreach (var prop in Definition.Properties.Skip(1))
+        {
+            <div class="mb-2">
+                @if (prop.Type == "Text") { <TextWidget Definition="@prop" Value="@GetNode(prop.Key)" /> }
+                else if (prop.Type == "Badge") { <BadgeWidget Definition="@prop" Value="@GetNode(prop.Key)" /> }
+                else if (prop.Type == "Currency") { <CurrencyWidget Definition="@prop" Value="@GetNode(prop.Key)" /> }
+                else if (prop.Type == "Gauge") { <GaugeWidget Definition="@prop" Value="@GetNode(prop.Key)" /> }
+                else if (prop.Type == "Number") { <TextWidget Definition="@prop" Value="@GetNode(prop.Key)" /> }
+                else if (prop.Type == "Progress") { <ProgressWidget Definition="@prop" Value="@GetNode(prop.Key)" /> }
+                else { <span>Unknown Type: @prop.Type</span> }
+            </div>
+        }
+
+        <!-- Render Children (Recursion) -->
+        @if (Definition.Children != null && Item != null)
+        {
+            var childKey = Definition.ChildCollectionKey; // e.g. "Recyclers"
+            if (!string.IsNullOrEmpty(childKey) && Item[childKey] is JsonArray childArray)
+            {
+                <div class="mt-3 border-top pt-2">
+                    <UniversalTwin.Client.Components.DynamicCollectionRenderer Definition="@Definition.Children" Items="@childArray" />
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public EntityDefinition Definition { get; set; } = new();
+    [Parameter] public JsonObject? Item { get; set; }
+
+    private JsonNode? GetNode(string key) => Item?[key];
+    private string GetPropertyValue(string? key) => key != null ? Item?[key]?.ToString() ?? "" : "";
+
+    private string CardBorderClass => Definition.CardStyle == "StatusHeavy" && GetPropertyValue("Status") == "Red" ? "border-danger" : "";
+    private string CardHeaderClass => Definition.CardStyle == "StatusHeavy" && GetPropertyValue("Status") == "Red" ? "bg-danger text-white" : "bg-light";
+}

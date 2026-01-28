@@ -1,0 +1,15 @@
+@using System.Text.Json.Nodes
+@using UniversalTwin.Client.Models
+
+@if (Definition != null)
+{
+    <div>
+        <small class="text-muted d-block">@Definition.Label</small>
+        <span class="fw-bold">@Value</span>
+    </div>
+}
+
+@code {
+    [Parameter] public PropertyDefinition? Definition { get; set; }
+    [Parameter] public JsonNode? Value { get; set; }
+}

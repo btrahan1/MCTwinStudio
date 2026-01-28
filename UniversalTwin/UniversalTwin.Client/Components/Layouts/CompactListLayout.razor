@@ -1,0 +1,39 @@
+@using System.Text.Json.Nodes
+@using UniversalTwin.Client.Models
+
+<div class="d-flex flex-column gap-1 bg-white p-2 rounded border">
+    @foreach (var item in Items)
+    {
+        if (item is JsonObject obj)
+        {
+            var p0 = Definition.Properties.FirstOrDefault(); // Denom
+            var p1 = Definition.Properties.Skip(1).FirstOrDefault(); // Count
+            var p2 = Definition.Properties.Skip(2).FirstOrDefault(); // Percent
+
+            var v0 = obj[p0?.Key]?.ToString() ?? "";
+            var v1 = obj[p1?.Key]?.ToString() ?? "0";
+            var v2 = double.Parse(obj[p2?.Key]?.ToString() ?? "0");
+            
+            // Replicate the Target Look (Label | Bar | Value)
+            <div class="d-flex align-items-center gap-2 p-1 border rounded bg-light shadow-sm" style="height: 40px;">
+                <!-- Label (Denom) -->
+                <div class="fw-bold text-dark text-end" style="width: 50px;">$@v0</div>
+                
+                <!-- Bar (Percent) -->
+                <div class="progress flex-grow-1" style="height: 12px; background-color: #e9ecef;">
+                    <div class="progress-bar @GetColor(v2)" role="progressbar" style="width: @v2%"></div>
+                </div>
+                
+                <!-- Value (Count) -->
+                <div class="fw-bold text-muted text-end" style="width: 50px;">@v1</div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public EntityDefinition Definition { get; set; } = new();
+    [Parameter] public JsonArray Items { get; set; } = new();
+
+    private string GetColor(double pct) => pct > 90 ? "bg-danger" : (pct < 10 ? "bg-primary" : "bg-primary"); // Blue standard, Red full
+}
