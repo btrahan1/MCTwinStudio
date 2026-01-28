@@ -42,6 +42,8 @@ namespace MCTwinStudio.Controls
             InitializeUI();
         }
 
+        private FlowLayoutPanel _pnlInputs; // Class field
+
         private void InitializeUI()
         {
             var title = new Label { Text = "POLYGON DNA", Font = NexusStyles.HeaderFont, ForeColor = NexusStyles.AccentCyan, Dock = DockStyle.Top, Height = 30 };
@@ -55,18 +57,25 @@ namespace MCTwinStudio.Controls
                  if (this.Visible) Generate_Click(null, null);
             };
 
-            var pnlInputs = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, AutoScroll = true, WrapContents = false };
-            this.Controls.Add(pnlInputs);
-            pnlInputs.BringToFront();
+            _pnlInputs = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, AutoScroll = true, WrapContents = false };
+            this.Controls.Add(_pnlInputs);
+            _pnlInputs.BringToFront();
 
-            AddSlider(pnlInputs, "Muscle Tone", 1, 50, (int)(_recipe.MuscleTone * 100), (v) => _recipe.MuscleTone = v / 100.0f);
-            AddSlider(pnlInputs, "Torso Width", 20, 80, (int)(_recipe.TorsoWidth * 100), (v) => _recipe.TorsoWidth = v / 100.0f);
-            AddSlider(pnlInputs, "Shoulder Width", 30, 100, (int)(_recipe.ShoulderWidth * 100), (v) => _recipe.ShoulderWidth = v / 100.0f);
-            AddSlider(pnlInputs, "Height", 100, 250, (int)(_recipe.Height * 100), (v) => _recipe.Height = v / 100.0f);
-            AddSlider(pnlInputs, "Arm Length", 20, 150, (int)(_recipe.ArmLength * 100), (v) => _recipe.ArmLength = v / 100.0f);
-            AddSlider(pnlInputs, "Leg Length", 20, 150, (int)(_recipe.LegLength * 100), (v) => _recipe.LegLength = v / 100.0f);
-            AddSlider(pnlInputs, "Arm Thickness", 5, 40, (int)(_recipe.ArmThickness * 100), (v) => _recipe.ArmThickness = v / 100.0f);
-            AddSlider(pnlInputs, "Leg Thickness", 5, 50, (int)(_recipe.LegThickness * 100), (v) => _recipe.LegThickness = v / 100.0f);
+            AddSlider(_pnlInputs, "Muscle Tone", 1, 50, (int)(_recipe.MuscleTone * 100), (v) => _recipe.MuscleTone = v / 100.0f);
+            AddSlider(_pnlInputs, "Chest Width", 20, 80, (int)(_recipe.TorsoWidth * 100), (v) => _recipe.TorsoWidth = v / 100.0f);
+            AddSlider(_pnlInputs, "Waist Width", 15, 60, (int)(_recipe.WaistWidth * 100), (v) => _recipe.WaistWidth = v / 100.0f);
+            AddSlider(_pnlInputs, "Hip Width", 20, 70, (int)(_recipe.HipWidth * 100), (v) => _recipe.HipWidth = v / 100.0f);
+            AddSlider(_pnlInputs, "Shoulder Width", 30, 100, (int)(_recipe.ShoulderWidth * 100), (v) => _recipe.ShoulderWidth = v / 100.0f);
+            AddSlider(_pnlInputs, "Height", 100, 250, (int)(_recipe.Height * 100), (v) => _recipe.Height = v / 100.0f);
+            AddSlider(_pnlInputs, "Arm Length", 20, 150, (int)(_recipe.ArmLength * 100), (v) => _recipe.ArmLength = v / 100.0f);
+            AddSlider(_pnlInputs, "Leg Length", 20, 150, (int)(_recipe.LegLength * 100), (v) => _recipe.LegLength = v / 100.0f);
+            AddSlider(_pnlInputs, "Arm Thickness", 5, 40, (int)(_recipe.ArmThickness * 100), (v) => _recipe.ArmThickness = v / 100.0f);
+            AddSlider(_pnlInputs, "Leg Thickness", 5, 50, (int)(_recipe.LegThickness * 100), (v) => _recipe.LegThickness = v / 100.0f);
+            AddSlider(_pnlInputs, "Neck Thickness", 5, 30, (int)(_recipe.NeckThickness * 100), (v) => _recipe.NeckThickness = v / 100.0f);
+
+            var chkSmooth = new CheckBox { Text = "Smooth Shading", Dock = DockStyle.Top, Height = 30, Checked = false };
+            chkSmooth.CheckedChanged += (s, e) => Generate_Click(null, null);
+            _pnlInputs.Controls.Add(chkSmooth);
 
             _lblStatus = new Label { Text = "Ready", Dock = DockStyle.Bottom, Height = 20, ForeColor = Color.Gray };
             this.Controls.Add(_lblStatus);
@@ -98,7 +107,17 @@ namespace MCTwinStudio.Controls
             try
             {
                 var sw = System.Diagnostics.Stopwatch.StartNew();
-                var mesh = await _service.GenerateHumanoidAsync(_recipe);
+                // Find checkbox
+                bool smooth = false;
+                if (_pnlInputs != null)
+                {
+                    foreach (Control c in _pnlInputs.Controls)
+                    {
+                        if (c is CheckBox chk) smooth = chk.Checked;
+                    }
+                }
+
+                var mesh = await _service.GenerateHumanoidAsync(_recipe, smooth);
                 sw.Stop();
                 
                 _lblStatus.Text = $"Generated {mesh.Vertices.Count / 3} verts in {sw.ElapsedMilliseconds}ms";

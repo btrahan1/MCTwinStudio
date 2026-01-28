@@ -122,8 +122,9 @@ namespace MCTwinStudio.Core
              string vertJson = JsonSerializer.Serialize(mesh.Vertices);
              string indJson = JsonSerializer.Serialize(mesh.Indices);
              string normJson = JsonSerializer.Serialize(mesh.Normals);
+             string colorJson = JsonSerializer.Serialize(mesh.Colors);
              
-             await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.createCustomMesh) window.MCTwin.createCustomMesh({vertJson}, {indJson}, {normJson});");
+             await _webView.ExecuteScriptAsync($"if(window.MCTwin && window.MCTwin.createCustomMesh) window.MCTwin.createCustomMesh({vertJson}, {indJson}, {normJson}, {colorJson});");
         }
     }
 }

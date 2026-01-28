@@ -44,7 +44,7 @@
         const createScene = function () {
             log("Viewer: Initializing Scene...");
             const scene = new BABYLON.Scene(engine);
-            scene.clearColor = new BABYLON.Color4(0.53, 0.81, 0.92, 1);
+            scene.clearColor = new BABYLON.Color4(0.13, 0.13, 0.13, 1); // Dark Gray back
 
             // Camera
             const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 5, new BABYLON.Vector3(0, 1, 0), scene);
@@ -235,39 +235,63 @@
                     }
                 },
 
-                createCustomMesh: function (vertices, indices, normals) {
-                    this.clear();
-                    log("Viewer: Creating Custom Poly Mesh (" + (vertices.length / 3) + " verts)");
+                createCustomMesh: function (vertices, indices, normals, colors) {
+                    try {
+                        this.clear();
+                        if (!vertices) { log("ERR: Vertices null"); return; }
+                        log("Viewer: Creating Custom Poly Mesh (" + (vertices.length / 3) + " verts)");
 
-                    const customMesh = new BABYLON.Mesh("custom_poly", scene);
-                    const vertexData = new BABYLON.VertexData();
+                        const customMesh = new BABYLON.Mesh("custom_poly", scene);
+                        const vertexData = new BABYLON.VertexData();
 
-                    vertexData.positions = vertices;
-                    vertexData.indices = indices;
-                    // Auto-calc normals if not provided or empty
-                    if (!normals || normals.length === 0) {
-                        BABYLON.VertexData.ComputeNormals(vertices, indices, vertexData);
-                    } else {
-                        vertexData.normals = normals;
+                        vertexData.positions = vertices;
+                        vertexData.indices = indices;
+
+                        // Colors
+                        if (colors && colors.length > 0) {
+                            vertexData.colors = colors;
+                        }
+
+                        // Auto-calc normals if not provided or empty
+                        if (!normals || normals.length === 0) {
+                            try {
+                                const computedNormals = [];
+                                BABYLON.VertexData.ComputeNormals(vertices, indices, computedNormals);
+                                vertexData.normals = computedNormals;
+                                log("Viewer: Auto-computed normals");
+                            } catch (ne) { log("ERR computing normals: " + ne.message); }
+                        } else {
+                            vertexData.normals = normals;
+                            log("Viewer: Using provided normals");
+                        }
+
+                        vertexData.applyToMesh(customMesh);
+
+                        const mat = new BABYLON.StandardMaterial("polyMat", scene);
+                        if (colors && colors.length > 0) {
+                            mat.diffuseColor = new BABYLON.Color3(1, 1, 1); // White base to multiply with vertex colors
+                        } else {
+                            mat.diffuseColor = new BABYLON.Color3(0.8, 0.7, 0.6); // Default Clay
+                        }
+                        mat.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+                        mat.backFaceCulling = false; // Show inside for debug
+                        customMesh.material = mat;
+
+                        // Shadow
+                        if (typeof shadowGenerator !== 'undefined' && shadowGenerator) {
+                            shadowGenerator.addShadowCaster(customMesh);
+                            customMesh.receiveShadows = true;
+                        }
+
+                        // Register for cleanup
+                        meshMap.set("custom_poly", customMesh);
+
+                        // Center camera
+                        scene.activeCamera.setTarget(customMesh);
+                        log("Viewer: Mesh created successfully");
+                    } catch (e) {
+                        log("CRITICAL RENDER ERROR: " + e.message);
                     }
-
-                    vertexData.applyToMesh(customMesh);
-
-                    const mat = new BABYLON.StandardMaterial("polyMat", scene);
-                    mat.diffuseColor = new BABYLON.Color3(0.8, 0.7, 0.6); // Clay color
-                    mat.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-                    mat.backFaceCulling = false; // Show inside for debug
-                    customMesh.material = mat;
-
-                    // Shadow
-                    shadowGenerator.addShadowCaster(customMesh);
-                    customMesh.receiveShadows = true;
-
-                    // Register for cleanup
-                    meshMap.set("custom_poly", customMesh);
-
-                    // Center camera
-                    scene.activeCamera.setTarget(customMesh);
                 },
 
                 setAnimation: function (name) { console.log("Anim: " + name); }

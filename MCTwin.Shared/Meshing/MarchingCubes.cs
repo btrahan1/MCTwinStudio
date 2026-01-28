@@ -10,7 +10,7 @@ namespace MCTwin.Shared.Meshing
         // Re-implemented as Marching Tetrahedra to avoid massive lookup tables.
         // This produces slightly more triangles but is fully robust with minimal code.
 
-        public static MeshResult Generate(Func<Vector3, float> sdf, Vector3 min, Vector3 max, int resolutionX, int resolutionY, int resolutionZ)
+        public static MeshResult Generate(Func<Vector3, float> sdf, Vector3 min, Vector3 max, int resolutionX, int resolutionY, int resolutionZ, bool smooth = false, Func<Vector3, Vector4>? colorFunc = null)
         {
             var result = new MeshResult();
             var step = (max - min) / new Vector3(resolutionX, resolutionY, resolutionZ);
@@ -35,7 +35,7 @@ namespace MCTwin.Shared.Meshing
                 {
                     for (int x = 0; x < resolutionX; x++)
                     {
-                        ProcessCell(result, x, y, z, values, min, step);
+                        ProcessCell(result, x, y, z, values, min, step, sdf, smooth, colorFunc);
                     }
                 }
             }
@@ -43,7 +43,7 @@ namespace MCTwin.Shared.Meshing
             return result; 
         }
 
-        private static void ProcessCell(MeshResult mesh, int x, int y, int z, float[,,] values, Vector3 min, Vector3 step)
+        private static void ProcessCell(MeshResult mesh, int x, int y, int z, float[,,] values, Vector3 min, Vector3 step, Func<Vector3, float> sdf, bool smooth, Func<Vector3, Vector4>? colorFunc)
         {
             // Corners
             Vector3 p0 = min + new Vector3(x, y, z) * step;
@@ -97,15 +97,15 @@ namespace MCTwin.Shared.Meshing
             // T6: 5, 6, 4, 0 (Wait, 0,4,5,6)
             
             // Correct robust decomposition (share diagonal 0-6):
-            ProcessTetra(mesh, p[0], v[0], p[1], v[1], p[2], v[2], p[6], v[6]);
-            ProcessTetra(mesh, p[0], v[0], p[2], v[2], p[3], v[3], p[6], v[6]);
-            ProcessTetra(mesh, p[0], v[0], p[3], v[3], p[7], v[7], p[6], v[6]);
-            ProcessTetra(mesh, p[0], v[0], p[7], v[7], p[4], v[4], p[6], v[6]);
-            ProcessTetra(mesh, p[0], v[0], p[4], v[4], p[5], v[5], p[6], v[6]);
-            ProcessTetra(mesh, p[0], v[0], p[5], v[5], p[1], v[1], p[6], v[6]);
+            ProcessTetra(mesh, p[0], v[0], p[1], v[1], p[2], v[2], p[6], v[6], sdf, smooth, colorFunc);
+            ProcessTetra(mesh, p[0], v[0], p[2], v[2], p[3], v[3], p[6], v[6], sdf, smooth, colorFunc);
+            ProcessTetra(mesh, p[0], v[0], p[3], v[3], p[7], v[7], p[6], v[6], sdf, smooth, colorFunc);
+            ProcessTetra(mesh, p[0], v[0], p[7], v[7], p[4], v[4], p[6], v[6], sdf, smooth, colorFunc);
+            ProcessTetra(mesh, p[0], v[0], p[4], v[4], p[5], v[5], p[6], v[6], sdf, smooth, colorFunc);
+            ProcessTetra(mesh, p[0], v[0], p[5], v[5], p[1], v[1], p[6], v[6], sdf, smooth, colorFunc);
         }
 
-        private static void ProcessTetra(MeshResult mesh, Vector3 p0, float v0, Vector3 p1, float v1, Vector3 p2, float v2, Vector3 p3, float v3)
+        private static void ProcessTetra(MeshResult mesh, Vector3 p0, float v0, Vector3 p1, float v1, Vector3 p2, float v2, Vector3 p3, float v3, Func<Vector3, float> sdf, bool smooth, Func<Vector3, Vector4>? colorFunc)
         {
             int index = 0;
             if (v0 < 0) index |= 1;
@@ -120,42 +120,42 @@ namespace MCTwin.Shared.Meshing
                     return; // All inside or all outside
                 
                 // 1 vertex inside
-                case 1:  AddTri(mesh, v0, p0, v1, p1, v2, p2, v3, p3); break; // 0 inside
-                case 2:  AddTri(mesh, v1, p1, v0, p0, v3, p3, v2, p2); break; // 1 inside
-                case 4:  AddTri(mesh, v2, p2, v0, p0, v1, p1, v3, p3); break; // 2 inside
-                case 8:  AddTri(mesh, v3, p3, v0, p0, v2, p2, v1, p1); break; // 3 inside
+                case 1:  AddTri(mesh, v0, p0, v1, p1, v2, p2, v3, p3, sdf, smooth, colorFunc); break; // 0 inside
+                case 2:  AddTri(mesh, v1, p1, v0, p0, v3, p3, v2, p2, sdf, smooth, colorFunc); break; // 1 inside
+                case 4:  AddTri(mesh, v2, p2, v0, p0, v1, p1, v3, p3, sdf, smooth, colorFunc); break; // 2 inside
+                case 8:  AddTri(mesh, v3, p3, v0, p0, v2, p2, v1, p1, sdf, smooth, colorFunc); break; // 3 inside
                 
                 // 1 vertex OUTSIDE (inverse of 1 inside)
-                case 14: AddTri(mesh, v0, p0, v2, p2, v1, p1, v3, p3); break; // 0 outside
-                case 13: AddTri(mesh, v1, p1, v3, p3, v0, p0, v2, p2); break; // 1 outside
-                case 11: AddTri(mesh, v2, p2, v1, p1, v0, p0, v3, p3); break; // 2 outside
-                case 7:  AddTri(mesh, v3, p3, v2, p2, v0, p0, v1, p1); break; // 3 outside
+                case 14: AddTri(mesh, v0, p0, v2, p2, v1, p1, v3, p3, sdf, smooth, colorFunc); break; // 0 outside
+                case 13: AddTri(mesh, v1, p1, v3, p3, v0, p0, v2, p2, sdf, smooth, colorFunc); break; // 1 outside
+                case 11: AddTri(mesh, v2, p2, v1, p1, v0, p0, v3, p3, sdf, smooth, colorFunc); break; // 2 outside
+                case 7:  AddTri(mesh, v3, p3, v2, p2, v0, p0, v1, p1, sdf, smooth, colorFunc); break; // 3 outside
 
                 // 2 vertices inside (Quad -> 2 Tris)
                 // Case 3 (0,1 inside)
                 case 3:
-                     AddQuad(mesh, v0, p0, v1, p1, v2, p2, v3, p3);
+                     AddQuad(mesh, v0, p0, v1, p1, v2, p2, v3, p3, sdf, smooth, colorFunc);
                      break;
                 case 5: // 0,2 inside
-                     AddQuad(mesh, v0, p0, v2, p2, v1, p1, v3, p3); 
+                     AddQuad(mesh, v0, p0, v2, p2, v1, p1, v3, p3, sdf, smooth, colorFunc); 
                      break;
                 case 6: // 1,2 inside
-                     AddQuad(mesh, v1, p1, v2, p2, v0, p0, v3, p3);
+                     AddQuad(mesh, v1, p1, v2, p2, v0, p0, v3, p3, sdf, smooth, colorFunc);
                      break;
                 case 9: // 0,3 inside
-                     AddQuad(mesh, v0, p0, v3, p3, v1, p1, v2, p2);
+                     AddQuad(mesh, v0, p0, v3, p3, v1, p1, v2, p2, sdf, smooth, colorFunc);
                      break;
                 case 10: // 1,3 inside
-                     AddQuad(mesh, v1, p1, v3, p3, v0, p0, v2, p2);
+                     AddQuad(mesh, v1, p1, v3, p3, v0, p0, v2, p2, sdf, smooth, colorFunc);
                      break;
                 case 12: // 2,3 inside
-                     AddQuad(mesh, v2, p2, v3, p3, v0, p0, v1, p1);
+                     AddQuad(mesh, v2, p2, v3, p3, v0, p0, v1, p1, sdf, smooth, colorFunc);
                      break;
             }
         }
 
         // Adds a triangle where p0 is the only point of sign A, others B
-        private static void AddTri(MeshResult mesh, float v0, Vector3 p0, float v1, Vector3 p1, float v2, Vector3 p2, float v3, Vector3 p3)
+        private static void AddTri(MeshResult mesh, float v0, Vector3 p0, float v1, Vector3 p1, float v2, Vector3 p2, float v3, Vector3 p3, Func<Vector3, float> sdf, bool smooth, Func<Vector3, Vector4>? colorFunc)
         {
             // Vertices are intersection on edges from p0 to p1, p0 to p2, p0 to p3
             Vector3 i1 = Interp(p0, v0, p1, v1);
@@ -163,11 +163,11 @@ namespace MCTwin.Shared.Meshing
             Vector3 i3 = Interp(p0, v0, p3, v3);
 
             // Winding order? Assumes (i1, i2, i3)
-            AddVertex(mesh, i1); AddVertex(mesh, i2); AddVertex(mesh, i3);
+            AddVertex(mesh, i1, sdf, smooth, colorFunc); AddVertex(mesh, i2, sdf, smooth, colorFunc); AddVertex(mesh, i3, sdf, smooth, colorFunc);
         }
 
         // Adds 2 triangles separating (p0,p1) group from (p2,p3) group
-        private static void AddQuad(MeshResult mesh, float v0, Vector3 p0, float v1, Vector3 p1, float v2, Vector3 p2, Vector3 v3, Vector3 p3)
+        private static void AddQuad(MeshResult mesh, float v0, Vector3 p0, float v1, Vector3 p1, float v2, Vector3 p2, float v3, Vector3 p3, Func<Vector3, float> sdf, bool smooth, Func<Vector3, Vector4>? colorFunc)
         {
             // Intersections
             Vector3 i02 = Interp(p0, v0, p2, v2);
@@ -175,8 +175,8 @@ namespace MCTwin.Shared.Meshing
             Vector3 i12 = Interp(p1, v1, p2, v2);
             Vector3 i13 = Interp(p1, v1, p3, v3);
 
-            AddVertex(mesh, i02); AddVertex(mesh, i03); AddVertex(mesh, i13);
-            AddVertex(mesh, i02); AddVertex(mesh, i13); AddVertex(mesh, i12);
+            AddVertex(mesh, i02, sdf, smooth, colorFunc); AddVertex(mesh, i03, sdf, smooth, colorFunc); AddVertex(mesh, i13, sdf, smooth, colorFunc);
+            AddVertex(mesh, i02, sdf, smooth, colorFunc); AddVertex(mesh, i13, sdf, smooth, colorFunc); AddVertex(mesh, i12, sdf, smooth, colorFunc);
         }
         
         private static Vector3 Interp(Vector3 p1, float v1, Vector3 p2, float v2)
@@ -185,12 +185,26 @@ namespace MCTwin.Shared.Meshing
             return p1 + t * (p2 - p1);
         }
 
-        private static void AddVertex(MeshResult mesh, Vector3 v)
+        private static void AddVertex(MeshResult mesh, Vector3 v, Func<Vector3, float> sdf, bool smooth, Func<Vector3, Vector4>? colorFunc)
         {
             mesh.Vertices.Add(v.X);
             mesh.Vertices.Add(v.Y);
             mesh.Vertices.Add(v.Z);
             mesh.Indices.Add(mesh.Indices.Count);
+
+            if (colorFunc != null)
+            {
+                var c = colorFunc(v);
+                mesh.Colors.Add(c.X); mesh.Colors.Add(c.Y); mesh.Colors.Add(c.Z); mesh.Colors.Add(c.W);
+            }
+
+            if (smooth)
+            {
+                var n = SdfOperations.CalcNormal(sdf, v);
+                mesh.Normals.Add(n.X);
+                mesh.Normals.Add(n.Y);
+                mesh.Normals.Add(n.Z);
+            }
         }
     }
 }
